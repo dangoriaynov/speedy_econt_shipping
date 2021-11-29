@@ -19,8 +19,7 @@ function postRequest($url, $payload, $auth=null)
     $jsonResponse = curl_exec($curl);
 
     if ( $jsonResponse === FALSE)
-    { exit("cURL Error: ".curl_error($curl)); }
-
+    { exit("cURL error: ".curl_error($curl)." while accessing ".$url); }
     return json_decode($jsonResponse);
 }
 
@@ -33,15 +32,6 @@ function speedyApiRequest($url)
         'countryId' => 100, // BULGARIA
     );
     return postRequest('https://api.speedy.bg/v1/'.$url, $payload);
-}
-
-function econtApiRequest($url)
-{
-    $payload = array(
-        'contryCode' => 'BGR',
-    );
-    $auth = 'Authorization: Basic '. base64_encode(ECONT_NAME.":".ECONT_PASSWORD);
-    return postRequest('https://ee.econt.com/services/Nomenclatures/NomenclaturesService.'.$url.'.json', $payload, $auth);
 }
 
 function apiSpeedySitesList($site_id) {
@@ -64,6 +54,15 @@ function apiSpeedyOfficesList() {
             'address' => $office->address->fullAddressString);
     }
     return $results;
+}
+
+function econtApiRequest($url)
+{
+    $payload = array(
+        'countryCode' => 'BGR',
+    );
+    $auth = 'Authorization: Basic '. base64_encode(ECONT_NAME.":".ECONT_PASSWORD);
+    return postRequest('https://ee.econt.com/services/Nomenclatures/NomenclaturesService.'.$url.'.json', $payload, $auth);
 }
 
 function apiEcontSitesList() {
