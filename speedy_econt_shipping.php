@@ -2,7 +2,7 @@
 
 /*
 Plugin Name: Speedy and Econt Shipping
-Plugin URI: <Github URL goes here>
+Plugin URI: https://github.com/dangoriaynov/speedy_econt_shipping
 Description: Adds Speedy and Econt shipping methods along with their delivery options.
 Version: 0.1
 Author: Dan Goriaynov
@@ -25,8 +25,7 @@ $econt_city_sel = "#econt_city_sel";
 $econt_office_sel = "#econt_office_sel";
 
 function insertSpeedyTableData() {
-    global $added_sites;
-
+    $speedy_sites_added = array();
     $offices = apiSpeedyOfficesList();
     $keepCase = ['Столица' => 'столица', 'Ул.' => 'ул.', 'Ту ' => 'ТУ '];
     foreach ($offices as $id => $value) {
@@ -34,30 +33,52 @@ function insertSpeedyTableData() {
 
         $site_id = $value['site_id'];
         $address = $value['address'];
-        if (in_array($site_id, $added_sites)) {
-            $site_name = $added_sites[$site_id];
+        if (in_array($site_id, $speedy_sites_added)) {
+            $site_name = $speedy_sites_added[$site_id];
         } else {
             $site = apiSpeedySitesList($site_id);
             $site_name = convertCase($site['name'], $keepCase);
             $site_region = convertCase($site['region'], $keepCase);
             $site_municipality = convertCase($site['municipality'], $keepCase);
             insertSpeedySite($site_id, $site_name, $site_region, $site_municipality);
-            $added_sites[$site_id] = $site_name;
+            $speedy_sites_added[$site_id] = $site_name;
         }
         insertSpeedyOffice($id, $name, $site_name, $address);
     }
 }
 
-function refreshDeliveryTables() {
-    truncateTables();
-    insertSpeedyTableData();
-//    insertEcontTableData();
+function insertEcontTableData() {
+    $econt_sites_added = array();
+    $cities = apiEcontSitesList();
+    foreach ($cities as $city_id => $city_data) {
+        $city_name = $city_data['name'];
+        $econt_sites_added[$city_id] = $city_name;
+        $region_name = $city_data['region'];
+        insertEcontSite($city_id, $city_name, $region_name);
+    }
+    $offices = apiEcontOfficesList();
+    foreach ($offices as $office_id => $office_data) {
+        $site_id = $office_data['site_id'];
+        $site_name = $econt_sites_added[$site_id];
+        $office_name = $office_data['name'];
+        $office_address = $office_data['address'];
+        insertEcontOffice($office_id, $office_name, $site_name, $office_address);
+    }
 }
 
-function printSpeedyData() {
-    global $speedy_offices_table, $speedy_sites_table;
-    $sitesDB = readTableData($speedy_sites_table, "name");
-    $officesDB = readTableData($speedy_offices_table, "name");
+function refreshDeliveryTables() {
+    // insert offices/sites data as preliminary one
+    insertSpeedyTableData();
+    insertEcontTableData();
+    // clear production data from the destination tables
+    truncateTables(true);
+    // mark newly inserted data as production one
+    markDataAsProd();
+}
+
+function printJsVars($sitesTable, $officesTable, $varName) {
+    $sitesDB = readTableData($sitesTable, "name");
+    $officesDB = readTableData($officesTable, "name");
     $data = array();
     // iterate over all elements in the sites DB table
     foreach ($sitesDB as $siteDB) {
@@ -69,8 +90,13 @@ function printSpeedyData() {
                 array_push($offices, $officeObj);
             }
         }
+        // on empty offices list
+        if (count($offices) === 0) {
+            // do not store them and continue to the next iteration
+            continue;
+        }
         $citiesExisting = null;
-        // check we have existing entry for the current region
+        // check whether we have an existing entry for the current region
         foreach($data as $regionName => $regionCities) {
             if ($regionName === $siteDB->region) {
                 $citiesExisting = $regionCities;
@@ -88,16 +114,29 @@ function printSpeedyData() {
         // update the region value
         $data[$siteDB->region] = $citiesExisting;
     }
-    ?><script>let speedyData = <?php echo json_encode($data); ?>;</script><?php
+    ?><script>let <?php echo $varName.'='.json_encode($data); ?>;</script><?php
+}
+
+function printSpeedyData() {
+    global $speedy_sites_table, $speedy_offices_table;
+    printJsVars($speedy_sites_table, $speedy_offices_table, 'speedyData');
+}
+
+function printEcontData() {
+    global $econt_sites_table, $econt_offices_table;
+    printJsVars($econt_sites_table, $econt_offices_table, 'econtData');
 }
 
 register_activation_hook( __FILE__, 'createTables' );
-register_activation_hook( __FILE__, 'insertInitialData' );
+register_activation_hook( __FILE__, 'refreshDeliveryTables' );
 
 function printPluginData() {
-//    createSpeedyTables();
+//    createTables();
+//    truncateTables();
 //    insertSpeedyTableData();
+//    insertEcontTableData();
     printSpeedyData();
+    printEcontData();
 }
 
 function setupDailyDataRefresh() {

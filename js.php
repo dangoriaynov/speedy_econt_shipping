@@ -70,7 +70,7 @@ add_action( 'wp_head', function () { ?>
         }
 
         function populate_delivery_opts() {
-            for (var idx = 0; idx < deliv_opts_ids.length; idx++) {
+            for (let idx = 0; idx < deliv_opts_ids.length; idx++) {
                 populate_delivery_opt(idx);
             }
         }
@@ -84,12 +84,6 @@ add_action( 'wp_head', function () { ?>
             var deliv_text = ' '+deliv_opts[idx]+' ('+price_add+')';
             jQuery("label[for='"+deliv_opts_ids[idx]+"']").text(deliv_text);
         }
-
-        // function change_delivery_option() {
-        //     //jQuery("#billing_state_field").show("slow", function(){});
-        //     //jQuery("#billing_city_field").show("slow", function(){});
-        //     jQuery("#currier_office_field").show("slow", function(){});
-        // }
 
         function populateFields(region_str=null, city_str=null) {
             let regionSel = jQuery('#speedy_region_sel');
@@ -119,6 +113,7 @@ add_action( 'wp_head', function () { ?>
             officeSel.val(1).trigger('change.select2');
         }
 
+        // populate the offices data once DOM is loaded
         let checkExist = setInterval(function() {
             if (jQuery('#speedy_region_sel').length) {
                 clearInterval(checkExist);
@@ -137,42 +132,17 @@ add_action( 'wp_head', function () { ?>
             if (option === 'speedy') {
                 speedy.show("slow", function(){});
             } else if (option === 'econt') {
-                // econt.show("slow", function(){});
-                address.show("slow", function(){});
+                econt.show("slow", function(){});
+                // address.show("slow", function(){});
             } else if (option === 'address') {
                 address.show("slow", function(){});
             }
         }
 
-        jQuery( document ).ready(function(){
-            // change_autopopulate_fields();
-
-            var radioButtons = jQuery('input:radio[name="shipping_to"]');
-            radioButtons.change(function(){
-                if(jQuery(this).val() !== ''){
-                    var idx_checked = radioButtons.index(radioButtons.filter(':checked'));
-                    var deliv_add = cur_prices[idx_checked] > 0 ? " + доставка" : "";
-                    jQuery(".woocommerce-Price-amount.amount").last().text(order_price().toFixed(2)+' лв.'+deliv_add);
-                    // change_delivery_option();
-                }
-            });
-
-            change_phone_number();
-            jQuery('#billing_phone').keypress(change_phone_number);
-
-            // change_shipping_to();
-            // jQuery("#shipping_to_field").on('change', change_shipping_to);
-            //
-            // change_office();
-            // jQuery('#currier_office').on('change', change_office);
-
-            show_free_delivery_notif();
-
-            jQuery('input[type=radio][name=shipping_to]').change(onDeliveryOptionChange);
-
-            var speedy_region = jQuery('#speedy_region_sel');
-            var speedy_city = jQuery('#speedy_city_sel');
-            var speedy_office = jQuery('#speedy_office_sel');
+        function processPopulatedData(regionSel, citySel, officeSel) {
+            var speedy_region = jQuery(regionSel);
+            var speedy_city = jQuery(citySel);
+            var speedy_office = jQuery(officeSel);
             speedy_region.change(function () {
                 let region = speedy_region.find('option:selected').text();
                 jQuery("#billing_state").val(region);
@@ -194,9 +164,37 @@ add_action( 'wp_head', function () { ?>
                 let office = speedy_office.find('option:selected').text();
                 jQuery("#billing_address_1").val(office);
             });
+        }
+
+        jQuery( document ).ready(function() {
+            // change_autopopulate_fields();
+
+            var radioButtons = jQuery('input:radio[name="shipping_to"]');
+            radioButtons.change(function () {
+                if (jQuery(this).val() !== '') {
+                    var idx_checked = radioButtons.index(radioButtons.filter(':checked'));
+                    var deliv_add = cur_prices[idx_checked] > 0 ? " + доставка" : "";
+                    jQuery(".woocommerce-Price-amount.amount").last().text(order_price().toFixed(2) + ' лв.' + deliv_add);
+                    // change_delivery_option();
+                }
+            });
+
+            change_phone_number();
+            jQuery('#billing_phone').keypress(change_phone_number);
+
+            // change_shipping_to();
+            // jQuery("#shipping_to_field").on('change', change_shipping_to);
+            //
+            // change_office();
+            // jQuery('#currier_office').on('change', change_office);
+
+            show_free_delivery_notif();
+            jQuery('input[type=radio][name=shipping_to]').change(onDeliveryOptionChange);
+            processPopulatedData("#speedy_region_sel", "#speedy_city_sel", "#speedy_office_sel");
+            processPopulatedData("#econt_region_sel", "#econt_city_sel", "#econt_office_sel");
         });
 
-        jQuery( document ).ajaxComplete(function( ) {
+        jQuery( document ).ajaxComplete(function() {
             if (!focused) {
                 focused = true;
                 jQuery("#billing_first_name").focus();
