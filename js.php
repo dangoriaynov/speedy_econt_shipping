@@ -1,208 +1,240 @@
 <?php
 add_action( 'wp_head', function () { ?>
     <script>
-        var focused = false;
-        var def_prices = [3.4, 5.4, 4.2];
-        var free_from = [5, 50, 50];
-        var cur_prices = [];
-        var deliv_opt = '';
-        var deliv_opt_idx = -1;
-        var deliv_opts = ['офис на Speedy', 'офис на Еконт', 'адрес'];
-        var deliv_opts_ids = ['shipping_to_speedy', 'shipping_to_econt', 'shipping_to_address'];
-        var free_shipping_default_idx = 0;
+        let focused = false;
+        let cur_prices = [];
+        let deliv_opt = '';
+        let deliv_opt_idx = -1;
+        const def_prices = [3.4, 5.4, 4.2];
+        const free_from = [5, 50, 50];
+        const deliv_opts = ['офис на Speedy', 'офис на Еконт', 'адрес'];
+        const deliv_opts_ids = ['shipping_to_speedy', 'shipping_to_econt', 'shipping_to_address'];
+        const free_shipping_default_idx = 0;
 
-        function order_price() {
-            var priceStr = jQuery(".woocommerce-Price-amount.amount").last().text();
+        const locs = {
+            'econt': {
+                'outer': {
+                    'region': '#econt_region_sel_field',
+                    'city': '#econt_city_sel_field',
+                    'office': '#econt_office_sel_field'},
+                'inner': {
+                    'region': '#econt_region_sel',
+                    'city': '#econt_city_sel',
+                    'office': '#econt_office_sel'}
+            },
+            'speedy': {
+                'outer': {
+                    'region': '#speedy_region_sel_field',
+                    'city': '#speedy_city_sel_field',
+                    'office': '#speedy_office_sel_field'},
+                'inner': {
+                    'region': '#speedy_region_sel',
+                    'city': '#speedy_city_sel',
+                    'office': '#speedy_office_sel'}
+            },
+            'address': {
+                'outer': {
+                    'region': '#billing_state_field',
+                    'city': '#billing_city_field',
+                    'office': '#billing_address_1_field'},
+                'inner': {
+                    'region': '#billing_state',
+                    'city': '#billing_city',
+                    'office': '#billing_address_1'}
+            }
+        };
+
+        function orderPrice() {
+            let priceStr = jQuery(".woocommerce-Price-amount.amount").last().text();
             return parseFloat(priceStr);
         }
 
-        function change_phone_number(){
+        function changePhoneNumber(){
             if (jQuery("#billing_phone").val() !== '') {
                 jQuery("#shipping_to_field").show("slow", function(){});
             }
         }
 
-        // function change_shipping_to() {
-        //     jQuery("form[name=checkout] input[name=shipping_to]:checked").each(function() {
-        //         var deliv_opt_id = jQuery(this).attr("id");
-        //         var deliv_opt_raw = jQuery("label[for='"+deliv_opt_id+"']").text();
-        //         deliv_opt = deliv_opt_raw.split('(')[0].trim();
-        //         deliv_opt_idx = deliv_opts_ids.findIndex(el => el === deliv_opt_id);
-        //         change_office();
-        //         show_free_delivery_notif();
-        //     });
-        // };
-        //
-        // function change_office() {
-        //     var deliv_office = jQuery("#currier_office option:selected").text();
-        //     if (!deliv_opt || !deliv_office) {
-        //         return;
-        //     }
-        //     jQuery("#billing_address_1").val(deliv_opt+': '+deliv_office);
-        // };
-        //
-        // function change_autopopulate_fields() {
-        //     setTimeout(function() {
-        //         change_phone_number();
-        //         change_autopopulate_fields();
-        //     }, 200); //hold the code execution for 200 ms
-        // };
-
-        function show_free_delivery_notif() {
-            var idx = deliv_opt_idx !== -1 ? deliv_opt_idx : free_shipping_default_idx;
-            var free_from_opt = free_from[idx];
-            var left_till_free = free_from_opt - order_price();
-            var delivMsg = jQuery('div#deliv_msg');
+        function showTillFreeDeliveryMsg() {
+            let idx = deliv_opt_idx !== -1 ? deliv_opt_idx : free_shipping_default_idx;
+            let freeFromOption = free_from[idx];
+            let leftTillFree = freeFromOption - orderPrice();
+            let delivMsg = jQuery('div#deliv_msg');
             if (! delivMsg.length ) {
                 jQuery(".woocommerce-notices-wrapper").first().append('<div id="deliv_msg">');
             }
-            var $msgDiv = delivMsg.first();
+            let $msgDiv = delivMsg.first();
             $msgDiv.removeClass();
-            var msg;
-            if (left_till_free <= 0) {
+            let msg;
+            if (leftTillFree <= 0) {
                 $msgDiv.addClass("woocommerce-message");
                 msg = 'Честито, спечелихте безплатна доставка до '+deliv_opts[idx]+'!';
             } else {
                 $msgDiv.addClass("woocommerce-error");
-                msg = 'Остава Ви още <span class="woocommerce-Price-amount amount">'+left_till_free.toFixed(2)+'&nbsp;<span class="woocommerce-Price-currencySymbol">лв</span></span> за да спечелите безплатна доставка до '+deliv_opts[idx]+'! <a class="button" href="https://dobavki.club/shop/">Към магазина</a>';
+                msg = 'Остава Ви още <span class="woocommerce-Price-amount amount">'+leftTillFree.toFixed(2)+'&nbsp;<span class="woocommerce-Price-currencySymbol">лв</span></span> за да спечелите безплатна доставка до '+deliv_opts[idx]+'! <a class="button" href="https://dobavki.club/shop/">Към магазина</a>';
             }
             $msgDiv.html(msg);
         }
 
-        function populate_delivery_opts() {
+        function populateDeliveryOpts() {
             for (let idx = 0; idx < deliv_opts_ids.length; idx++) {
-                populate_delivery_opt(idx);
+                populateDeliveryOpt(idx);
             }
         }
 
-        function populate_delivery_opt(idx){
-            var price = order_price();
-            var edge = free_from[idx];
-            var cur_price = price >= edge ? 0 : def_prices[idx];
-            cur_prices[idx] = cur_price;
-            var price_add = cur_price === 0 ? 'безплатно' : '+'+cur_price.toFixed(2)+' лв.';
-            var deliv_text = ' '+deliv_opts[idx]+' ('+price_add+')';
-            jQuery("label[for='"+deliv_opts_ids[idx]+"']").text(deliv_text);
+        function populateDeliveryOpt(idx){
+            let price = orderPrice();
+            let edge = free_from[idx];
+            let curPrice = price >= edge ? 0 : def_prices[idx];
+            cur_prices[idx] = curPrice;
+            let priceAdd = curPrice === 0 ? 'безплатно' : '+'+curPrice.toFixed(2)+' лв.';
+            let delivText = ' '+deliv_opts[idx]+' ('+priceAdd+')';
+            jQuery("label[for='"+deliv_opts_ids[idx]+"']").text(delivText);
         }
 
-        function populateFields(region_str=null, city_str=null) {
-            let regionSel = jQuery('#speedy_region_sel');
-            regionSel.empty();
-            let citySel = jQuery('#speedy_city_sel');
-            citySel.empty();
-            let officeSel = jQuery('#speedy_office_sel');
-            officeSel.empty();
+        function populateFields(key, selectedRegion=null, selectedCity=null) {
+            let regionSel = locs[key].inner.region;
+            let citySel = locs[key].inner.city;
+            let officeSel = locs[key].inner.office;
+            let data;
+            if (key === 'speedy') {
+                data = speedyData;
+            } else if (key === 'econt') {
+                data = econtData;
+            } else {
+                throw 'populateFields: Unknown key was specified - ' + key;
+            }
+            let regionDom = jQuery(regionSel);
+            regionDom.empty().trigger('change.select2');
+            let cityDom = jQuery(citySel);
+            cityDom.empty().trigger('change.select2');
+            let officeDom = jQuery(officeSel);
+            officeDom.empty().trigger('change.select2');
 
-            Object.entries(speedyData).forEach(([regionName, cities]) => {
-                regionSel.append(jQuery('<option id="' + regionName + '">' + regionName + '</option>'));
+            Object.entries(data).forEach(([regionName, cities]) => {
+                regionDom.append(jQuery('<option id="' + regionName + '">' + regionName + '</option>'));
                 cities.forEach(city => {
-                    if (region_str && region_str !== regionName) {
+                    if (selectedRegion && selectedRegion !== regionName) {
                         return;
                     }
-                    citySel.append(jQuery('<option data-region="'+regionName+'" id="'+city.id+'">'+city.name+'</option>'));
+                    console.log('adding city '+city.name+' to region '+regionName);
+                    cityDom.append(jQuery('<option id="'+city.id+'">'+city.name+'</option>'));
                     city.offices.forEach(office => {
-                        if (city_str && city_str !== city.name) {
+                        if (selectedCity && selectedCity !== city.name) {
                             return;
                         }
-                        officeSel.append(jQuery('<option data-city="' + city.name + '" id="' + office.id + '">#' + office.id + ' ' + office.name + ' (' + office.address + ')</option>'));
+                        officeDom.append(jQuery('<option id="' + office.id + '">#' + office.id + ' ' + office.name + ' (' + office.address + ')</option>'));
                     });
                 });
             });
-            regionSel.val(1).trigger('change.select2');
-            citySel.val(1).trigger('change.select2');
-            officeSel.val(1).trigger('change.select2');
+            regionDom.trigger('change.select2');
+            cityDom.trigger('change.select2');
+            officeDom.trigger('change.select2');
         }
 
-        // populate the offices data once DOM is loaded
+        function processPopulatedData(key) {
+            console.log('processPopulatedData: ' + key);
+            let regionDom = jQuery(locs[key].inner.region);
+            let cityDomOuter = jQuery(locs[key].outer.city);
+            let cityDom = jQuery(locs[key].inner.city);
+            let officeDomOuter = jQuery(locs[key].outer.office);
+            let officeDom = jQuery(locs[key].inner.office);
+            regionDom.change(function() {
+                let region = regionDom.find('option:selected').text();
+                console.log('regionDom::onchange, region='+region);
+                // special way of setting the region drop-down field
+                jQuery("#billing_state option").filter(function() {
+                    return jQuery(this).text() === region;
+                }).prop('selected', true);
+                populateFields(key, region);
+                regionDom.val(region).trigger('change.select2');
+
+                cityDomOuter.show();
+                officeDomOuter.hide();
+            });
+            cityDom.change(function() {
+                let region = regionDom.find('option:selected').text();
+                let city = cityDom.find('option:selected').text();
+                console.log('cityDom::onchange, region='+region+', city='+city);
+                jQuery(locs.address.inner.city).val(city);
+                populateFields(key, region, city);
+                cityDom.val(city).trigger('change.select2');
+                // chose the first office if only 1 is available in the list
+                if (officeDom.find('option').length === 1) {
+                    officeDom.val(jQuery(locs[key].inner.office+' option:eq(0)').val()).trigger('change.select2');
+                }
+
+                officeDomOuter.show();
+            });
+            officeDom.change(function() {
+                let office = officeDom.find('option:selected').text();
+                jQuery(locs.address.inner.office).val(office);
+            });
+        }
+
+        // populate the offices data once DOM is loaded - it is happening later that onReady() is fired
         let checkExist = setInterval(function() {
-            if (jQuery('#speedy_region_sel').length) {
+            if (jQuery(locs.speedy.inner.region).length) {
                 clearInterval(checkExist);
-                populateFields();
+                populateFields('speedy');
+                populateFields('econt');
             }
         }, 100); // check every 100ms
 
         function onDeliveryOptionChange() {
+            console.log('onDeliveryOptionChange');
             let option = jQuery("input[name='shipping_to']:checked").val();
-            let speedy = jQuery('#speedy_region_sel_field, #speedy_city_sel_field, #speedy_office_sel_field');
-            let econt = jQuery('#econt_region_sel_field, #econt_city_sel_field, #econt_office_sel_field');
-            let address = jQuery('#billing_state_field, #billing_city_field, #billing_address_1_field');
-            speedy.hide();
-            econt.hide();
-            address.hide();
+            let speedyOuter = jQuery([locs.speedy.outer.region, locs.speedy.outer.city, locs.speedy.outer.office].join(','));
+            let econtOuter = jQuery([locs.econt.outer.region, locs.econt.outer.city, locs.econt.outer.office].join(','));
+            let addressOuter = jQuery([locs.address.outer.region, locs.address.outer.city, locs.address.outer.office].join(','));
+            // hide all selectors till we know what is chosen
+            speedyOuter.hide();
+            econtOuter.hide();
+            addressOuter.hide();
+            // set really saved values to empty
+            // jQuery(locs.address.inner.region).val("");
+            // jQuery(locs.address.inner.city).val("");
+            // jQuery(locs.address.inner.address).val("");
             if (option === 'speedy') {
-                speedy.show("slow", function(){});
+                jQuery(locs.speedy.inner.region).val("").trigger('change.select2');
+                jQuery(locs.speedy.outer.region).show("slow", function(){});
             } else if (option === 'econt') {
-                econt.show("slow", function(){});
-                // address.show("slow", function(){});
+                jQuery(locs.econt.inner.region).val("").trigger('change.select2');
+                jQuery(locs.econt.outer.region).show("slow", function(){});
             } else if (option === 'address') {
-                address.show("slow", function(){});
+                addressOuter.show("slow", function(){});
             }
         }
 
-        function processPopulatedData(regionSel, citySel, officeSel) {
-            var speedy_region = jQuery(regionSel);
-            var speedy_city = jQuery(citySel);
-            var speedy_office = jQuery(officeSel);
-            speedy_region.change(function () {
-                let region = speedy_region.find('option:selected').text();
-                jQuery("#billing_state").val(region);
-                populateFields(region);
-                speedy_region.val(region);
-                speedy_city.val(1);
-                speedy_city.show();
-            });
-            speedy_city.change(function () {
-                let region = speedy_region.find('option:selected').text();
-                let city = speedy_city.find('option:selected').text();
-                jQuery("#billing_city").val(city);
-                populateFields(region, city);
-                speedy_city.val(city);
-                speedy_office.val(1);
-                speedy_office.show();
-            });
-            speedy_office.change(function () {
-                let office = speedy_office.find('option:selected').text();
-                jQuery("#billing_address_1").val(office);
-            });
-        }
-
         jQuery( document ).ready(function() {
-            // change_autopopulate_fields();
-
-            var radioButtons = jQuery('input:radio[name="shipping_to"]');
+            let radioButtons = jQuery('input:radio[name="shipping_to"]');
             radioButtons.change(function () {
                 if (jQuery(this).val() !== '') {
                     var idx_checked = radioButtons.index(radioButtons.filter(':checked'));
                     var deliv_add = cur_prices[idx_checked] > 0 ? " + доставка" : "";
-                    jQuery(".woocommerce-Price-amount.amount").last().text(order_price().toFixed(2) + ' лв.' + deliv_add);
-                    // change_delivery_option();
+                    jQuery(".woocommerce-Price-amount.amount").last().text(orderPrice().toFixed(2) + ' лв.' + deliv_add);
                 }
             });
 
-            change_phone_number();
-            jQuery('#billing_phone').keypress(change_phone_number);
+            changePhoneNumber();
+            jQuery('#billing_phone').keypress(changePhoneNumber);
 
-            // change_shipping_to();
-            // jQuery("#shipping_to_field").on('change', change_shipping_to);
-            //
-            // change_office();
-            // jQuery('#currier_office').on('change', change_office);
-
-            show_free_delivery_notif();
+            showTillFreeDeliveryMsg();
             jQuery('input[type=radio][name=shipping_to]').change(onDeliveryOptionChange);
-            processPopulatedData("#speedy_region_sel", "#speedy_city_sel", "#speedy_office_sel");
-            processPopulatedData("#econt_region_sel", "#econt_city_sel", "#econt_office_sel");
+            processPopulatedData("speedy");
+            processPopulatedData("econt");
         });
 
         jQuery( document ).ajaxComplete(function() {
-            if (!focused) {
+            // focus only once
+            if (! focused) {
                 focused = true;
                 jQuery("#billing_first_name").focus();
             }
-
+            // do the copy of prices
             cur_prices = [...def_prices];
-            populate_delivery_opts();
-            show_free_delivery_notif();
+            populateDeliveryOpts();
+            showTillFreeDeliveryMsg();
         });
     </script>
 <?php } );
