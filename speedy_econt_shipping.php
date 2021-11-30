@@ -7,27 +7,22 @@ Description: Adds Speedy and Econt shipping methods along with their delivery op
 Version: 0.1
 Author: Dan Goriaynov
 Author URI: http://dobavki.club
-License: GPL2
+License: MIT License
 */
 
 require 'api.php';
 require 'db.php';
-require 'utils.php';
 require 'js.php';
 require 'css.php';
 
-global $speedy_region_sel, $speedy_city_sel, $speedy_office_sel, $econt_region_sel, $econt_city_sel, $econt_office_sel;
-$speedy_region_sel = "#speedy_region_sel";
-$speedy_city_sel = "#speedy_city_sel";
-$speedy_office_sel = "#speedy_office_sel";
-$econt_region_sel = "#econt_region_sel";
-$econt_city_sel = "#econt_city_sel";
-$econt_office_sel = "#econt_office_sel";
+global $speedy_region_sel, $speedy_city_sel, $speedy_office_sel, $econt_region_sel, $econt_city_sel, $econt_office_sel, $keepCase;
+
+$keepCase = ['Столица' => 'столица', 'Ул.' => 'ул.', 'Ту ' => 'ТУ '];
 
 function insertSpeedyTableData() {
+    global $keepCase;
     $speedy_sites_added = array();
     $offices = apiSpeedyOfficesList();
-    $keepCase = ['Столица' => 'столица', 'Ул.' => 'ул.', 'Ту ' => 'ТУ '];
     foreach ($offices as $id => $value) {
         $name = convertCase($value['name']);
 
@@ -48,20 +43,21 @@ function insertSpeedyTableData() {
 }
 
 function insertEcontTableData() {
+    global $keepCase;
     $econt_sites_added = array();
     $cities = apiEcontSitesList();
     foreach ($cities as $city_id => $city_data) {
-        $city_name = $city_data['name'];
+        $city_name = convertCase($city_data['name'], $keepCase);
         $econt_sites_added[$city_id] = $city_name;
-        $region_name = $city_data['region'];
+        $region_name = convertCase($city_data['region'], $keepCase);
         insertEcontSite($city_id, $city_name, $region_name);
     }
     $offices = apiEcontOfficesList();
     foreach ($offices as $office_id => $office_data) {
         $site_id = $office_data['site_id'];
         $site_name = $econt_sites_added[$site_id];
-        $office_name = $office_data['name'];
-        $office_address = $office_data['address'];
+        $office_name = convertCase($office_data['name'], $keepCase);
+        $office_address = convertCase($office_data['address'], $keepCase);
         insertEcontOffice($office_id, $office_name, $site_name, $office_address);
     }
 }
@@ -114,7 +110,7 @@ function printJsVars($sitesTable, $officesTable, $varName) {
         // update the region value
         $data[$siteDB->region] = $citiesExisting;
     }
-    ?><script>let <?php echo $varName.'='.json_encode($data); ?>;</script><?php
+    ?><script>const <?php echo $varName.'='.json_encode($data); ?>;</script><?php
 }
 
 function printSpeedyData() {

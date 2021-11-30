@@ -1,36 +1,38 @@
 <?php
-add_action( 'wp_head', function () { ?>
+
+require 'utils.php';
+
+add_action( 'wp_head', function () {
+    global $speedy_region_sel, $speedy_city_sel, $speedy_office_sel, $econt_region_sel, $econt_city_sel, $econt_office_sel,
+           $speedy_region_field, $speedy_city_field, $speedy_office_field, $econt_region_field, $econt_city_field, $econt_office_field,
+           $shipping_to_regex, $delivOpts, $defaultOpt;
+    ?>
     <script>
-        let focused = false;
-        let cur_prices = [];
-        let deliv_opt = '';
-        let deliv_opt_idx = -1;
-        const def_prices = [3.4, 5.6, 4.2];
-        const free_from = [5, 50, 50];
-        const deliv_opts = ['офис на Speedy', 'офис на Еконт', 'адрес'];
-        const deliv_opts_ids = ['shipping_to_speedy', 'shipping_to_econt', 'shipping_to_address'];
-        const free_shipping_default_idx = 0;
+        let isFocused = false;
+        let pricesCopy = {};
+        const delivOptions = <?php echo json_encode($delivOpts); ?>;
+        const defaultShippingMethod = '<?php echo $defaultOpt; ?>';
 
         const locs = {
             'econt': {
                 'outer': {
-                    'region': '#econt_region_sel_field',
-                    'city': '#econt_city_sel_field',
-                    'office': '#econt_office_sel_field'},
+                    'region': '<?php echo $econt_region_field; ?>',
+                    'city': '<?php echo $econt_city_field; ?>',
+                    'office': '<?php echo $econt_office_field; ?>'},
                 'inner': {
-                    'region': '#econt_region_sel',
-                    'city': '#econt_city_sel',
-                    'office': '#econt_office_sel'}
+                    'region': '<?php echo $econt_region_sel; ?>',
+                    'city': '<?php echo $econt_city_sel; ?>',
+                    'office': '<?php echo $econt_office_sel; ?>'}
             },
             'speedy': {
                 'outer': {
-                    'region': '#speedy_region_sel_field',
-                    'city': '#speedy_city_sel_field',
-                    'office': '#speedy_office_sel_field'},
+                    'region': '<?php echo $speedy_region_field; ?>',
+                    'city': '<?php echo $speedy_city_field; ?>',
+                    'office': '<?php echo $speedy_office_field; ?>'},
                 'inner': {
-                    'region': '#speedy_region_sel',
-                    'city': '#speedy_city_sel',
-                    'office': '#speedy_office_sel'}
+                    'region': '<?php echo $speedy_region_sel; ?>',
+                    'city': '<?php echo $speedy_city_sel; ?>',
+                    'office': '<?php echo $speedy_office_sel; ?>'}
             },
             'address': {
                 'outer': {
@@ -45,70 +47,65 @@ add_action( 'wp_head', function () { ?>
         };
 
         function orderPrice() {
-            let priceStr = jQuery(".woocommerce-Price-amount.amount").last().text();
-            return parseFloat(priceStr);
+            return parseFloat(jQuery(".woocommerce-Price-amount.amount").last().text());
         }
 
-        function changePhoneNumber(){
+        function onChangePhoneNumber(){
             if (jQuery("#billing_phone").val() !== '') {
                 jQuery("#shipping_to_field").show("slow", function(){});
             }
         }
 
         function showTillFreeDeliveryMsg() {
-            let idx = deliv_opt_idx !== -1 ? deliv_opt_idx : free_shipping_default_idx;
-            let freeFromOption = free_from[idx];
-            let leftTillFree = freeFromOption - orderPrice();
-            let delivMsg = jQuery('div#deliv_msg');
-            if (! delivMsg.length ) {
+            const chosenShippingOpt = jQuery('<?php echo $shipping_to_regex ?>:checked').val();
+            const chosenOrDefaultOpt = delivOptions[chosenShippingOpt ? delivOptions[chosenShippingOpt].name : defaultShippingMethod];
+            const leftTillFree = chosenOrDefaultOpt.free_from - orderPrice();
+            const msgContainer = jQuery('div#deliv_msg');
+            if (! msgContainer.length ) {
                 jQuery(".woocommerce-notices-wrapper").first().append('<div id="deliv_msg">');
             }
-            let $msgDiv = delivMsg.first();
+            const $msgDiv = msgContainer.first();
             $msgDiv.removeClass();
             let msg;
             if (leftTillFree <= 0) {
                 $msgDiv.addClass("woocommerce-message");
-                msg = 'Честито, спечелихте безплатна доставка до '+deliv_opts[idx]+'!';
+                msg = 'Честито, спечелихте безплатна доставка до '+chosenOrDefaultOpt.label+'!';
             } else {
                 $msgDiv.addClass("woocommerce-error");
-                msg = 'Остава Ви още <span class="woocommerce-Price-amount amount">'+leftTillFree.toFixed(2)+'&nbsp;<span class="woocommerce-Price-currencySymbol">лв</span></span> за да спечелите безплатна доставка до '+deliv_opts[idx]+'! <a class="button" href="https://dobavki.club/shop/">Към магазина</a>';
+                msg = 'Остава Ви още <span class="woocommerce-Price-amount amount">'+leftTillFree.toFixed(2)+'&nbsp;<span class="woocommerce-Price-currencySymbol">лв</span></span> за да спечелите безплатна доставка до '+chosenOrDefaultOpt.label+'! <a class="button" href="https://dobavki.club/shop/">Към магазина</a>';
             }
             $msgDiv.html(msg);
         }
 
-        function populateDeliveryOpts() {
-            for (let idx = 0; idx < deliv_opts_ids.length; idx++) {
-                populateDeliveryOpt(idx);
-            }
+        function populateDeliveryOptions() {
+            Object.keys(delivOptions).forEach(function(key) {
+                populateDeliveryOption(key);
+            });
         }
 
-        function populateDeliveryOpt(idx){
-            const price = orderPrice();
-            const edge = free_from[idx];
-            const curPrice = price >= edge ? 0 : def_prices[idx];
-            cur_prices[idx] = curPrice;
-            let priceAdd = curPrice === 0 ? 'безплатно' : '+'+curPrice.toFixed(2)+' лв.';
-            let delivText = ' '+deliv_opts[idx]+' ('+priceAdd+')';
-            jQuery("label[for='"+deliv_opts_ids[idx]+"']").text(delivText);
+        function populateDeliveryOption(key){
+            const chosenOption = delivOptions[key];
+            const curPrice = orderPrice() >= chosenOption.free_from ? 0 : chosenOption.shipping;
+            pricesCopy[key] = curPrice;
+            const priceAdd = curPrice === 0 ? 'безплатно' : '+'+curPrice.toFixed(2)+' лв.';
+            const delivText = ' '+chosenOption.label+' ('+priceAdd+')';
+            jQuery("label[for='"+chosenOption.id+"']").text(delivText);
         }
 
         function populateFields(key, selectedRegion=null, selectedCity=null) {
+            if (! [delivOptions.speedy.name, delivOptions.econt.name].includes(key)) {
+                return;
+            }
             const regionSel = locs[key].inner.region;
             const citySel = locs[key].inner.city;
             const officeSel = locs[key].inner.office;
-            let data;
-            if (key === 'speedy') {
-                data = speedyData;
-            } else if (key === 'econt') {
-                data = econtData;
-            } else {
-                throw 'populateFields: Unknown key was specified - ' + key;
-            }
-            let regionDom = jQuery(regionSel);
+            // since we store only variable name, not its actual contents
+            const data = eval(delivOptions[key].data);
+            const regionDom = jQuery(regionSel);
             regionDom.empty().trigger('change.select2');
-            let cityDom = jQuery(citySel);
+            const cityDom = jQuery(citySel);
             cityDom.empty().trigger('change.select2');
-            let officeDom = jQuery(officeSel);
+            const officeDom = jQuery(officeSel);
             officeDom.empty().trigger('change.select2');
 
             Object.entries(data).forEach(([regionName, cities]) => {
@@ -129,17 +126,19 @@ add_action( 'wp_head', function () { ?>
         }
 
         function processPopulatedData(key) {
-            let regionDom = jQuery(locs[key].inner.region);
-            let cityDomOuter = jQuery(locs[key].outer.city);
-            let cityDom = jQuery(locs[key].inner.city);
-            let officeDomOuter = jQuery(locs[key].outer.office);
-            let officeDom = jQuery(locs[key].inner.office);
+            const regionDom = jQuery(locs[key].inner.region);
+            const cityDomOuter = jQuery(locs[key].outer.city);
+            const cityDom = jQuery(locs[key].inner.city);
+            const officeDomOuter = jQuery(locs[key].outer.office);
+            const officeDom = jQuery(locs[key].inner.office);
             regionDom.change(function() {
-                let region = regionDom.find('option:selected').text();
+                const region = regionDom.find('option:selected').text();
                 // special way of setting the region drop-down field
-                jQuery("#billing_state option").filter(function() {
+                jQuery(locs.address.inner.region+" option").filter(function() {
                     return jQuery(this).text() === region;
                 }).prop('selected', true);
+                // set city to empty value
+                jQuery(locs.address.inner.city).val("");
                 populateFields(key, region);
                 regionDom.val(region).trigger('change.select2');
                 cityDom.val("").trigger('change.select2');
@@ -164,7 +163,7 @@ add_action( 'wp_head', function () { ?>
                 officeDomOuter.show();
             });
             officeDom.change(function() {
-                let office = officeDom.find('option:selected').text();
+                const office = officeDom.find('option:selected').text();
                 jQuery(locs.address.inner.office).val(office);
             });
         }
@@ -173,27 +172,29 @@ add_action( 'wp_head', function () { ?>
         let checkExist = setInterval(function() {
             if (jQuery(locs.speedy.inner.region).length) {
                 clearInterval(checkExist);
-                populateFields('speedy');
-                populateFields('econt');
+                [delivOptions.speedy.name, delivOptions.econt.name].forEach(function(key) {
+                    populateFields(key);
+                });
             }
         }, 100); // check every 100ms
 
         function onDeliveryOptionChange() {
-            const option = jQuery("input[name='shipping_to']:checked").val();
+            showTillFreeDeliveryMsg();
+            const option = jQuery('<?php echo $shipping_to_regex ?>:checked').val();
             const speedyOuter = jQuery([locs.speedy.outer.region, locs.speedy.outer.city, locs.speedy.outer.office].join(','));
             const econtOuter = jQuery([locs.econt.outer.region, locs.econt.outer.city, locs.econt.outer.office].join(','));
             const addressOuter = jQuery([locs.address.outer.region, locs.address.outer.city, locs.address.outer.office].join(','));
-            // hide all selectors till we know what is chosen
+            // hide all the selectors till we know what is chosen
             speedyOuter.hide();
             econtOuter.hide();
             addressOuter.hide();
             // set really saved address to empty
             jQuery(locs.address.inner.office).val("");
-            // populate data manually specified by user to Econt and Speedy tabs
+            // populate data manually specified by user in 'to address' tab to 'Econt' and 'Speedy' tabs
             const addressRegionKey = jQuery(locs.address.inner.region).val();
             const addressRegion = jQuery(locs.address.inner.region).find('option:selected').text();
             const addressCity = jQuery(locs.address.inner.city).find('option:selected').text();
-            if (option === 'speedy') {
+            if (option === delivOptions.speedy.name) {
                 jQuery(locs.speedy.inner.region).val(addressRegion).trigger('change.select2');
                 jQuery(locs.speedy.outer.region).show("slow", function(){});
                 // the actual displayed value is not always empty when selecting default option from the list
@@ -201,46 +202,49 @@ add_action( 'wp_head', function () { ?>
                     jQuery(locs.speedy.outer.city).show("slow", function(){});
                     jQuery(locs.speedy.inner.city).val(addressCity).trigger('change.select2');
                 }
-            } else if (option === 'econt') {
+            } else if (option === delivOptions.econt.name) {
                 jQuery(locs.econt.inner.region).val(addressRegion).trigger('change.select2');
                 jQuery(locs.econt.outer.region).show("slow", function(){});
                 if (addressRegionKey) {
                     jQuery(locs.econt.outer.city).show("slow", function(){});
                     jQuery(locs.econt.inner.city).val(addressCity).trigger('change.select2');
                 }
-            } else if (option === 'address') {
+            } else if (option === delivOptions.address.name) {
                 addressOuter.show("slow", function(){});
             }
         }
 
         jQuery( document ).ready(function() {
-            let radioButtons = jQuery('input:radio[name="shipping_to"]');
+            let radioButtons = jQuery('<?php echo $shipping_to_regex ?>');
             radioButtons.change(function () {
-                if (jQuery(this).val() !== '') {
-                    const idx_checked = radioButtons.index(radioButtons.filter(':checked'));
-                    const deliv_add = cur_prices[idx_checked] > 0 ? " + доставка" : "";
-                    jQuery(".woocommerce-Price-amount.amount").last().text(orderPrice().toFixed(2) + ' лв.' + deliv_add);
+                if (! jQuery(this).val()) {
+                    return;
                 }
+                const addText = pricesCopy[jQuery(this).attr("id")] > 0 ? " + доставка" : "";
+                jQuery(".woocommerce-Price-amount.amount").last().text(orderPrice().toFixed(2) + ' лв.' + addText);
             });
 
-            changePhoneNumber();
-            jQuery('#billing_phone').keypress(changePhoneNumber);
+            onChangePhoneNumber();
+            jQuery('#billing_phone').keypress(onChangePhoneNumber);
 
             showTillFreeDeliveryMsg();
-            jQuery('input[type=radio][name=shipping_to]').change(onDeliveryOptionChange);
-            processPopulatedData("speedy");
-            processPopulatedData("econt");
+            jQuery('<?php echo $shipping_to_regex ?>').change(onDeliveryOptionChange);
+            [delivOptions.speedy.name, delivOptions.econt.name].forEach(function(key) {
+                processPopulatedData(key);
+            });
         });
 
         jQuery( document ).ajaxComplete(function() {
-            // focus only once
-            if (! focused) {
-                focused = true;
+            // do the focus only once
+            if (! isFocused) {
+                isFocused = true;
                 jQuery("#billing_first_name").focus();
             }
             // do the copy of prices
-            cur_prices = [...def_prices];
-            populateDeliveryOpts();
+            Object.values(delivOptions).forEach(function(value) {
+                pricesCopy[value.id] = value.shipping;
+            });
+            populateDeliveryOptions();
             showTillFreeDeliveryMsg();
         });
     </script>
