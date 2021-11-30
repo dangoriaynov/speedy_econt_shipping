@@ -18,8 +18,9 @@ function postRequest($url, $payload, $auth=null)
     curl_setopt($curl, CURLOPT_POSTFIELDS, $jsonDataEncoded); // Attach our encoded JSON string to the POST fields.
     $jsonResponse = curl_exec($curl);
 
-    if ( $jsonResponse === FALSE)
-    { exit("cURL error: ".curl_error($curl)." while accessing ".$url); }
+    if ( $jsonResponse === FALSE) {
+        exit("cURL error: ".curl_error($curl)." while accessing ".$url);
+    }
     return json_decode($jsonResponse);
 }
 

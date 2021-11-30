@@ -105,6 +105,9 @@ function insertEcontOffice($id, $name, $city, $address) {
     insertOffice($id, $name, $city, $address, $econt_offices_table);
 }
 
+// is_prod is the way to avoid cleaning up the tables before we actually get the new values from the API
+// this way we first insert new data which is not 'visible' (since it has is_prod=0)
+// then -> delete existing data (with is_prod=1) and mark newly inserted data with is_prod=1
 function truncateTables($is_prod=false) {
     global $wpdb, $speedy_offices_table, $speedy_sites_table, $econt_offices_table, $econt_sites_table;
     $table_names = array($speedy_offices_table, $speedy_sites_table, $econt_offices_table, $econt_sites_table);
