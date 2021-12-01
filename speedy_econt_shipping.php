@@ -62,17 +62,7 @@ function insertEcontTableData() {
     }
 }
 
-function refreshDeliveryTables() {
-    // insert offices/sites data as preliminary one
-    insertSpeedyTableData();
-    insertEcontTableData();
-    // clear production data from the destination tables
-    truncateTables(true);
-    // mark newly inserted data as production one
-    markDataAsProd();
-}
-
-function printJsVars($sitesTable, $officesTable, $varName) {
+function generateJsVar($sitesTable, $officesTable, $varName) {
     $sitesDB = readTableData($sitesTable, "name");
     $officesDB = readTableData($officesTable, "name");
     $data = array();
@@ -110,29 +100,28 @@ function printJsVars($sitesTable, $officesTable, $varName) {
         // update the region value
         $data[$siteDB->region] = $citiesExisting;
     }
-    ?><script>const <?php echo $varName.'='.json_encode($data); ?>;</script><?php
+    ?><script>
+        const <?php ksort($data); echo $varName.'='.json_encode($data); ?>;
+    </script><?php
 }
 
-function printSpeedyData() {
-    global $speedy_sites_table, $speedy_offices_table;
-    printJsVars($speedy_sites_table, $speedy_offices_table, 'speedyData');
+function refreshDeliveryTables() {
+    // insert offices/sites data as preliminary one
+    insertSpeedyTableData();
+    insertEcontTableData();
+    // clear production data from the destination tables
+    truncateTables(true);
+    // mark newly inserted data as production one
+    markDataAsProd();
 }
-
-function printEcontData() {
-    global $econt_sites_table, $econt_offices_table;
-    printJsVars($econt_sites_table, $econt_offices_table, 'econtData');
-}
-
-register_activation_hook( __FILE__, 'createTables' );
-register_activation_hook( __FILE__, 'refreshDeliveryTables' );
 
 function printPluginData() {
-//    createTables();
-//    truncateTables();
-//    insertSpeedyTableData();
-//    insertEcontTableData();
-    printSpeedyData();
-    printEcontData();
+    global $speedy_sites_table, $speedy_offices_table, $econt_sites_table, $econt_offices_table;
+//    fillInitialData();
+    generateJsVar($econt_sites_table, $econt_offices_table, 'econtData');
+    generateJsVar($speedy_sites_table, $speedy_offices_table, 'speedyData');
+    // TODO create fields needed by plugin
+    // TODO 'to address' region list is not sorted alphabetically
 }
 
 function setupDailyDataRefresh() {
@@ -140,5 +129,13 @@ function setupDailyDataRefresh() {
         wp_schedule_event( time(), 'daily', 'refreshDeliveryTables');
     }
 }
+
+function fillInitialData() {
+    createTables();
+    refreshDeliveryTables();
+}
+
 add_action('wp', 'setupDailyDataRefresh');
 add_action('woocommerce_before_checkout_form', 'printPluginData', 10 );
+
+register_activation_hook( __FILE__, 'fillInitialData' );
