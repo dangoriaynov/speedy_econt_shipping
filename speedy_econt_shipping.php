@@ -120,8 +120,6 @@ function printPluginData() {
 //    fillInitialData();
     generateJsVar($econt_sites_table, $econt_offices_table, 'econtData');
     generateJsVar($speedy_sites_table, $speedy_offices_table, 'speedyData');
-    // TODO create fields needed by plugin
-    // TODO 'to address' region list is not sorted alphabetically
 }
 
 function setupDailyDataRefresh() {
@@ -130,10 +128,112 @@ function setupDailyDataRefresh() {
     }
 }
 
+function getRegions($table) {
+    $sitesDB = readTableData($table, "name");
+    $regions = array();
+    foreach ($sitesDB as $siteDB) {
+        $regions[$siteDB->region] = $siteDB->region;
+    }
+    return $regions;
+}
+
 function fillInitialData() {
     createTables();
     refreshDeliveryTables();
 }
+
+function custom_override_checkout_fields( $fields ): array
+{
+    global $speedy_sites_table, $speedy_region_id, $speedy_city_id, $speedy_office_id,
+           $econt_sites_table, $econt_region_id, $econt_city_id, $econt_office_id, $delivOpts, $shipping_to_id;
+
+    $fields['billing']['billing_email']['required'] = false;
+    $fields['billing']['billing_email']['priority'] = '22';
+    $fields['billing']['billing_postcode']['required'] = false;
+    $fields['billing']['billing_phone']['priority'] = '25';
+
+    $shippingOptions = array();
+    foreach ($delivOpts as $delivOpt) {
+        $shippingOptions[$delivOpt['name']] = $delivOpt['label'];
+    }
+    $fields['billing'][$shipping_to_id] = array(
+        'priority' => '55',
+        'type' => 'radio',
+        'class' => array('form-row-wide', 'address-field'),
+        'label' => 'Доставка до',
+        'required' => true,
+        'options' => $shippingOptions
+    );
+    unset($fields['billing']['billing_postcode']);
+    unset($fields['billing']['billing_address_2']);
+
+    $regions = getRegions($speedy_sites_table);
+    $fields['billing'][$speedy_region_id] = array(
+        'priority' => '100',
+        'type' => 'select',
+        'class' => array('form-row-first', 'address-field'),
+        'label' => 'Област',
+        'required'  => false,
+        'options' => $regions,
+        'placeholder' => 'Изберете опцията'
+    );
+    $fields['billing'][$speedy_city_id] = array(
+        'priority' => '110',
+        'type' => 'select',
+        'class' => array('form-row-last', 'address-field'),
+        'label' => 'Град',
+        'required'  => false,
+        'options' => array('няма заредени')
+    );
+    $fields['billing'][$speedy_office_id] = array(
+        'priority' => '120',
+        'type' => 'select',
+        'class' => array('form-row-wide', 'address-field'),
+        'label' => 'Офис',
+        'required'  => false,
+        'options' => array('няма заредени')
+    );
+
+    $regions = getRegions($econt_sites_table);
+    $fields['billing'][$econt_region_id] = array(
+        'priority' => '130',
+        'type' => 'select',
+        'class' => array('form-row-first', 'address-field'),
+        'label' => 'Област',
+        'required'  => false,
+        'options' => $regions,
+        'placeholder' => 'Изберете опцията'
+    );
+    $fields['billing'][$econt_city_id] = array(
+        'priority' => '140',
+        'type' => 'select',
+        'class' => array('form-row-last', 'address-field'),
+        'label' => 'Град',
+        'required'  => false,
+        'options' => array('няма заредени')
+    );
+    $fields['billing'][$econt_office_id] = array(
+        'priority' => '150',
+        'type' => 'select',
+        'class' => array('form-row-wide', 'address-field'),
+        'label' => 'Офис',
+        'required'  => false,
+        'options' => array('няма заредени')
+    );
+    return $fields;
+}
+
+function custom_override_address_fields($fields) {
+    $fields['state']['priority'] = '60';
+    $fields['state']['class'] = array('form-row-first', 'address-field');
+    $fields['city']['priority'] = '70';
+    $fields['city']['class'] = array('form-row-last', 'address-field');
+    $fields['address_1']['priority'] = '80';
+    return $fields;
+}
+
+add_filter( 'woocommerce_checkout_fields' , 'custom_override_checkout_fields' );
+add_filter( 'woocommerce_default_address_fields', 'custom_override_address_fields' );
 
 add_action('wp', 'setupDailyDataRefresh');
 add_action('woocommerce_before_checkout_form', 'printPluginData', 10 );
