@@ -38,7 +38,7 @@ function readTableData($table_name, $order_by = null) {
     $table_name = $wpdb->prefix . $table_name;
     $order_clause = '';
     if ($order_by) {
-        $order_clause = ' ORDER BY '.$order_by;
+        $order_clause = 'ORDER BY '.$order_by;
     }
-    return $wpdb->get_results( "SELECT * FROM $table_name".$order_clause );
+    return $wpdb->get_results( "SELECT * FROM $table_name WHERE IS_PROD = 1 $order_clause" );
 }

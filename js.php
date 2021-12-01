@@ -15,6 +15,7 @@ add_action( 'wp_head', function () {
 
         const locs = {
             'econt': {
+                'name' : 'econt',
                 'outer': {
                     'region': '<?php echo $econt_region_field; ?>',
                     'city': '<?php echo $econt_city_field; ?>',
@@ -25,6 +26,7 @@ add_action( 'wp_head', function () {
                     'office': '<?php echo $econt_office_sel; ?>'}
             },
             'speedy': {
+                'name' : 'speedy',
                 'outer': {
                     'region': '<?php echo $speedy_region_field; ?>',
                     'city': '<?php echo $speedy_city_field; ?>',
@@ -35,6 +37,7 @@ add_action( 'wp_head', function () {
                     'office': '<?php echo $speedy_office_sel; ?>'}
             },
             'address': {
+                'name' : 'address',
                 'outer': {
                     'region': '#billing_state_field',
                     'city': '#billing_city_field',
@@ -94,12 +97,13 @@ add_action( 'wp_head', function () {
 
         function populateFields(key, selectedRegion=null, selectedCity=null) {
             if (! [delivOptions.speedy.name, delivOptions.econt.name].includes(key)) {
+                console.log('populateFields: Skipping key: '+key);
                 return;
             }
             const regionSel = locs[key].inner.region;
             const citySel = locs[key].inner.city;
             const officeSel = locs[key].inner.office;
-            // since we store only variable name, not its actual contents
+            // since we store only json variable name, not its actual contents
             const data = eval(delivOptions[key].data);
             const regionDom = jQuery(regionSel);
             regionDom.empty().trigger('change.select2');
@@ -190,26 +194,10 @@ add_action( 'wp_head', function () {
             addressOuter.hide();
             // set really saved address to empty
             jQuery(locs.address.inner.office).val("");
-            // populate data manually specified by user in 'to address' tab to 'Econt' and 'Speedy' tabs
-            const addressRegionKey = jQuery(locs.address.inner.region).val();
-            const addressRegion = jQuery(locs.address.inner.region).find('option:selected').text();
-            const addressCity = jQuery(locs.address.inner.city).find('option:selected').text();
-            if (option === delivOptions.speedy.name) {
-                jQuery(locs.speedy.inner.region).val(addressRegion).trigger('change.select2');
-                jQuery(locs.speedy.outer.region).show("slow", function(){});
-                // the actual displayed value is not always empty when selecting default option from the list
-                if (addressRegionKey) {
-                    jQuery(locs.speedy.outer.city).show("slow", function(){});
-                    jQuery(locs.speedy.inner.city).val(addressCity).trigger('change.select2');
-                }
-            } else if (option === delivOptions.econt.name) {
-                jQuery(locs.econt.inner.region).val(addressRegion).trigger('change.select2');
-                jQuery(locs.econt.outer.region).show("slow", function(){});
-                if (addressRegionKey) {
-                    jQuery(locs.econt.outer.city).show("slow", function(){});
-                    jQuery(locs.econt.inner.city).val(addressCity).trigger('change.select2');
-                }
-            } else if (option === delivOptions.address.name) {
+            if ([locs.speedy.name, locs.econt.name].includes(option)) {
+                jQuery(locs[option].outer.region).show("slow", function(){});
+                jQuery(locs[option].outer.city).show("slow", function(){});
+            } else if (option === locs.address.name) {
                 addressOuter.show("slow", function(){});
             }
         }

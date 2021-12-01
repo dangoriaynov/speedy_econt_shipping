@@ -113,7 +113,7 @@ function truncateTables($is_prod=false) {
     $table_names = array($speedy_offices_table, $speedy_sites_table, $econt_offices_table, $econt_sites_table);
     foreach ($table_names as $table_name) {
         $full_table_name = $wpdb->prefix . $table_name;
-        $wpdb->query('DELETE * FROM TABLE '.$full_table_name.' WHERE IS_PROD = '.((int) $is_prod));
+        $wpdb->query("DELETE * FROM TABLE $full_table_name WHERE IS_PROD = ".((int) $is_prod));
     }
 }
 
@@ -122,6 +122,6 @@ function markDataAsProd() {
     $table_names = array($speedy_offices_table, $speedy_sites_table, $econt_offices_table, $econt_sites_table);
     foreach ($table_names as $table_name) {
         $full_table_name = $wpdb->prefix . $table_name;
-        $wpdb->query('UPDATE TABLE '.$full_table_name.' SET IS_PROD = 1');
+        $wpdb->query("UPDATE $full_table_name SET IS_PROD = 1");
     }
 }
