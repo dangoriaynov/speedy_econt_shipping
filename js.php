@@ -177,10 +177,11 @@ add_action( 'wp_head', function () {
                 jQuery(locs[key].outer.city).hide();
                 jQuery(locs[key].outer.office).hide();
             });
-            // set really saved address to empty
+            // set really saved address (office) to empty value
             jQuery(locs.address.inner.office).val("");
             if ([locs.speedy.name, locs.econt.name].includes(option)) {
                 jQuery(locs[option].outer.region).show("slow", function(){});
+                jQuery(locs[option].inner.city).val("").trigger('change.select2');
                 jQuery(locs[option].outer.city).show("slow", function(){});
             } else if (option === locs.address.name) {
                 jQuery([locs.address.outer.region, locs.address.outer.city, locs.address.outer.office].join(',')).show("slow", function(){});
