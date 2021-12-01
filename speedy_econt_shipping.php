@@ -183,7 +183,8 @@ function custom_override_checkout_fields( $fields ): array
         'class' => array('form-row-last', 'address-field'),
         'label' => 'Град',
         'required'  => false,
-        'options' => array('няма заредени')
+        'options' => array('няма заредени'),
+        'placeholder' => 'Първо изберете област'
     );
     $fields['billing'][$speedy_office_id] = array(
         'priority' => '120',
@@ -210,7 +211,8 @@ function custom_override_checkout_fields( $fields ): array
         'class' => array('form-row-last', 'address-field'),
         'label' => 'Град',
         'required'  => false,
-        'options' => array('няма заредени')
+        'options' => array('няма заредени'),
+        'placeholder' => 'Първо изберете област'
     );
     $fields['billing'][$econt_office_id] = array(
         'priority' => '150',
