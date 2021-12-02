@@ -67,17 +67,19 @@ add_action( 'wp_head', function () {
             if (! msgContainer.length ) {
                 jQuery(".woocommerce-notices-wrapper").first().append('<div id="deliv_msg">');
             }
-            const $msgDiv = msgContainer.first();
-            $msgDiv.removeClass();
+            const msgDiv = msgContainer.first();
+            msgDiv.removeClass();
+            msgDiv.hide();
             let msg;
             if (leftTillFree <= 0) {
-                $msgDiv.addClass("woocommerce-message");
-                msg = <?php echo __('Congrats, you won free delivery using', 'speedy_econt_shipping'); ?>+' '+chosenOrDefaultOpt.label+'!';
+                msgDiv.addClass("woocommerce-message");
+                msg = '<?php echo __('Congrats, you won free delivery using', 'speedy_econt_shipping'); ?> '+chosenOrDefaultOpt.label+'!';
             } else {
-                $msgDiv.addClass("woocommerce-error");
-                msg = "<?php echo __('Still left', 'speedy_econt_shipping'); ?>"+' '+'<span class="woocommerce-Price-amount amount">'+leftTillFree.toFixed(2)+'&nbsp;<span class="woocommerce-Price-currencySymbol">'+"<?php echo __('BGN', 'speedy_econt_shipping')?>"+'</span></span> '+'<?php echo __('to get a free shipping to', 'speedy_econt_shipping')?>'+' '+chosenOrDefaultOpt.label+'! <a class="button" href="'+'<?php echo $shopUrl; ?>'+'">'+'<?php echo __('To shop', 'speedy_econt_shipping') ?>''+'</a>';
+                msgDiv.addClass("woocommerce-error");
+                msg = '<?php echo __('Still left', 'speedy_econt_shipping'); ?> <span class="woocommerce-Price-amount amount">'+leftTillFree.toFixed(2)+'&nbsp;<span class="woocommerce-Price-currencySymbol"><?php echo __('BGN', 'speedy_econt_shipping')?></span></span> <?php echo __('to get a free shipping to', 'speedy_econt_shipping')?> '+chosenOrDefaultOpt.label+'! <a class="button" href="<?php echo $shopUrl; ?>"><?php echo __('To shop', 'speedy_econt_shipping') ?></a>';
             }
-            $msgDiv.html(msg);
+            msgDiv.html(msg);
+            msgDiv.show("slow", function(){});
         }
 
         function populateDeliveryOptions() {
@@ -90,7 +92,7 @@ add_action( 'wp_head', function () {
             const chosenOption = delivOptions[key];
             const curPrice = orderPrice() >= chosenOption.free_from ? 0 : chosenOption.shipping;
             pricesCopy[key] = curPrice;
-            const priceAdd = curPrice === 0 ? "<?php echo __('for free', 'speedy_econt_shipping') ?>" : '+'+curPrice.toFixed(2)+' '+"<?php echo __('BGN', 'speedy_econt_shipping')?>";
+            const priceAdd = curPrice === 0 ? "<?php echo __('for free', 'speedy_econt_shipping') ?>" : '+'+curPrice.toFixed(2)+' <?php echo __('BGN', 'speedy_econt_shipping')?>';
             const delivText = ' '+chosenOption.label+' ('+priceAdd+')';
             jQuery(".woocommerce-input-wrapper > label[for='"+chosenOption.id+"']").text(delivText);
         }
