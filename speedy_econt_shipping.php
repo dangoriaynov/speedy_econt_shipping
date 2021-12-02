@@ -265,5 +265,4 @@ add_action( 'plugins_loaded', 'i10n_load', 0 );
 // TODO remove display:block; and a w/a for it
 // TODO make shipping options translated as expected
 // TODO check how email notifications / order print are showing the prices
-// TODO make free_from, labels and delivery prices specified using UI
 // TODO look what is hidden from fields which are touched by the plugin
