@@ -1,0 +1,86 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Speedy and Econt Shipping\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-12-02 07:12+0000\n"
+"PO-Revision-Date: 2021-12-02 10:53+0000\n"
+"Last-Translator: \n"
+"Language-Team: Български\n"
+"Language: bg_BG\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Loco https://localise.biz/\n"
+"X-Loco-Version: 2.5.5; wp-5.8.2\n"
+"X-Domain: speedy_econt_shipping"
+
+#: utils.php:38
+msgid "address"
+msgstr "адрес"
+
+#. Description of the plugin
+msgid ""
+"Adds Speedy and Econt shipping methods along with their delivery options."
+msgstr "Добавя методи на доставка със Speedy и Еконт към вашия Wordpress сайт"
+
+#: speedy_econt_shipping.php:190 speedy_econt_shipping.php:218
+msgid "Choose region first"
+msgstr "Първо изберете област"
+
+#: speedy_econt_shipping.php:187 speedy_econt_shipping.php:215
+msgid "City"
+msgstr "Град"
+
+#. Author of the plugin
+msgid "Dan Goriaynov"
+msgstr "Дан Горяйнов"
+
+#: speedy_econt_shipping.php:250 speedy_econt_shipping.php:254
+msgid "Delivery details were not populated. Please fill them in."
+msgstr "Даните доставка не бяха попълнени. Моля оправете ги."
+
+#: speedy_econt_shipping.php:246
+msgid "Delivery method was not chosen. Please chose one."
+msgstr "Моля изберете метод за доставка."
+
+#: speedy_econt_shipping.php:166
+msgid "Delivery to"
+msgstr "Доставка до"
+
+#: utils.php:36
+msgid "Econt office"
+msgstr "офис на Еконт"
+
+#. Author URI of the plugin
+msgid "http://dobavki.club"
+msgstr "http://dobavki.club"
+
+#. URI of the plugin
+msgid "https://github.com/dangoriaynov/speedy_econt_shipping"
+msgstr "https://github.com/dangoriaynov/speedy_econt_shipping"
+
+#: speedy_econt_shipping.php:181 speedy_econt_shipping.php:209
+msgid "Make your choice"
+msgstr "Изберете опцията"
+
+#: speedy_econt_shipping.php:198 speedy_econt_shipping.php:217
+#: speedy_econt_shipping.php:226
+msgid "nothing loaded"
+msgstr "няма заредени"
+
+#: speedy_econt_shipping.php:196 speedy_econt_shipping.php:224
+msgid "Office"
+msgstr "Офис"
+
+#: speedy_econt_shipping.php:178 speedy_econt_shipping.php:206
+msgid "Region"
+msgstr "Област"
+
+#. Name of the plugin
+msgid "Speedy and Econt Shipping"
+msgstr "Доставка със Speedy и Еконт"
+
+#: utils.php:34
+msgid "Speedy office"
+msgstr "офис на Speedy"

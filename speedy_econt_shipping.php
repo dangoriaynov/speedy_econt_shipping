@@ -121,12 +121,14 @@ function printPluginData() {
     generateJsVar($econt_sites_table, $econt_offices_table, 'econtData');
     generateJsVar($speedy_sites_table, $speedy_offices_table, 'speedyData');
 }
+add_action( 'woocommerce_before_checkout_form', 'printPluginData', 10 );
 
 function setupDailyDataRefresh() {
     if ( !wp_next_scheduled( 'refreshDeliveryTables' ) ) {
         wp_schedule_event( time(), 'daily', 'refreshDeliveryTables');
     }
 }
+add_action( 'wp', 'setupDailyDataRefresh' );
 
 function getRegions($table) {
     $sitesDB = readTableData($table, "name");
@@ -141,6 +143,7 @@ function fillInitialData() {
     createTables();
     refreshDeliveryTables();
 }
+register_activation_hook( __FILE__, 'fillInitialData' );
 
 function custom_override_checkout_fields( $fields ): array
 {
@@ -160,7 +163,7 @@ function custom_override_checkout_fields( $fields ): array
         'priority' => '55',
         'type' => 'radio',
         'class' => array('form-row-wide', 'address-field'),
-        'label' => 'Доставка до',
+        'label' => __('Delivery to', 'speedy_econt_shipping'),
         'required' => true,
         'options' => $shippingOptions
     );
@@ -172,27 +175,27 @@ function custom_override_checkout_fields( $fields ): array
         'priority' => '100',
         'type' => 'select',
         'class' => array('form-row-first', 'address-field'),
-        'label' => 'Област',
+        'label' => __('Region', 'speedy_econt_shipping'),
         'required'  => false,
         'options' => $regions,
-        'placeholder' => 'Изберете опцията'
+        'placeholder' => __('Make your choice', 'speedy_econt_shipping')
     );
     $fields['billing'][$speedy_city_id] = array(
         'priority' => '110',
         'type' => 'select',
         'class' => array('form-row-last', 'address-field'),
-        'label' => 'Град',
+        'label' => __('City', 'speedy_econt_shipping'),
         'required'  => false,
-        'options' => array('няма заредени'),
-        'placeholder' => 'Първо изберете област'
+        'options' => array(__('nothing loaded')),
+        'placeholder' => __('Choose region first', 'speedy_econt_shipping')
     );
     $fields['billing'][$speedy_office_id] = array(
         'priority' => '120',
         'type' => 'select',
         'class' => array('form-row-wide', 'address-field'),
-        'label' => 'Офис',
+        'label' => __('Office', 'speedy_econt_shipping'),
         'required'  => false,
-        'options' => array('няма заредени')
+        'options' => array(__('nothing loaded', 'speedy_econt_shipping'))
     );
 
     $regions = getRegions($econt_sites_table);
@@ -200,30 +203,31 @@ function custom_override_checkout_fields( $fields ): array
         'priority' => '130',
         'type' => 'select',
         'class' => array('form-row-first', 'address-field'),
-        'label' => 'Област',
+        'label' => __('Region', 'speedy_econt_shipping'),
         'required'  => false,
         'options' => $regions,
-        'placeholder' => 'Изберете опцията'
+        'placeholder' => __('Make your choice', 'speedy_econt_shipping')
     );
     $fields['billing'][$econt_city_id] = array(
         'priority' => '140',
         'type' => 'select',
         'class' => array('form-row-last', 'address-field'),
-        'label' => 'Град',
+        'label' => __('City', 'speedy_econt_shipping'),
         'required'  => false,
-        'options' => array('няма заредени'),
-        'placeholder' => 'Първо изберете област'
+        'options' => array(__('nothing loaded', 'speedy_econt_shipping')),
+        'placeholder' => __('Choose region first', 'speedy_econt_shipping')
     );
     $fields['billing'][$econt_office_id] = array(
         'priority' => '150',
         'type' => 'select',
         'class' => array('form-row-wide', 'address-field'),
-        'label' => 'Офис',
+        'label' => __('Office', 'speedy_econt_shipping'),
         'required'  => false,
-        'options' => array('няма заредени')
+        'options' => array(__('nothing loaded', 'speedy_econt_shipping'))
     );
     return $fields;
 }
+add_filter( 'woocommerce_checkout_fields' , 'custom_override_checkout_fields' );
 
 function custom_override_address_fields($fields) {
     $fields['state']['priority'] = '60';
@@ -233,11 +237,27 @@ function custom_override_address_fields($fields) {
     $fields['address_1']['priority'] = '80';
     return $fields;
 }
-
-add_filter( 'woocommerce_checkout_fields' , 'custom_override_checkout_fields' );
 add_filter( 'woocommerce_default_address_fields', 'custom_override_address_fields' );
 
-add_action('wp', 'setupDailyDataRefresh');
-add_action('woocommerce_before_checkout_form', 'printPluginData', 10 );
+function custom_checkout_field_process() {
+    global $shipping_to_id, $delivOpts, $econt_region_id, $econt_city_id, $econt_office_id, $speedy_region_id, $speedy_city_id, $speedy_office_id;
+    $shippingMethod = $_POST[$shipping_to_id];
+    if (! $shippingMethod) {
+        wc_add_notice( __( 'Delivery method was not chosen. Please chose one.', 'speedy_econt_shipping' ), 'error' );
+    }
+    if ($shippingMethod == $delivOpts['econt']['name']) {
+        if (! $_POST[$econt_region_id] || ! $_POST[$econt_city_id] || ! $_POST[$econt_office_id]) {
+            wc_add_notice( __( 'Delivery details were not populated. Please fill them in.', 'speedy_econt_shipping' ), 'error' );
+        }
+    } else if ($shippingMethod == $delivOpts['speedy']['name']) {
+        if (! $_POST[$speedy_region_id] || ! $_POST[$speedy_city_id] || ! $_POST[$speedy_office_id]) {
+            wc_add_notice( __( 'Delivery details were not populated. Please fill them in.', 'speedy_econt_shipping' ), 'error' );
+        }
+    }
+}
+add_action( 'woocommerce_checkout_process', 'custom_checkout_field_process' );
 
-register_activation_hook( __FILE__, 'fillInitialData' );
+function i10n_load( $domain, $deprecated = false, $plugin_rel_path = false ) {
+    load_plugin_textdomain( 'speedy_econt_shipping', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+}
+add_action( 'plugins_loaded', 'i10n_load', 0 );
