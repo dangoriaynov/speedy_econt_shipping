@@ -194,27 +194,27 @@ class SpeedyEcontShippingAdmin {
     }
 
     public function speedy_free_from_6_callback() {
-        $this->generic_callback('speedy_free_from_6');
+        $this->generic_callback('speedy_free_from_6', 'number');
     }
 
     public function speedy_shipping_7_callback() {
-        $this->generic_callback('speedy_shipping_7');
+        $this->generic_callback('speedy_shipping_7', 'number');
     }
 
     public function econt_free_from_8_callback() {
-        $this->generic_callback('econt_free_from_8');
+        $this->generic_callback('econt_free_from_8', 'number');
     }
 
     public function econt_shipping_9_callback() {
-        $this->generic_callback('econt_shipping_9');
+        $this->generic_callback('econt_shipping_9', 'number');
     }
 
     public function address_free_from_10_callback() {
-        $this->generic_callback('address_free_from_10');
+        $this->generic_callback('address_free_from_10', 'number');
     }
 
     public function address_shipping_11_callback() {
-        $this->generic_callback('address_shipping_11');
+        $this->generic_callback('address_shipping_11', 'number');
     }
 }
 
