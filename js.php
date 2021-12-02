@@ -73,10 +73,10 @@ add_action( 'wp_head', function () {
             let msg;
             if (leftTillFree <= 0) {
                 msgDiv.addClass("woocommerce-message");
-                msg = '<?php echo __('Congrats, you won free delivery using', 'speedy_econt_shipping'); ?> '+chosenOrDefaultOpt.label+'!';
+                msg = '<?php _e('Congrats, you won free delivery using', 'speedy_econt_shipping'); ?> '+chosenOrDefaultOpt.label+'!';
             } else {
                 msgDiv.addClass("woocommerce-error");
-                msg = '<?php echo __('Still left', 'speedy_econt_shipping'); ?> <span class="woocommerce-Price-amount amount">'+leftTillFree.toFixed(2)+'&nbsp;<span class="woocommerce-Price-currencySymbol"><?php echo __('BGN', 'speedy_econt_shipping')?></span></span> <?php echo __('to get a free shipping to', 'speedy_econt_shipping')?> '+chosenOrDefaultOpt.label+'! <a class="button" href="<?php echo $shopUrl; ?>"><?php echo __('To shop', 'speedy_econt_shipping') ?></a>';
+                msg = '<?php _e('Still left', 'speedy_econt_shipping'); ?> <span class="woocommerce-Price-amount amount">'+leftTillFree.toFixed(2)+'&nbsp;<span class="woocommerce-Price-currencySymbol"><?php echo getCurrencySymbol(); ?></span></span> <?php _e('to get a free shipping to', 'speedy_econt_shipping')?> '+chosenOrDefaultOpt.label+'! <a class="button" href="<?php echo $shopUrl; ?>"><?php _e('To shop', 'speedy_econt_shipping') ?></a>';
             }
             msgDiv.html(msg);
             msgDiv.show("slow", function(){});
@@ -92,7 +92,7 @@ add_action( 'wp_head', function () {
             const chosenOption = delivOptions[key];
             const curPrice = orderPrice() >= chosenOption.free_from ? 0 : chosenOption.shipping;
             pricesCopy[key] = curPrice;
-            const priceAdd = curPrice === 0 ? "<?php echo __('for free', 'speedy_econt_shipping') ?>" : '+'+curPrice.toFixed(2)+' <?php echo __('BGN', 'speedy_econt_shipping')?>';
+            const priceAdd = curPrice === 0 ? "<?php _e('for free', 'speedy_econt_shipping') ?>" : '+'+curPrice.toFixed(2)+' <?php echo getCurrencySymbol(); ?>';
             const delivText = ' '+chosenOption.label+' ('+priceAdd+')';
             jQuery(".woocommerce-input-wrapper > label[for='"+chosenOption.id+"']").text(delivText);
         }
@@ -206,8 +206,8 @@ add_action( 'wp_head', function () {
                 if (! jQuery(this).val()) {
                     return;
                 }
-                const addText = pricesCopy[jQuery(this).attr("id")] > 0 ? " + <?php echo __('delivery', 'speedy_econt_shipping') ?>" : "";
-                jQuery(".woocommerce-Price-amount.amount").last().text(orderPrice().toFixed(2) + ' лв.' + addText);
+                const addText = pricesCopy[jQuery(this).attr("id")] > 0 ? " + <?php _e('delivery', 'speedy_econt_shipping') ?>" : "";
+                jQuery(".woocommerce-Price-amount.amount").last().text(orderPrice().toFixed(2) + ' <?php echo getCurrencySymbol(); ?>' + addText);
             });
 
             onChangePhoneNumber();
