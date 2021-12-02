@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: Speedy and Econt Shipping\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-02 07:12+0000\n"
-"PO-Revision-Date: 2021-12-02 10:53+0000\n"
+"PO-Revision-Date: 2021-12-02 11:29+0000\n"
 "Last-Translator: \n"
 "Language-Team: Български\n"
 "Language: bg_BG\n"
@@ -15,7 +15,7 @@ msgstr ""
 "X-Loco-Version: 2.5.5; wp-5.8.2\n"
 "X-Domain: speedy_econt_shipping"
 
-#: utils.php:38
+#: utils.php:39
 msgid "address"
 msgstr "адрес"
 
@@ -23,6 +23,10 @@ msgstr "адрес"
 msgid ""
 "Adds Speedy and Econt shipping methods along with their delivery options."
 msgstr "Добавя методи на доставка със Speedy и Еконт към вашия Wordpress сайт"
+
+#: js.php:78 js.php:93
+msgid "BGN"
+msgstr "лв."
 
 #: speedy_econt_shipping.php:190 speedy_econt_shipping.php:218
 msgid "Choose region first"
@@ -32,9 +36,17 @@ msgstr "Първо изберете област"
 msgid "City"
 msgstr "Град"
 
+#: js.php:75
+msgid "Congrats, you won free delivery using"
+msgstr "Честито, спечелихте безплатна доставка до"
+
 #. Author of the plugin
 msgid "Dan Goriaynov"
 msgstr "Дан Горяйнов"
+
+#: js.php:207
+msgid "delivery"
+msgstr "доставка"
 
 #: speedy_econt_shipping.php:250 speedy_econt_shipping.php:254
 msgid "Delivery details were not populated. Please fill them in."
@@ -48,9 +60,13 @@ msgstr "Моля изберете метод за доставка."
 msgid "Delivery to"
 msgstr "Доставка до"
 
-#: utils.php:36
+#: utils.php:37
 msgid "Econt office"
 msgstr "офис на Еконт"
+
+#: js.php:93
+msgid "for free"
+msgstr "безплатно"
 
 #. Author URI of the plugin
 msgid "http://dobavki.club"
@@ -81,6 +97,18 @@ msgstr "Област"
 msgid "Speedy and Econt Shipping"
 msgstr "Доставка със Speedy и Еконт"
 
-#: utils.php:34
+#: utils.php:35
 msgid "Speedy office"
 msgstr "офис на Speedy"
+
+#: js.php:78
+msgid "Still left"
+msgstr "Остава Ви още"
+
+#: js.php:78
+msgid "to get a free shipping to"
+msgstr "за да спечелите безплатна доставка до"
+
+#: js.php:78
+msgid "To shop"
+msgstr "Към магазина"
