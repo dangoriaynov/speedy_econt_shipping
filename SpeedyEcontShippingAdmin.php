@@ -100,78 +100,47 @@ class SpeedyEcontShippingAdmin {
     }
 
     public function speedy_econt_shipping_sanitize($input) {
+        global $keys;
         $sanitary_values = array();
-        if ( isset( $input['speedy_username_0'] ) ) {
-            $sanitary_values['speedy_username_0'] = sanitize_text_field( $input['speedy_username_0'] );
+        foreach($keys as &$value) {
+            if ( isset( $input[$value] ) ) {
+                $sanitary_values[$value] = sanitize_text_field( $input[$value] );
+            }
         }
-
-        if ( isset( $input['speedy_password_1'] ) ) {
-            $sanitary_values['speedy_password_1'] = sanitize_text_field( $input['speedy_password_1'] );
-        }
-
-        if ( isset( $input['econt_username_2'] ) ) {
-            $sanitary_values['econt_username_2'] = sanitize_text_field( $input['econt_username_2'] );
-        }
-
-        if ( isset( $input['econt_password_3'] ) ) {
-            $sanitary_values['econt_password_3'] = sanitize_text_field( $input['econt_password_3'] );
-        }
-
-        if ( isset( $input['currency_symbol_4'] ) ) {
-            $sanitary_values['currency_symbol_4'] = sanitize_text_field( $input['currency_symbol_4'] );
-        }
-
-        if ( isset( $input['shop_page_5'] ) ) {
-            $sanitary_values['shop_page_5'] = sanitize_text_field( $input['shop_page_5'] );
-        }
-
         return $sanitary_values;
     }
 
-    public function speedy_econt_shipping_section_info() {
+    public function speedy_econt_shipping_section_info() {}
 
+    public function generic_callback($value, $type='text') {
+        printf(
+            '<input class="regular-text" type="'.$type.'" name="speedy_econt_shipping_option_name['.$value.']" id="'.$value.'" value="%s">',
+            isset( $this->speedy_econt_shipping_options[$value] ) ? esc_attr( $this->speedy_econt_shipping_options[$value]) : ''
+        );
     }
 
     public function speedy_username_0_callback() {
-        printf(
-            '<input class="regular-text" type="text" name="speedy_econt_shipping_option_name[speedy_username_0]" id="speedy_username_0" value="%s">',
-            isset( $this->speedy_econt_shipping_options['speedy_username_0'] ) ? esc_attr( $this->speedy_econt_shipping_options['speedy_username_0']) : ''
-        );
+        $this->generic_callback('speedy_username_0');
     }
 
     public function speedy_password_1_callback() {
-        printf(
-            '<input class="regular-text" type="password" name="speedy_econt_shipping_option_name[speedy_password_1]" id="speedy_password_1" value="%s">',
-            isset( $this->speedy_econt_shipping_options['speedy_password_1'] ) ? esc_attr( $this->speedy_econt_shipping_options['speedy_password_1']) : ''
-        );
+        $this->generic_callback('speedy_password_1', 'password');
     }
 
     public function econt_username_2_callback() {
-        printf(
-            '<input class="regular-text" type="text" name="speedy_econt_shipping_option_name[econt_username_2]" id="econt_username_2" value="%s">',
-            isset( $this->speedy_econt_shipping_options['econt_username_2'] ) ? esc_attr( $this->speedy_econt_shipping_options['econt_username_2']) : ''
-        );
+        $this->generic_callback('econt_username_2');
     }
 
     public function econt_password_3_callback() {
-        printf(
-            '<input class="regular-text" type="password" name="speedy_econt_shipping_option_name[econt_password_3]" id="econt_password_3" value="%s">',
-            isset( $this->speedy_econt_shipping_options['econt_password_3'] ) ? esc_attr( $this->speedy_econt_shipping_options['econt_password_3']) : ''
-        );
+        $this->generic_callback('econt_password_3', 'password');
     }
 
     public function currency_symbol_4_callback() {
-        printf(
-            '<input class="regular-text" type="text" name="speedy_econt_shipping_option_name[currency_symbol_4]" id="currency_symbol_4" value="%s">',
-            isset( $this->speedy_econt_shipping_options['currency_symbol_4'] ) ? esc_attr( $this->speedy_econt_shipping_options['currency_symbol_4']) : ''
-        );
+        $this->generic_callback('currency_symbol_4');
     }
 
     public function shop_page_5_callback() {
-        printf(
-            '<input class="regular-text" type="text" name="speedy_econt_shipping_option_name[shop_page_5]" id="shop_page_5" value="%s">',
-            isset( $this->speedy_econt_shipping_options['shop_page_5'] ) ? esc_attr( $this->speedy_econt_shipping_options['shop_page_5']) : ''
-        );
+        $this->generic_callback('shop_page_5');
     }
 }
 
