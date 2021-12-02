@@ -5,7 +5,7 @@ require_once 'SpeedyEcontShippingAdmin.php';
 global $speedy_region_sel, $speedy_city_sel, $speedy_office_sel, $econt_region_sel, $econt_city_sel, $econt_office_sel,
        $speedy_region_field, $speedy_city_field, $speedy_office_field, $econt_region_field, $econt_city_field, $econt_office_field,
        $delivOpts, $defaultOpt, $shipping_to_sel, $speedy_region_id, $speedy_city_id, $speedy_office_id, $econt_region_id,
-       $econt_city_id, $econt_office_id, $shipping_to_id, $shopUrl;
+       $econt_city_id, $econt_office_id, $shipping_to_id;
 
 $speedy_region_id = "speedy_region_sel";
 $speedy_city_id = "speedy_city_sel";
@@ -14,7 +14,6 @@ $econt_region_id = "econt_region_sel";
 $econt_city_id = "econt_city_sel";
 $econt_office_id = "econt_office_sel";
 $shipping_to_id = "shipping_to";
-$shopUrl = getShopUrl();
 
 $speedy_region_sel = "#".$speedy_region_id;
 $speedy_city_sel = "#".$speedy_city_id;
@@ -33,11 +32,11 @@ $econt_office_field = $econt_office_sel."_field";
 $shipping_to_field = "#".$shipping_to_id."_field";
 
 $delivOpts = array(
-    'speedy' => array('id' => 'shipping_to_speedy', 'name' => 'speedy', 'label' => __('Speedy office', 'speedy_econt_shipping' ),
+    'speedy' => array('id' => 'shipping_to_speedy', 'name' => 'speedy', 'label' => __('Speedy office', 'speedy_econt_shipping'),
         'shipping' => 3.4, 'free_from' => 40, 'data' => 'speedyData'),
-    'econt' => array('id' => 'shipping_to_econt', 'name' => 'econt', 'label' => __('Econt office', 'speedy_econt_shipping' ),
+    'econt' => array('id' => 'shipping_to_econt', 'name' => 'econt', 'label' => __('Econt office', 'speedy_econt_shipping'),
         'shipping' => 5.6, 'free_from' => 50, 'data' => 'econtData'),
-    'address' => array('id' => 'shipping_to_address', 'name' => 'address', 'label' => __('address', 'speedy_econt_shipping' ),
+    'address' => array('id' => 'shipping_to_address', 'name' => 'address', 'label' => __('address', 'speedy_econt_shipping'),
         'shipping' => 4.2, 'free_from' => 50));
 
 // default delivery option

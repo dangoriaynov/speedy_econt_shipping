@@ -76,10 +76,10 @@ add_action( 'wp_head', function () {
                 msg = '<?php _e('Congrats, you won free delivery using', 'speedy_econt_shipping'); ?> '+chosenOrDefaultOpt.label+'!';
             } else {
                 msgDiv.addClass("woocommerce-error");
-                msg = '<?php _e('Still left', 'speedy_econt_shipping'); ?> <span class="woocommerce-Price-amount amount">'+leftTillFree.toFixed(2)+'&nbsp;<span class="woocommerce-Price-currencySymbol"><?php echo getCurrencySymbol(); ?></span></span> <?php _e('to get a free shipping to', 'speedy_econt_shipping')?> '+chosenOrDefaultOpt.label+'! <a class="button" href="<?php echo $shopUrl; ?>"><?php _e('To shop', 'speedy_econt_shipping') ?></a>';
+                msg = '<?php _e('Still left', 'speedy_econt_shipping'); ?> <span class="woocommerce-Price-amount amount">'+leftTillFree.toFixed(2)+'&nbsp;<span class="woocommerce-Price-currencySymbol"><?php echo getCurrencySymbol(); ?></span></span> <?php _e('to get a free shipping to', 'speedy_econt_shipping')?> '+chosenOrDefaultOpt.label+'! <a class="button" href="<?php echo getShopUrl(); ?>"><?php _e('To shop', 'speedy_econt_shipping') ?></a>';
             }
             msgDiv.html(msg);
-            msgDiv.show("slow", function(){});
+            msgDiv.show();
         }
 
         function populateDeliveryOptions() {
@@ -191,15 +191,22 @@ add_action( 'wp_head', function () {
 
         jQuery( document ).ready(function() {
             // populate the offices data once DOM is loaded - it is happening later that onReady() is fired
-            let checkExist = setInterval(function() {
+            let regionExists = setInterval(function() {
                 if (jQuery(locs.speedy.inner.region).length) {
-                    clearInterval(checkExist);
+                    clearInterval(regionExists);
                     jQuery([locs.address.outer.region, locs.address.outer.city, locs.address.outer.office].join(',')).attr("style", "");
                     [delivOptions.speedy.name, delivOptions.econt.name].forEach(function(key) {
                         populateFields(key);
                     });
                 }
             }, 100); // check every 100ms
+
+            let shippingChosen = setInterval(function() {
+                if (jQuery('<?php echo $shipping_to_sel ?>:checked').length) {
+                    clearInterval(shippingChosen);
+                    onDeliveryOptionChange();
+                }
+            }, 500); // check every 500ms
 
             let radioButtons = jQuery('<?php echo $shipping_to_sel ?>');
             radioButtons.change(function () {
