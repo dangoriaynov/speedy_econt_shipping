@@ -72,7 +72,7 @@ add_action( 'wp_head', function () {
             let msg;
             if (leftTillFree <= 0) {
                 $msgDiv.addClass("woocommerce-message");
-                msg = 'Честито, спечелихте безплатна доставка до '+chosenOrDefaultOpt.label+'!';
+                msg = __('Congrats, you won free delivery using ', 'speedy_econt_shipping')+chosenOrDefaultOpt.label+'!';
             } else {
                 $msgDiv.addClass("woocommerce-error");
                 msg = 'Остава Ви още <span class="woocommerce-Price-amount amount">'+leftTillFree.toFixed(2)+'&nbsp;<span class="woocommerce-Price-currencySymbol">лв</span></span> за да спечелите безплатна доставка до '+chosenOrDefaultOpt.label+'! <a class="button" href="https://dobavki.club/shop/">Към магазина</a>';
@@ -90,14 +90,13 @@ add_action( 'wp_head', function () {
             const chosenOption = delivOptions[key];
             const curPrice = orderPrice() >= chosenOption.free_from ? 0 : chosenOption.shipping;
             pricesCopy[key] = curPrice;
-            const priceAdd = curPrice === 0 ? 'безплатно' : '+'+curPrice.toFixed(2)+' лв.';
+            const priceAdd = curPrice === 0 ? __('for free', speedy_econt_shipping) : '+'+curPrice.toFixed(2)+' лв.';
             const delivText = ' '+chosenOption.label+' ('+priceAdd+')';
             jQuery(".woocommerce-input-wrapper > label[for='"+chosenOption.id+"']").text(delivText);
         }
 
         function populateFields(key, selectedRegion=null, selectedCity=null) {
             if (! [delivOptions.speedy.name, delivOptions.econt.name].includes(key)) {
-                console.log('populateFields: Skipping key: '+key);
                 return;
             }
             const citySel = locs[key].inner.city;

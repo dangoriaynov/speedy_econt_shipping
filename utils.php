@@ -31,9 +31,12 @@ $econt_office_field = $econt_office_sel."_field";
 $shipping_to_field = "#".$shipping_to_id."_field";
 
 $delivOpts = array(
-    'speedy' => array('id' => 'shipping_to_speedy', 'name' => 'speedy', 'label' => 'офис на Speedy', 'shipping' => 3.4, 'free_from' => 40, 'data' => 'speedyData'),
-    'econt' => array('id' => 'shipping_to_econt', 'name' => 'econt', 'label' => 'офис на Еконт', 'shipping' => 5.6, 'free_from' => 50, 'data' => 'econtData'),
-    'address' => array('id' => 'shipping_to_address', 'name' => 'address', 'label' => 'адрес', 'shipping' => 4.2, 'free_from' => 50));
+    'speedy' => array('id' => 'shipping_to_speedy', 'name' => 'speedy', 'label' => __('Speedy office', 'speedy_econt_shipping' ),
+        'shipping' => 3.4, 'free_from' => 40, 'data' => 'speedyData'),
+    'econt' => array('id' => 'shipping_to_econt', 'name' => 'econt', 'label' => __('Econt office', 'speedy_econt_shipping' ),
+        'shipping' => 5.6, 'free_from' => 50, 'data' => 'econtData'),
+    'address' => array('id' => 'shipping_to_address', 'name' => 'address', 'label' => __('address', 'speedy_econt_shipping' ),
+        'shipping' => 4.2, 'free_from' => 50));
 // default delivery option
 $defaultOpt = $delivOpts['speedy']['name'];
 
