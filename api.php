@@ -1,6 +1,6 @@
 <?php
 
-require 'credentials.php';
+require_once 'SpeedyEcontShippingAdmin.php';
 
 function postRequest($url, $payload, $auth=null)
 {
@@ -27,8 +27,8 @@ function postRequest($url, $payload, $auth=null)
 function speedyApiRequest($url)
 {
     $payload = array(
-        'userName' => SPEEDY_NAME,
-        'password' => SPEEDY_PASSWORD,
+        'userName' => getSpeedyUser(),
+        'password' => getSpeedyPass(),
         'language' => 'BG',
         'countryId' => 100, // BULGARIA
     );
@@ -62,7 +62,7 @@ function econtApiRequest($url)
     $payload = array(
         'countryCode' => 'BGR',
     );
-    $auth = 'Authorization: Basic '. base64_encode(ECONT_NAME.":".ECONT_PASSWORD);
+    $auth = 'Authorization: Basic '. base64_encode(getEcontUser().":".getEcontPass());
     return postRequest('https://ee.econt.com/services/Nomenclatures/NomenclaturesService.'.$url.'.json', $payload, $auth);
 }
 

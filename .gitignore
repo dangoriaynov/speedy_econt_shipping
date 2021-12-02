@@ -22,6 +22,5 @@ node_modules/
 *.sql
 *.sqlite
 .idea
-credentials.php
 *.pot~
 *.po~

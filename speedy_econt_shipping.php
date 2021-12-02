@@ -257,7 +257,11 @@ function custom_checkout_field_process() {
 }
 add_action( 'woocommerce_checkout_process', 'custom_checkout_field_process' );
 
-function i10n_load( $domain, $deprecated = false, $plugin_rel_path = false ) {
+function i10n_load() {
     load_plugin_textdomain( 'speedy_econt_shipping', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 }
 add_action( 'plugins_loaded', 'i10n_load', 0 );
+
+// TODO check how email notifications / order print are showing the prices
+// TODO make free_from, labels and delivery prices specified using UI
+// TODO look what is hidden from fields which are touched by the plugin
