@@ -33,11 +33,11 @@ $shipping_to_field = "#".$shipping_to_id."_field";
 
 $delivOpts = array(
     'speedy' => array('id' => 'shipping_to_speedy', 'name' => 'speedy', 'label' => __('Speedy office', 'speedy_econt_shipping'),
-        'shipping' => 3.4, 'free_from' => 40, 'data' => 'speedyData'),
+        'shipping' => getSpeedyShipping(), 'free_from' => getSpeedyFreeFrom(), 'data' => 'speedyData'),
     'econt' => array('id' => 'shipping_to_econt', 'name' => 'econt', 'label' => __('Econt office', 'speedy_econt_shipping'),
-        'shipping' => 5.6, 'free_from' => 50, 'data' => 'econtData'),
+        'shipping' => getEcontShipping(), 'free_from' => getEcontFreeFrom(), 'data' => 'econtData'),
     'address' => array('id' => 'shipping_to_address', 'name' => 'address', 'label' => __('address', 'speedy_econt_shipping'),
-        'shipping' => 4.2, 'free_from' => 50));
+        'shipping' => getAddressShipping(), 'free_from' => getAddressFreeFrom()));
 
 // default delivery option
 $defaultOpt = $delivOpts['speedy']['name'];

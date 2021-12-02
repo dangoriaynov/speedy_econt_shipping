@@ -97,11 +97,61 @@ class SpeedyEcontShippingAdmin {
             'speedy-econt-shipping-admin', // page
             'speedy_econt_shipping_setting_section' // section
         );
+
+        add_settings_field(
+            'speedy_free_from_6', // id
+            __('Speedy free delivery from', 'speedy_econt_shipping'), // title
+            array( $this, 'speedy_free_from_6_callback' ), // callback
+            'speedy-econt-shipping-admin', // page
+            'speedy_econt_shipping_setting_section' // section
+        );
+
+        add_settings_field(
+            'speedy_shipping_7', // id
+            __('Speedy shipping fee', 'speedy_econt_shipping'), // title
+            array( $this, 'speedy_shipping_7_callback' ), // callback
+            'speedy-econt-shipping-admin', // page
+            'speedy_econt_shipping_setting_section' // section
+        );
+
+        add_settings_field(
+            'econt_free_from_8', // id
+            __('Econt free delivery from', 'speedy_econt_shipping'), // title
+            array( $this, 'econt_free_from_8_callback' ), // callback
+            'speedy-econt-shipping-admin', // page
+            'speedy_econt_shipping_setting_section' // section
+        );
+
+        add_settings_field(
+            'econt_shipping_9', // id
+            __('Econt shipping fee', 'speedy_econt_shipping'), // title
+            array( $this, 'econt_shipping_9_callback' ), // callback
+            'speedy-econt-shipping-admin', // page
+            'speedy_econt_shipping_setting_section' // section
+        );
+
+        add_settings_field(
+            'address_free_from_10', // id
+            __('To address free delivery from', 'speedy_econt_shipping'), // title
+            array( $this, 'address_free_from_10_callback' ), // callback
+            'speedy-econt-shipping-admin', // page
+            'speedy_econt_shipping_setting_section' // section
+        );
+
+        add_settings_field(
+            'address_shipping_11', // id
+            __('To address shipping fee', 'speedy_econt_shipping'), // title
+            array( $this, 'address_shipping_11_callback' ), // callback
+            'speedy-econt-shipping-admin', // page
+            'speedy_econt_shipping_setting_section' // section
+        );
     }
 
     public function speedy_econt_shipping_sanitize($input) {
-        global $keys;
         $sanitary_values = array();
+        $keys = array('speedy_username_0', 'speedy_password_1', 'econt_username_2', 'econt_password_3',
+            'currency_symbol_4', 'shop_page_5', 'speedy_free_from_6', 'speedy_shipping_7', 'econt_free_from_8',
+            'econt_shipping_9', 'address_free_from_10', 'address_shipping_11');
         foreach($keys as &$value) {
             if ( isset( $input[$value] ) ) {
                 $sanitary_values[$value] = sanitize_text_field( $input[$value] );
@@ -142,6 +192,30 @@ class SpeedyEcontShippingAdmin {
     public function shop_page_5_callback() {
         $this->generic_callback('shop_page_5');
     }
+
+    public function speedy_free_from_6_callback() {
+        $this->generic_callback('speedy_free_from_6');
+    }
+
+    public function speedy_shipping_7_callback() {
+        $this->generic_callback('speedy_shipping_7');
+    }
+
+    public function econt_free_from_8_callback() {
+        $this->generic_callback('econt_free_from_8');
+    }
+
+    public function econt_shipping_9_callback() {
+        $this->generic_callback('econt_shipping_9');
+    }
+
+    public function address_free_from_10_callback() {
+        $this->generic_callback('address_free_from_10');
+    }
+
+    public function address_shipping_11_callback() {
+        $this->generic_callback('address_shipping_11');
+    }
 }
 
 if ( is_admin() )
@@ -174,4 +248,28 @@ function getCurrencySymbol() {
 
 function getShopUrl() {
     return getStoredOption('shop_page_5');
+}
+
+function getSpeedyFreeFrom() {
+    return (int) getStoredOption('speedy_free_from_6');
+}
+
+function getSpeedyShipping() {
+    return (float) getStoredOption('speedy_shipping_7');
+}
+
+function getEcontFreeFrom() {
+    return (int) getStoredOption('econt_free_from_8');
+}
+
+function getEcontShipping() {
+    return (float) getStoredOption('econt_shipping_9');
+}
+
+function getAddressFreeFrom() {
+    return (int) getStoredOption('address_free_from_10');
+}
+
+function getAddressShipping() {
+    return (float) getStoredOption('address_shipping_11');
 }
