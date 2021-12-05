@@ -14,4 +14,4 @@ Plugin settings allow to set the following:
  - shipping labels
  - shipping fees
  - free shipping from <sum>
- - currentcy to be used
+ - currency to be used
