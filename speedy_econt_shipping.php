@@ -15,7 +15,7 @@ require 'db.php';
 require 'js.php';
 require 'css.php';
 
-global $speedy_region_sel, $speedy_city_sel, $speedy_office_sel, $econt_region_sel, $econt_city_sel, $econt_office_sel, $keepCase;
+global $keepCase;
 
 $keepCase = ['Столица' => 'столица', 'Ул.' => 'ул.', 'Ту ' => 'ТУ '];
 
@@ -130,7 +130,8 @@ function setupDailyDataRefresh() {
 }
 add_action( 'wp', 'setupDailyDataRefresh' );
 
-function getRegions($table) {
+function getRegions($table): array
+{
     $sitesDB = readTableData($table, "name");
     $regions = array();
     foreach ($sitesDB as $siteDB) {
@@ -148,7 +149,7 @@ register_activation_hook( __FILE__, 'fillInitialData' );
 function custom_override_checkout_fields( $fields ): array
 {
     global $speedy_sites_table, $speedy_region_id, $speedy_city_id, $speedy_office_id,
-           $econt_sites_table, $econt_region_id, $econt_city_id, $econt_office_id, $delivOpts, $shipping_to_id;
+           $econt_sites_table, $econt_region_id, $econt_city_id, $econt_office_id, $shipping_to_id;
 
     $fields['billing']['billing_email']['required'] = false;
     $fields['billing']['billing_email']['priority'] = '22';
@@ -156,7 +157,7 @@ function custom_override_checkout_fields( $fields ): array
     $fields['billing']['billing_phone']['priority'] = '25';
 
     $shippingOptions = array();
-    foreach ($delivOpts as $delivOpt) {
+    foreach (delivOptions() as $delivOpt) {
         $shippingOptions[$delivOpt['name']] = $delivOpt['label'];
     }
     $fields['billing'][$shipping_to_id] = array(
@@ -229,7 +230,8 @@ function custom_override_checkout_fields( $fields ): array
 }
 add_filter( 'woocommerce_checkout_fields' , 'custom_override_checkout_fields' );
 
-function custom_override_address_fields($fields) {
+function custom_override_address_fields($fields): array
+{
     $fields['state']['priority'] = '60';
     $fields['state']['class'] = array('form-row-first', 'address-field');
     $fields['city']['priority'] = '70';
@@ -262,7 +264,20 @@ function i10n_load() {
 }
 add_action( 'plugins_loaded', 'i10n_load', 0 );
 
-// TODO remove display:block; and a w/a for it
-// TODO make shipping options translated as expected
+function hide_shipping_fields( $needs_address, $hide, $order ): bool
+{
+    return false;
+}
+add_filter( 'woocommerce_order_needs_shipping_address', 'hide_shipping_fields', 10,  );
+
+/* remove shipping column from emails */
+add_filter( 'woocommerce_get_order_item_totals', 'customize_email_order_line_totals', 1000, 3 );
+function customize_email_order_line_totals( $total_rows, $order, $tax_display ){
+    if( ! is_wc_endpoint_url() || ! is_admin() ) {
+        unset($total_rows['shipping']);
+    }
+    return $total_rows;
+}
+
 // TODO check how email notifications / order print are showing the prices
 // TODO look what is hidden from fields which are touched by the plugin

@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Speedy and Econt Shipping\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-12-02 19:17+0000\n"
+"POT-Creation-Date: 2021-12-05 06:39+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: \n"
@@ -62,6 +62,11 @@ msgstr ""
 msgid "Delivery to"
 msgstr ""
 
+#. id
+#: SpeedyEcontShippingAdmin.php:119
+msgid "Econt free delivery from"
+msgstr ""
+
 #: utils.php:37
 msgid "Econt office"
 msgstr ""
@@ -69,6 +74,11 @@ msgstr ""
 #. id
 #: SpeedyEcontShippingAdmin.php:79
 msgid "Econt Password"
+msgstr ""
+
+#. id
+#: SpeedyEcontShippingAdmin.php:127
+msgid "Econt shipping fee"
 msgstr ""
 
 #. id
@@ -129,6 +139,11 @@ msgstr ""
 msgid "Speedy and Econt Shipping"
 msgstr ""
 
+#. id
+#: SpeedyEcontShippingAdmin.php:103
+msgid "Speedy free delivery from"
+msgstr ""
+
 #: utils.php:35
 msgid "Speedy office"
 msgstr ""
@@ -139,12 +154,27 @@ msgid "Speedy Password"
 msgstr ""
 
 #. id
+#: SpeedyEcontShippingAdmin.php:111
+msgid "Speedy shipping fee"
+msgstr ""
+
+#. id
 #: SpeedyEcontShippingAdmin.php:55
 msgid "Speedy Username"
 msgstr ""
 
 #: js.php:79
 msgid "Still left"
+msgstr ""
+
+#. id
+#: SpeedyEcontShippingAdmin.php:135
+msgid "To address free delivery from"
+msgstr ""
+
+#. id
+#: SpeedyEcontShippingAdmin.php:143
+msgid "To address shipping fee"
 msgstr ""
 
 #: js.php:79

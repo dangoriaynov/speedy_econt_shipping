@@ -251,7 +251,7 @@ function getShopUrl() {
 }
 
 function getSpeedyFreeFrom() {
-    return (int) getStoredOption('speedy_free_from_6');
+    return (float) getStoredOption('speedy_free_from_6');
 }
 
 function getSpeedyShipping() {
@@ -259,7 +259,7 @@ function getSpeedyShipping() {
 }
 
 function getEcontFreeFrom() {
-    return (int) getStoredOption('econt_free_from_8');
+    return (float) getStoredOption('econt_free_from_8');
 }
 
 function getEcontShipping() {
@@ -267,7 +267,7 @@ function getEcontShipping() {
 }
 
 function getAddressFreeFrom() {
-    return (int) getStoredOption('address_free_from_10');
+    return (float) getStoredOption('address_free_from_10');
 }
 
 function getAddressShipping() {

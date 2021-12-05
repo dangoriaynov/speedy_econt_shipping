@@ -5,13 +5,13 @@ require 'utils.php';
 add_action( 'wp_head', function () {
     global $speedy_region_sel, $speedy_city_sel, $speedy_office_sel, $econt_region_sel, $econt_city_sel, $econt_office_sel,
            $speedy_region_field, $speedy_city_field, $speedy_office_field, $econt_region_field, $econt_city_field, $econt_office_field,
-           $shipping_to_sel, $delivOpts, $defaultOpt, $shipping_to_field, $shopUrl;
+           $shipping_to_sel, $shipping_to_field;
     ?>
     <script>
         let isFocused = false;
         let pricesCopy = {};
-        const delivOptions = <?php echo json_encode($delivOpts); ?>;
-        const defaultShippingMethod = '<?php echo $defaultOpt; ?>';
+        const delivOptions = <?php echo json_encode(delivOptions()); ?>;
+        const defaultShippingMethod = '<?php echo defaultDelivOpt(); ?>';
 
         const locs = {
             'econt': {
@@ -121,7 +121,7 @@ add_action( 'wp_head', function () {
                         if (selectedCity && selectedCity !== city.name) {
                             return;
                         }
-                        officeDom.append(jQuery('<option id="' + office.id + '">#' + office.id + ' ' + office.name + ' (' + office.address + ')</option>'));
+                        officeDom.append(jQuery('<option id="' + office.id + '">№' + office.id + ', ' + office.address + '</option>'));
                     });
                 });
             });
@@ -174,9 +174,7 @@ add_action( 'wp_head', function () {
             const option = jQuery('<?php echo $shipping_to_sel ?>:checked').val();
             // hide all the selectors till we know what is chosen
             Object.keys(locs).forEach(function(key) {
-                jQuery(locs[key].outer.region).hide();
-                jQuery(locs[key].outer.city).hide();
-                jQuery(locs[key].outer.office).hide();
+                jQuery([locs[key].outer.region, locs[key].outer.city, locs[[key]].outer.office].join(',')).hide();
             });
             // set really saved address (office) to empty value
             jQuery(locs.address.inner.office).val("");
@@ -194,7 +192,7 @@ add_action( 'wp_head', function () {
             let regionExists = setInterval(function() {
                 if (jQuery(locs.speedy.inner.region).length) {
                     clearInterval(regionExists);
-                    jQuery([locs.address.outer.region, locs.address.outer.city, locs.address.outer.office].join(',')).attr("style", "");
+                    // jQuery([locs.address.outer.region, locs.address.outer.city, locs.address.outer.office].join(',')).attr("style", "");
                     [delivOptions.speedy.name, delivOptions.econt.name].forEach(function(key) {
                         populateFields(key);
                     });
