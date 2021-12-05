@@ -6,8 +6,8 @@ Plugin URI: https://github.com/dangoriaynov/speedy_econt_shipping
 Description: Adds Speedy and Econt shipping methods along with their delivery options.
 Version: 0.1
 Author: Dan Goriaynov
-Author URI: http://dobavki.club
-License: MIT License
+Author URI: https://github.com/dangoriaynov
+License: GPLv2
 */
 
 require 'api.php';
@@ -278,6 +278,3 @@ function customize_email_order_line_totals( $total_rows, $order, $tax_display ){
     }
     return $total_rows;
 }
-
-// TODO check how email notifications / order print are showing the prices
-// TODO look what is hidden from fields which are touched by the plugin
