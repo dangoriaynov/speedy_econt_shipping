@@ -10,6 +10,10 @@ Author URI: https://github.com/dangoriaynov
 License: GPLv2
 */
 
+if ( ! defined( 'ABSPATH' ) ) {
+    exit; // Exit if accessed directly....
+}
+
 require 'api.php';
 require 'db.php';
 require 'js.php';
@@ -19,52 +23,52 @@ global $keepCase;
 
 $keepCase = ['Столица' => 'столица', 'Ул.' => 'ул.', 'Ту ' => 'ТУ '];
 
-function insertSpeedyTableData() {
+function seshInsertSpeedyTableData() {
     global $keepCase;
     $speedy_sites_added = array();
-    $offices = apiSpeedyOfficesList();
+    $offices = seshApiSpeedyOfficesList();
     foreach ($offices as $id => $value) {
-        $name = convertCase($value['name']);
+        $name = seshConvertCase($value['name']);
 
         $site_id = $value['site_id'];
         $address = $value['address'];
         if (in_array($site_id, $speedy_sites_added)) {
             $site_name = $speedy_sites_added[$site_id];
         } else {
-            $site = apiSpeedySitesList($site_id);
-            $site_name = convertCase($site['name'], $keepCase);
-            $site_region = convertCase($site['region'], $keepCase);
-            $site_municipality = convertCase($site['municipality'], $keepCase);
-            insertSpeedySite($site_id, $site_name, $site_region, $site_municipality);
+            $site = seshApiSpeedySitesList($site_id);
+            $site_name = seshConvertCase($site['name'], $keepCase);
+            $site_region = seshConvertCase($site['region'], $keepCase);
+            $site_municipality = seshConvertCase($site['municipality'], $keepCase);
+            seshInsertSpeedySite($site_id, $site_name, $site_region, $site_municipality);
             $speedy_sites_added[$site_id] = $site_name;
         }
-        insertSpeedyOffice($id, $name, $site_name, $address);
+        seshInsertSpeedyOffice($id, $name, $site_name, $address);
     }
 }
 
-function insertEcontTableData() {
+function seshInsertEcontTableData() {
     global $keepCase;
     $econt_sites_added = array();
-    $cities = apiEcontSitesList();
+    $cities = seshApiEcontSitesList();
     foreach ($cities as $city_id => $city_data) {
-        $city_name = convertCase($city_data['name'], $keepCase);
+        $city_name = seshConvertCase($city_data['name'], $keepCase);
         $econt_sites_added[$city_id] = $city_name;
-        $region_name = convertCase($city_data['region'], $keepCase);
-        insertEcontSite($city_id, $city_name, $region_name);
+        $region_name = seshConvertCase($city_data['region'], $keepCase);
+        seshInsertEcontSite($city_id, $city_name, $region_name);
     }
-    $offices = apiEcontOfficesList();
+    $offices = seshApiEcontOfficesList();
     foreach ($offices as $office_id => $office_data) {
         $site_id = $office_data['site_id'];
         $site_name = $econt_sites_added[$site_id];
-        $office_name = convertCase($office_data['name'], $keepCase);
-        $office_address = convertCase($office_data['address'], $keepCase);
-        insertEcontOffice($office_id, $office_name, $site_name, $office_address);
+        $office_name = seshConvertCase($office_data['name'], $keepCase);
+        $office_address = seshConvertCase($office_data['address'], $keepCase);
+        seshInsertEcontOffice($office_id, $office_name, $site_name, $office_address);
     }
 }
 
-function generateJsVar($sitesTable, $officesTable, $varName) {
-    $sitesDB = readTableData($sitesTable, "name");
-    $officesDB = readTableData($officesTable, "name");
+function seshGenerateJsVar($sitesTable, $officesTable, $varName) {
+    $sitesDB = seshReadTableData($sitesTable, "name");
+    $officesDB = seshReadTableData($officesTable, "name");
     $data = array();
     // iterate over all elements in the sites DB table
     foreach ($sitesDB as $siteDB) {
@@ -100,39 +104,43 @@ function generateJsVar($sitesTable, $officesTable, $varName) {
         // update the region value
         $data[$siteDB->region] = $citiesExisting;
     }
+    ksort($data);
     ?><script>
-        const <?php ksort($data); echo $varName.'='.json_encode($data); ?>;
+        const <?php echo $varName.'='.json_encode($data); ?>;
     </script><?php
 }
 
-function refreshDeliveryTables() {
+function seshRefreshDeliveryTables() {
     // insert offices/sites data as preliminary one
-    insertSpeedyTableData();
-    insertEcontTableData();
+    seshInsertSpeedyTableData();
+    seshInsertEcontTableData();
     // clear production data from the destination tables
-    truncateTables(true);
+    seshTruncateTables(true);
     // mark newly inserted data as production one
-    markDataAsProd();
+    seshMarkDataAsProd();
 }
 
-function printPluginData() {
+function seshPrintPluginData() {
+    // works only on 'checkout' page
+    if (! (is_page( 'checkout' ) || is_checkout())) {
+        return;
+    }
     global $speedy_sites_table, $speedy_offices_table, $econt_sites_table, $econt_offices_table;
-//    fillInitialData();
-    generateJsVar($econt_sites_table, $econt_offices_table, 'econtData');
-    generateJsVar($speedy_sites_table, $speedy_offices_table, 'speedyData');
+    seshGenerateJsVar($econt_sites_table, $econt_offices_table, 'econtData');
+    seshGenerateJsVar($speedy_sites_table, $speedy_offices_table, 'speedyData');
 }
-add_action( 'woocommerce_before_checkout_form', 'printPluginData', 10 );
+add_action( 'woocommerce_before_checkout_form', 'seshPrintPluginData', 10 );
 
-function setupDailyDataRefresh() {
+function seshSetupDailyDataRefresh() {
     if ( !wp_next_scheduled( 'refreshDeliveryTables' ) ) {
         wp_schedule_event( time(), 'daily', 'refreshDeliveryTables');
     }
 }
-add_action( 'wp', 'setupDailyDataRefresh' );
+add_action( 'wp', 'seshSetupDailyDataRefresh');
 
-function getRegions($table): array
+function seshGetRegions($table): array
 {
-    $sitesDB = readTableData($table, "name");
+    $sitesDB = seshReadTableData($table, "name");
     $regions = array();
     foreach ($sitesDB as $siteDB) {
         $regions[$siteDB->region] = $siteDB->region;
@@ -140,13 +148,13 @@ function getRegions($table): array
     return $regions;
 }
 
-function fillInitialData() {
-    createTables();
-    refreshDeliveryTables();
+function seshFillInitialData() {
+    seshCreateTables();
+    seshRefreshDeliveryTables();
 }
-register_activation_hook( __FILE__, 'fillInitialData' );
+register_activation_hook( __FILE__, 'seshFillInitialData');
 
-function custom_override_checkout_fields( $fields ): array
+function sesh_custom_override_checkout_fields($fields ): array
 {
     global $speedy_sites_table, $speedy_region_id, $speedy_city_id, $speedy_office_id,
            $econt_sites_table, $econt_region_id, $econt_city_id, $econt_office_id, $shipping_to_id;
@@ -157,7 +165,7 @@ function custom_override_checkout_fields( $fields ): array
     $fields['billing']['billing_phone']['priority'] = '25';
 
     $shippingOptions = array();
-    foreach (delivOptions() as $delivOpt) {
+    foreach (seshDelivOptions() as $delivOpt) {
         $shippingOptions[$delivOpt['name']] = $delivOpt['label'];
     }
     $fields['billing'][$shipping_to_id] = array(
@@ -171,7 +179,7 @@ function custom_override_checkout_fields( $fields ): array
     unset($fields['billing']['billing_postcode']);
     unset($fields['billing']['billing_address_2']);
 
-    $regions = getRegions($speedy_sites_table);
+    $regions = seshGetRegions($speedy_sites_table);
     $fields['billing'][$speedy_region_id] = array(
         'priority' => '100',
         'type' => 'select',
@@ -199,7 +207,7 @@ function custom_override_checkout_fields( $fields ): array
         'options' => array(__('nothing loaded', 'speedy_econt_shipping'))
     );
 
-    $regions = getRegions($econt_sites_table);
+    $regions = seshGetRegions($econt_sites_table);
     $fields['billing'][$econt_region_id] = array(
         'priority' => '130',
         'type' => 'select',
@@ -228,9 +236,9 @@ function custom_override_checkout_fields( $fields ): array
     );
     return $fields;
 }
-add_filter( 'woocommerce_checkout_fields' , 'custom_override_checkout_fields' );
+add_filter( 'woocommerce_checkout_fields' , 'sesh_custom_override_checkout_fields');
 
-function custom_override_address_fields($fields): array
+function sesh_custom_override_address_fields($fields): array
 {
     $fields['state']['priority'] = '60';
     $fields['state']['class'] = array('form-row-first', 'address-field');
@@ -239,9 +247,9 @@ function custom_override_address_fields($fields): array
     $fields['address_1']['priority'] = '80';
     return $fields;
 }
-add_filter( 'woocommerce_default_address_fields', 'custom_override_address_fields' );
+add_filter( 'woocommerce_default_address_fields', 'sesh_custom_override_address_fields');
 
-function custom_checkout_field_process() {
+function sesh_custom_checkout_field_process() {
     global $shipping_to_id, $delivOpts, $econt_region_id, $econt_city_id, $econt_office_id, $speedy_region_id, $speedy_city_id, $speedy_office_id;
     $shippingMethod = $_POST[$shipping_to_id];
     if (! $shippingMethod) {
@@ -257,22 +265,22 @@ function custom_checkout_field_process() {
         }
     }
 }
-add_action( 'woocommerce_checkout_process', 'custom_checkout_field_process' );
+add_action( 'woocommerce_checkout_process', 'sesh_custom_checkout_field_process');
 
-function i10n_load() {
+function sesh_i10n_load() {
     load_plugin_textdomain( 'speedy_econt_shipping', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 }
-add_action( 'plugins_loaded', 'i10n_load', 0 );
+add_action( 'plugins_loaded', 'sesh_i10n_load', 0 );
 
-function hide_shipping_fields( $needs_address, $hide, $order ): bool
+function sesh_hide_shipping_fields($needs_address, $hide, $order ): bool
 {
     return false;
 }
-add_filter( 'woocommerce_order_needs_shipping_address', 'hide_shipping_fields', 10,  );
+add_filter( 'woocommerce_order_needs_shipping_address', 'sesh_hide_shipping_fields', 10,  );
 
 /* remove shipping column from emails */
-add_filter( 'woocommerce_get_order_item_totals', 'customize_email_order_line_totals', 1000, 3 );
-function customize_email_order_line_totals( $total_rows, $order, $tax_display ){
+add_filter( 'woocommerce_get_order_item_totals', 'sesh_customize_email_order_line_totals', 1000, 3 );
+function sesh_customize_email_order_line_totals($total_rows, $order, $tax_display ){
     if( ! is_wc_endpoint_url() || ! is_admin() ) {
         unset($total_rows['shipping']);
     }
