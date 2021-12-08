@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: Speedy and Econt Shipping\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-02 07:12+0000\n"
-"PO-Revision-Date: 2021-12-05 06:41+0000\n"
+"PO-Revision-Date: 2021-12-08 12:26+0000\n"
 "Last-Translator: \n"
 "Language-Team: Български\n"
 "Language: bg_BG\n"
@@ -136,7 +136,7 @@ msgstr "Доставка със Speedy и Еконт"
 
 #. Name of the plugin
 msgid "Speedy and Econt Shipping"
-msgstr "Доставка със Speedy и Еконт"
+msgstr "Speedy and Econt Shipping"
 
 #. id
 #: SpeedyEcontShippingAdmin.php:103

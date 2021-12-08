@@ -1,30 +1,31 @@
 <?php
 
-require_once 'SpeedyEcontShippingAdmin.php';
+if ( ! defined( 'ABSPATH' ) ) {
+    exit; // Exit if accessed directly....
+}
 
-function postRequest($url, $payload, $auth=null)
+require_once 'SeshSpeedyEcontShippingAdmin.php';
+
+function seshPostRequest($url, $payload, $headers=array())
 {
-    $curl = curl_init($url);
-    $jsonDataEncoded = json_encode($payload);
-    if ($auth) {
-        $headers = array($auth);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-    }
-    curl_setopt($curl, CURLOPT_POST, 1); // Tell cURL that we want to send a POST request.
-    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false); // Verify the peer's SSL certificate.
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true); // Stop showing results on the screen.
-    curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 5); // The number of seconds to wait while trying to connect. Use 0 to wait indefinitely.
-    curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: application/json')); // Set the content type to application/json
-    curl_setopt($curl, CURLOPT_POSTFIELDS, $jsonDataEncoded); // Attach our encoded JSON string to the POST fields.
-    $jsonResponse = curl_exec($curl);
+    $args = array(
+        'body' => $payload,
+        'headers' => $headers,
+        'timeout'     => '5',
+        'redirection' => '5',
+        'httpversion' => '1.0',
+        'blocking'    => true,
+        'cookies'     => array()
+    );
 
-    if ( $jsonResponse === FALSE) {
-        exit("cURL error: ".curl_error($curl)." while accessing ".$url);
+    $jsonResponse = wp_remote_post($url, $args);
+    if (! $jsonResponse) {
+        exit("error while accessing ".$url);
     }
     return json_decode($jsonResponse);
 }
 
-function speedyApiRequest($url)
+function seshSpeedyApiRequest($url)
 {
     $payload = array(
         'userName' => getSpeedyUser(),
@@ -32,11 +33,11 @@ function speedyApiRequest($url)
         'language' => 'BG',
         'countryId' => 100, // BULGARIA
     );
-    return postRequest('https://api.speedy.bg/v1/'.$url, $payload);
+    return seshPostRequest('https://api.speedy.bg/v1/'.$url, $payload);
 }
 
-function apiSpeedySitesList($site_id) {
-    $dataJson = speedyApiRequest('location/site/'.$site_id);
+function seshApiSpeedySitesList($site_id) {
+    $dataJson = seshSpeedyApiRequest('location/site/'.$site_id);
     $site = $dataJson->site;
     return array(
         'name' => $site->name,
@@ -44,8 +45,8 @@ function apiSpeedySitesList($site_id) {
         'municipality' => $site->municipality);
 }
 
-function apiSpeedyOfficesList() {
-    $dataJson = speedyApiRequest('location/office/');
+function seshApiSpeedyOfficesList() {
+    $dataJson = seshSpeedyApiRequest('location/office/');
     $sites = $dataJson->offices;
     $results = array();
     foreach ($sites as $office) {
@@ -57,17 +58,17 @@ function apiSpeedyOfficesList() {
     return $results;
 }
 
-function econtApiRequest($url)
+function seshEcontApiRequest($url)
 {
     $payload = array(
         'countryCode' => 'BGR',
     );
-    $auth = 'Authorization: Basic '. base64_encode(getEcontUser().":".getEcontPass());
-    return postRequest('https://ee.econt.com/services/Nomenclatures/NomenclaturesService.'.$url.'.json', $payload, $auth);
+    $headers = array('Authorization' => 'Basic '. base64_encode(getEcontUser().":".getEcontPass()));
+    return seshPostRequest('https://ee.econt.com/services/Nomenclatures/NomenclaturesService.'.$url.'.json', $payload, $headers);
 }
 
-function apiEcontSitesList() {
-    $dataJson = econtApiRequest('getCities');
+function seshApiEcontSitesList() {
+    $dataJson = seshEcontApiRequest('getCities');
     $sites = $dataJson->cities;
     $results = array();
     foreach ($sites as $site) {
@@ -78,8 +79,8 @@ function apiEcontSitesList() {
     return $results;
 }
 
-function apiEcontOfficesList() {
-    $dataJson = econtApiRequest('getOffices');
+function seshApiEcontOfficesList() {
+    $dataJson = seshEcontApiRequest('getOffices');
     $sites = $dataJson->offices;
     $results = array();
     foreach ($sites as $office) {

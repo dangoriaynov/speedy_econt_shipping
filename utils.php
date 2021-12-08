@@ -1,6 +1,10 @@
 <?php
 
-require_once 'SpeedyEcontShippingAdmin.php';
+if ( ! defined( 'ABSPATH' ) ) {
+    exit; // Exit if accessed directly....
+}
+
+require_once 'SeshSpeedyEcontShippingAdmin.php';
 
 global $speedy_region_sel, $speedy_city_sel, $speedy_office_sel, $econt_region_sel, $econt_city_sel, $econt_office_sel,
        $speedy_region_field, $speedy_city_field, $speedy_office_field, $econt_region_field, $econt_city_field, $econt_office_field,
@@ -33,11 +37,11 @@ $shipping_to_field = "#".$shipping_to_id."_field";
 
 
 // default delivery option
-function defaultDelivOpt() {
-    return delivOptions()['speedy']['name'];
+function seshDefaultDelivOpt() {
+    return seshDelivOptions()['speedy']['name'];
 }
 
-function delivOptions(): array
+function seshDelivOptions(): array
 {
     return array(
         'speedy' => array('id' => 'shipping_to_speedy', 'name' => 'speedy', 'label' => __('Speedy office', 'speedy_econt_shipping'),
@@ -48,7 +52,7 @@ function delivOptions(): array
             'shipping' => getAddressShipping(), 'free_from' => getAddressFreeFrom()));
 }
 
-function convertCase($value, $dict_replace = []) {
+function seshConvertCase($value, $dict_replace = []) {
     $result = mb_convert_case($value, MB_CASE_TITLE, 'UTF-8');
     foreach ($dict_replace as $key => $value) {
         $result = str_replace($key, $value, $result);
@@ -56,7 +60,7 @@ function convertCase($value, $dict_replace = []) {
     return $result;
 }
 
-function readTableData($table_name, $order_by = null) {
+function seshReadTableData($table_name, $order_by = null) {
     global $wpdb;
     $table_name = $wpdb->prefix . $table_name;
     $order_clause = '';

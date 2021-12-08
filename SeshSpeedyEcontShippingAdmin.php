@@ -1,6 +1,10 @@
 <?php
 
-class SpeedyEcontShippingAdmin {
+if ( ! defined( 'ABSPATH' ) ) {
+    exit; // Exit if accessed directly....
+}
+
+class SeshSpeedyEcontShippingAdmin {
     private $speedy_econt_shipping_options;
 
     public function __construct() {
@@ -219,7 +223,7 @@ class SpeedyEcontShippingAdmin {
 }
 
 if ( is_admin() )
-    $speedy_econt_shipping = new SpeedyEcontShippingAdmin();
+    $speedy_econt_shipping = new SeshSpeedyEcontShippingAdmin();
 
 function getStoredOption($name) {
     $speedy_econt_shipping_options = get_option( 'speedy_econt_shipping_option_name' );

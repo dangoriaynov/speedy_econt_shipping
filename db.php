@@ -1,5 +1,9 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) {
+    exit; // Exit if accessed directly....
+}
+
 global $jal_db_version, $speedy_offices_table, $speedy_sites_table, $econt_offices_table, $econt_sites_table;
 $speedy_offices_table = 'speedy_offices';
 $econt_offices_table = 'econt_offices';
@@ -8,7 +12,7 @@ $econt_sites_table = 'econt_sites';
 $jal_db_version = '1.1';
 
 
-function createTables() {
+function seshCreateTables() {
     global $wpdb, $jal_db_version, $speedy_offices_table, $econt_offices_table, $speedy_sites_table, $econt_sites_table;
     require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
@@ -57,7 +61,7 @@ function createTables() {
     add_option( 'jal_db_version', $jal_db_version );
 }
 
-function insertSite($id, $name, $region, $municipality, $short_table_name) {
+function seshInsertSite($id, $name, $region, $municipality, $short_table_name) {
     global $wpdb;
     $table_name = $wpdb->prefix . $short_table_name;
     $wpdb->replace(
@@ -71,17 +75,17 @@ function insertSite($id, $name, $region, $municipality, $short_table_name) {
     );
 }
 
-function insertSpeedySite($id, $name, $region, $municipality) {
+function seshInsertSpeedySite($id, $name, $region, $municipality) {
     global $speedy_sites_table;
-    insertSite($id, $name, $region, $municipality, $speedy_sites_table);
+    seshInsertSite($id, $name, $region, $municipality, $speedy_sites_table);
 }
 
-function insertEcontSite($id, $name, $region) {
+function seshInsertEcontSite($id, $name, $region) {
     global $econt_sites_table;
-    insertSite($id, $name, $region, '', $econt_sites_table);
+    seshInsertSite($id, $name, $region, '', $econt_sites_table);
 }
 
-function insertOffice($id, $name, $city, $address, $short_table_name) {
+function seshInsertOffice($id, $name, $city, $address, $short_table_name) {
     global $wpdb;
     $table_name = $wpdb->prefix . $short_table_name;
     $wpdb->replace(
@@ -95,20 +99,20 @@ function insertOffice($id, $name, $city, $address, $short_table_name) {
     );
 }
 
-function insertSpeedyOffice($id, $name, $city, $address) {
+function seshInsertSpeedyOffice($id, $name, $city, $address) {
     global $speedy_offices_table;
-    insertOffice($id, $name, $city, $address, $speedy_offices_table);
+    seshInsertOffice($id, $name, $city, $address, $speedy_offices_table);
 }
 
-function insertEcontOffice($id, $name, $city, $address) {
+function seshInsertEcontOffice($id, $name, $city, $address) {
     global $econt_offices_table;
-    insertOffice($id, $name, $city, $address, $econt_offices_table);
+    seshInsertOffice($id, $name, $city, $address, $econt_offices_table);
 }
 
-// is_prod is the way to avoid cleaning up the tables before we actually get the new values from the API
+// $is_prod is the way to avoid cleaning up the tables before we actually get the new values from the API
 // this way we first insert new data which is not 'visible' (since it has is_prod=0)
 // then -> delete existing data (with is_prod=1) and mark newly inserted data with is_prod=1
-function truncateTables($is_prod=false) {
+function seshTruncateTables($is_prod=false) {
     global $wpdb, $speedy_offices_table, $speedy_sites_table, $econt_offices_table, $econt_sites_table;
     $table_names = array($speedy_offices_table, $speedy_sites_table, $econt_offices_table, $econt_sites_table);
     foreach ($table_names as $table_name) {
@@ -117,7 +121,7 @@ function truncateTables($is_prod=false) {
     }
 }
 
-function markDataAsProd() {
+function seshMarkDataAsProd() {
     global $wpdb, $speedy_offices_table, $speedy_sites_table, $econt_offices_table, $econt_sites_table;
     $table_names = array($speedy_offices_table, $speedy_sites_table, $econt_offices_table, $econt_sites_table);
     foreach ($table_names as $table_name) {

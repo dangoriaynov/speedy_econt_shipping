@@ -1,4 +1,9 @@
 <?php
+
+if ( ! defined( 'ABSPATH' ) ) {
+    exit; // Exit if accessed directly....
+}
+
 add_action( 'wp_head', function () { ?>
     <style>
         #speedy_region_sel_field, #speedy_city_sel_field, #speedy_office_sel_field,
