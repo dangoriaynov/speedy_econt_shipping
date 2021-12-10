@@ -120,7 +120,7 @@ function seshRefreshDeliveryTables() {
     seshMarkDataAsProd();
 }
 
-function seshPrintPluginData() {
+function seshPrintCheckoutPageData() {
     // works only on 'checkout' page
     if (! (is_page( 'checkout' ) || is_checkout())) {
         return;
@@ -129,14 +129,14 @@ function seshPrintPluginData() {
     seshGenerateJsVar($econt_sites_table, $econt_offices_table, 'econtData');
     seshGenerateJsVar($speedy_sites_table, $speedy_offices_table, 'speedyData');
 }
-add_action( 'woocommerce_before_checkout_form', 'seshPrintPluginData', 10 );
+add_action( 'woocommerce_before_checkout_form', 'seshPrintCheckoutPageData', 10 );
 
 function seshSetupDailyDataRefresh() {
     if ( !wp_next_scheduled( 'refreshDeliveryTables' ) ) {
         wp_schedule_event( time(), 'daily', 'refreshDeliveryTables');
     }
 }
-add_action( 'wp', 'seshSetupDailyDataRefresh');
+add_action( 'wp', 'seshSetupDailyDataRefresh' );
 
 function seshGetRegions($table): array
 {
@@ -152,7 +152,7 @@ function seshFillInitialData() {
     seshCreateTables();
     seshRefreshDeliveryTables();
 }
-register_activation_hook( __FILE__, 'seshFillInitialData');
+register_activation_hook( __FILE__, 'seshFillInitialData' );
 
 function sesh_custom_override_checkout_fields($fields ): array
 {
@@ -236,7 +236,7 @@ function sesh_custom_override_checkout_fields($fields ): array
     );
     return $fields;
 }
-add_filter( 'woocommerce_checkout_fields' , 'sesh_custom_override_checkout_fields');
+add_filter( 'woocommerce_checkout_fields' , 'sesh_custom_override_checkout_fields' );
 
 function sesh_custom_override_address_fields($fields): array
 {
@@ -247,25 +247,25 @@ function sesh_custom_override_address_fields($fields): array
     $fields['address_1']['priority'] = '80';
     return $fields;
 }
-add_filter( 'woocommerce_default_address_fields', 'sesh_custom_override_address_fields');
+add_filter( 'woocommerce_default_address_fields', 'sesh_custom_override_address_fields' );
 
 function sesh_custom_checkout_field_process() {
     global $shipping_to_id, $delivOpts, $econt_region_id, $econt_city_id, $econt_office_id, $speedy_region_id, $speedy_city_id, $speedy_office_id;
-    $shippingMethod = $_POST[$shipping_to_id];
+    $shippingMethod = sanitize_text_field($_POST[$shipping_to_id]);
     if (! $shippingMethod) {
-        wc_add_notice( __( 'Delivery method was not chosen. Please chose one.', 'speedy_econt_shipping' ), 'error' );
+        wc_add_notice( __( 'Delivery method was not chosen. Please choose one.', 'speedy_econt_shipping' ), 'error' );
     }
     if ($shippingMethod == $delivOpts['econt']['name']) {
-        if (! $_POST[$econt_region_id] || ! $_POST[$econt_city_id] || ! $_POST[$econt_office_id]) {
+        if (! sanitize_text_field($_POST[$econt_region_id]) || ! sanitize_text_field($_POST[$econt_city_id]) || ! sanitize_text_field($_POST[$econt_office_id])) {
             wc_add_notice( __( 'Delivery details were not populated. Please fill them in.', 'speedy_econt_shipping' ), 'error' );
         }
     } else if ($shippingMethod == $delivOpts['speedy']['name']) {
-        if (! $_POST[$speedy_region_id] || ! $_POST[$speedy_city_id] || ! $_POST[$speedy_office_id]) {
+        if (! sanitize_text_field($_POST[$speedy_region_id]) || ! sanitize_text_field($_POST[$speedy_city_id]) || ! sanitize_text_field($_POST[$speedy_office_id])) {
             wc_add_notice( __( 'Delivery details were not populated. Please fill them in.', 'speedy_econt_shipping' ), 'error' );
         }
     }
 }
-add_action( 'woocommerce_checkout_process', 'sesh_custom_checkout_field_process');
+add_action( 'woocommerce_checkout_process', 'sesh_custom_checkout_field_process' );
 
 function sesh_i10n_load() {
     load_plugin_textdomain( 'speedy_econt_shipping', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );

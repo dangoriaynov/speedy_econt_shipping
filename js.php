@@ -77,24 +77,24 @@ add_action( 'wp_head', function () {
             'econt': {
                 'name' : 'econt',
                 'outer': {
-                    'region': '<?php echo $econt_region_field; ?>',
-                    'city': '<?php echo $econt_city_field; ?>',
-                    'office': '<?php echo $econt_office_field; ?>'},
+                    'region': '<?php echo esc_js($econt_region_field); ?>',
+                    'city': '<?php echo esc_js($econt_city_field); ?>',
+                    'office': '<?php echo esc_js($econt_office_field); ?>'},
                 'inner': {
-                    'region': '<?php echo $econt_region_sel; ?>',
-                    'city': '<?php echo $econt_city_sel; ?>',
-                    'office': '<?php echo $econt_office_sel; ?>'}
+                    'region': '<?php echo esc_js($econt_region_sel); ?>',
+                    'city': '<?php echo esc_js($econt_city_sel); ?>',
+                    'office': '<?php echo esc_js($econt_office_sel); ?>'}
             },
             'speedy': {
                 'name' : 'speedy',
                 'outer': {
-                    'region': '<?php echo $speedy_region_field; ?>',
-                    'city': '<?php echo $speedy_city_field; ?>',
-                    'office': '<?php echo $speedy_office_field; ?>'},
+                    'region': '<?php echo esc_js($speedy_region_field); ?>',
+                    'city': '<?php echo esc_js($speedy_city_field); ?>',
+                    'office': '<?php echo esc_js($speedy_office_field); ?>'},
                 'inner': {
-                    'region': '<?php echo $speedy_region_sel; ?>',
-                    'city': '<?php echo $speedy_city_sel; ?>',
-                    'office': '<?php echo $speedy_office_sel; ?>'}
+                    'region': '<?php echo esc_js($speedy_region_sel); ?>',
+                    'city': '<?php echo esc_js($speedy_city_sel); ?>',
+                    'office': '<?php echo esc_js($speedy_office_sel); ?>'}
             },
             'address': {
                 'name' : 'address',
@@ -111,7 +111,7 @@ add_action( 'wp_head', function () {
 
         function onChangePhoneNumber(){
             if (jQuery("#billing_phone").val() !== '') {
-                jQuery("<?php echo $shipping_to_field; ?>").show("slow", function(){});
+                jQuery("<?php echo esc_js($shipping_to_field); ?>").show("slow", function(){});
             }
         }
 
@@ -234,30 +234,30 @@ add_action( 'wp_head', function () {
 
             // for auto-populated fields - show chosen delivery option
             let shippingChosen = setInterval(function() {
-                if (jQuery('<?php echo $shipping_to_sel ?>:checked').length === 0 &&
+                if (jQuery('<?php echo $shipping_to_sel; ?>:checked').length === 0 &&
                     jQuery([locs.address.outer.region, locs.address.outer.city, locs.address.outer.office].join(',')).is(":visible")) {
                     jQuery('#'+delivOptions.speedy.id).prop("checked", true);
                 }
-                if (jQuery('<?php echo $shipping_to_sel ?>:checked').length) {
+                if (jQuery('<?php echo $shipping_to_sel; ?>:checked').length) {
                     clearInterval(shippingChosen);
                     onDeliveryOptionChange();
                 }
             }, 500); // check every 500ms
 
-            let radioButtons = jQuery('<?php echo $shipping_to_sel ?>');
+            let radioButtons = jQuery('<?php echo $shipping_to_sel; ?>');
             radioButtons.change(function () {
                 if (! jQuery(this).val()) {
                     return;
                 }
                 const addText = pricesCopy[jQuery(this).attr("id")] > 0 ? " + <?php _e('delivery', 'speedy_econt_shipping') ?>" : "";
-                jQuery(".woocommerce-Price-amount.amount").last().text(orderPrice().toFixed(2) + ' <?php echo getCurrencySymbol(); ?>' + addText);
+                jQuery(".woocommerce-Price-amount.amount").last().text(orderPrice().toFixed(2) + ' <?php echo esc_js(getCurrencySymbol()); ?>' + addText);
             });
 
             onChangePhoneNumber();
             jQuery('#billing_phone').keypress(onChangePhoneNumber);
 
             showTillFreeDeliveryMsg();
-            jQuery('<?php echo $shipping_to_sel ?>').change(onDeliveryOptionChange);
+            jQuery('<?php echo $shipping_to_sel; ?>').change(onDeliveryOptionChange);
             [delivOptions.speedy.name, delivOptions.econt.name].forEach(function(key) {
                 processPopulatedData(key);
                 jQuery(locs[key].inner.region).val("").trigger('change.select2');
