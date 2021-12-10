@@ -167,8 +167,12 @@ class SeshSpeedyEcontShippingAdmin {
     public function speedy_econt_shipping_section_info() {}
 
     public function generic_callback($value, $type='text') {
+        $add = "";
+        if ($type == 'number') {
+            $add = 'step="0.1" min="0"';
+        }
         printf(
-            '<input class="regular-text" type="'.$type.'" name="speedy_econt_shipping_option_name['.$value.']" id="'.$value.'" value="%s">',
+            '<input class="regular-text" type="'.$type.'" name="speedy_econt_shipping_option_name['.$value.']" id="'.$value.'" value="%s" '.$add.'>',
             isset( $this->speedy_econt_shipping_options[$value] ) ? esc_attr( $this->speedy_econt_shipping_options[$value]) : ''
         );
     }
