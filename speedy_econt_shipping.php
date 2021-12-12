@@ -181,7 +181,7 @@ function sesh_custom_override_checkout_fields($fields ): array
 
     $regions = seshGetRegions($speedy_sites_table);
     $fields['billing'][$speedy_region_id] = array(
-        'priority' => '100',
+        'priority' => '105',
         'type' => 'select',
         'class' => array('form-row-first', 'address-field'),
         'label' => __('Region', 'speedy_econt_shipping'),
