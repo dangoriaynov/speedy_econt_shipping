@@ -121,6 +121,7 @@ function seshRefreshDeliveryTables() {
 }
 
 function seshPrintCheckoutPageData() {
+//    seshInsertSpeedyTableData();
     // works only on 'checkout' page
     if (! (is_page( 'checkout' ) || is_checkout())) {
         return;
@@ -132,11 +133,11 @@ function seshPrintCheckoutPageData() {
 add_action( 'woocommerce_before_checkout_form', 'seshPrintCheckoutPageData', 10 );
 
 function seshSetupDailyDataRefresh() {
-    if ( !wp_next_scheduled( 'refreshDeliveryTables' ) ) {
-        wp_schedule_event( time(), 'daily', 'refreshDeliveryTables');
+    if ( !wp_next_scheduled( 'seshRefreshDeliveryTables' ) ) {
+        wp_schedule_event( time(), 'daily', 'seshRefreshDeliveryTables');
     }
 }
-add_action( 'wp', 'seshSetupDailyDataRefresh' );
+//add_action( 'wp', 'seshSetupDailyDataRefresh' );
 
 function seshGetRegions($table): array
 {
@@ -186,7 +187,7 @@ function sesh_custom_override_checkout_fields($fields ): array
         'class' => array('form-row-first', 'address-field'),
         'label' => __('Region', 'speedy_econt_shipping'),
         'required'  => false,
-        'options' => $regions,
+        'options' => count($regions) > 0 ? ($regions) : (array(__('nothing loaded', 'speedy_econt_shipping'))),
         'placeholder' => __('Make your choice', 'speedy_econt_shipping')
     );
     $fields['billing'][$speedy_city_id] = array(
@@ -195,7 +196,7 @@ function sesh_custom_override_checkout_fields($fields ): array
         'class' => array('form-row-last', 'address-field'),
         'label' => __('City', 'speedy_econt_shipping'),
         'required'  => false,
-        'options' => array(__('nothing loaded')),
+        'options' => array(__('nothing loaded', 'speedy_econt_shipping')),
         'placeholder' => __('Choose region first', 'speedy_econt_shipping')
     );
     $fields['billing'][$speedy_office_id] = array(
@@ -214,7 +215,7 @@ function sesh_custom_override_checkout_fields($fields ): array
         'class' => array('form-row-first', 'address-field'),
         'label' => __('Region', 'speedy_econt_shipping'),
         'required'  => false,
-        'options' => $regions,
+        'options' => count($regions) > 0 ? ($regions) : (array(__('nothing loaded', 'speedy_econt_shipping'))),
         'placeholder' => __('Make your choice', 'speedy_econt_shipping')
     );
     $fields['billing'][$econt_city_id] = array(
@@ -276,7 +277,7 @@ function sesh_hide_shipping_fields($needs_address, $hide, $order ): bool
 {
     return false;
 }
-add_filter( 'woocommerce_order_needs_shipping_address', 'sesh_hide_shipping_fields', 10,  );
+add_filter( 'woocommerce_order_needs_shipping_address', 'sesh_hide_shipping_fields', 10, 3 );
 
 /* remove shipping column from emails */
 add_filter( 'woocommerce_get_order_item_totals', 'sesh_customize_email_order_line_totals', 1000, 3 );
