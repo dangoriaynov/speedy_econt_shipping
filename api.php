@@ -3,25 +3,33 @@
 if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly....
 }
+global $defaultHeaders;
+$defaultHeaders = array('Content-Type' => 'application/json; charset=utf-8');
 
 require_once 'SeshSpeedyEcontShippingAdmin.php';
 
 function seshPostRequest($url, $payload, $headers=array())
 {
+    global $defaultHeaders;
+    $finalHeaders = array_merge($headers, $defaultHeaders);
     $args = array(
+        'method' => 'POST',
         'body' => $payload,
-        'headers' => $headers,
-        'timeout'     => '5',
+        'headers' => $finalHeaders,
+        'timeout'     => '60',
         'redirection' => '5',
         'httpversion' => '1.0',
         'blocking'    => true,
         'cookies'     => array()
     );
 
+    //print_r($args);
     $jsonResponse = wp_remote_post($url, $args);
     if (! $jsonResponse) {
         exit("error while accessing ".$url);
     }
+    //echo "RESPONSE:";
+    //print_r($jsonResponse);
     return json_decode($jsonResponse);
 }
 
