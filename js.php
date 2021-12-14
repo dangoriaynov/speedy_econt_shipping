@@ -55,13 +55,14 @@ add_action( 'wp_head', function () {
         const delivOptions = <?php echo json_encode(seshDelivOptions()); ?>;
         const defaultShippingMethod = '<?php echo seshDefaultDelivOpt(); ?>';
         let pricesCopy = {};
+        let isFree = false;
 
         function orderPrice() {
             return parseFloat(jQuery(".cart-contents .woocommerce-Price-amount.amount").last().text()
                 || jQuery(".order-total .woocommerce-Price-amount.amount").last().text());
         }
 
-        function doAllPricesCopy() {
+        function doShippingPricesCopy() {
             // do the copy of prices
             Object.values(delivOptions).forEach(function(value) {
                 pricesCopy[value.id] = value.shipping;
@@ -80,7 +81,8 @@ add_action( 'wp_head', function () {
             msgDiv.removeClass();
             msgDiv.hide();
             let msg;
-            if (leftTillFree <= 0) {
+            isFree = leftTillFree <= 0;
+            if (isFree) {
                 msgDiv.addClass("woocommerce-message");
                 msg = '<?php _e('Congrats, you won free delivery using', 'speedy_econt_shipping'); ?> '+chosenOrDefaultOpt.label+'!';
             } else {
@@ -93,15 +95,16 @@ add_action( 'wp_head', function () {
 
         function populateDeliveryOption(key){
             const chosenOption = delivOptions[key];
-            const curPrice = orderPrice() >= chosenOption.free_from ? 0 : chosenOption.shipping;
-            pricesCopy[key] = curPrice;
-            const priceAdd = curPrice === 0 ? "<?php _e('for free', 'speedy_econt_shipping') ?>" : '+'+curPrice.toFixed(2)+' <?php echo esc_js(getCurrencySymbol()); ?>';
+            const delivPrice = orderPrice() >= chosenOption.free_from ? 0 : chosenOption.shipping;
+            // convert to id here since we do care about real dom elements here
+            pricesCopy[delivOptions[key].id] = delivPrice;
+            const priceAdd = delivPrice === 0 ? "<?php _e('for free', 'speedy_econt_shipping') ?>" : '+'+curPrice.toFixed(2)+' <?php echo esc_js(getCurrencySymbol()); ?>';
             const delivText = ' '+chosenOption.label+' ('+priceAdd+')';
             jQuery(".woocommerce-input-wrapper > label[for='"+chosenOption.id+"']").text(delivText);
         }
 
         function populateDeliveryOptions() {
-            doAllPricesCopy();
+            doShippingPricesCopy();
             Object.keys(delivOptions).forEach(function(key) {
                 populateDeliveryOption(key);
             });
@@ -178,6 +181,10 @@ add_action( 'wp_head', function () {
             });
         }
 
+        function getFreeLabel() {
+            return isFree ? " - <?php _e('for free', 'speedy_econt_shipping') ?>" : "";
+        }
+
         function processPopulatedData(key) {
             const regionDom = jQuery(locs[key].inner.region);
             const cityDomOuter = jQuery(locs[key].outer.city);
@@ -211,13 +218,13 @@ add_action( 'wp_head', function () {
                 const oneOffice = officeDom.find('option').length === 1 ? jQuery(locs[key].inner.office+' option:eq(0)').val() : "";
                 officeDom.val(oneOffice).trigger('change.select2');
                 // auto-populate address field with single office available
-                jQuery(locs.address.inner.office).val(delivOptions[key].label + ": " + oneOffice);
+                jQuery(locs.address.inner.office).val(delivOptions[key].label + getFreeLabel() + ": " + oneOffice);
 
                 officeDomOuter.show();
             });
             officeDom.change(function() {
                 const office = officeDom.find('option:selected').text();
-                jQuery(locs.address.inner.office).val(delivOptions[key].label + ": " + office);
+                jQuery(locs.address.inner.office).val(delivOptions[key].label + getFreeLabel() + ": " + office);
             });
         }
 
