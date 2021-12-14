@@ -14,7 +14,7 @@ function seshPostRequest($url, $payload, $headers=array())
     $finalHeaders = array_merge($headers, $defaultHeaders);
     $args = array(
         'method' => 'POST',
-        'body' => $payload,
+        'body' => json_encode($payload),
         'headers' => $finalHeaders,
         'timeout'     => '60',
         'redirection' => '5',
@@ -23,14 +23,11 @@ function seshPostRequest($url, $payload, $headers=array())
         'cookies'     => array()
     );
 
-    //print_r($args);
     $jsonResponse = wp_remote_post($url, $args);
     if (! $jsonResponse) {
         exit("error while accessing ".$url);
     }
-    //echo "RESPONSE:";
-    //print_r($jsonResponse);
-    return json_decode($jsonResponse);
+    return json_decode($jsonResponse['body']);
 }
 
 function seshSpeedyApiRequest($url)
