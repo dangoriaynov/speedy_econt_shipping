@@ -210,13 +210,14 @@ add_action( 'wp_head', function () {
                 // chose the first office if only 1 is available in the list
                 const oneOffice = officeDom.find('option').length === 1 ? jQuery(locs[key].inner.office+' option:eq(0)').val() : "";
                 officeDom.val(oneOffice).trigger('change.select2');
-                jQuery(locs.address.inner.office).val(oneOffice);
+                // auto-populate address field with single office available
+                jQuery(locs.address.inner.office).val(delivOptions[key].label + ": " + oneOffice);
 
                 officeDomOuter.show();
             });
             officeDom.change(function() {
                 const office = officeDom.find('option:selected').text();
-                jQuery(locs.address.inner.office).val(office);
+                jQuery(locs.address.inner.office).val(delivOptions[key].label + ": " + office);
             });
         }
 
