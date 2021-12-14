@@ -121,7 +121,6 @@ function seshRefreshDeliveryTables() {
 }
 
 function seshPrintCheckoutPageData() {
-//    seshInsertSpeedyTableData();
     // works only on 'checkout' page
     if (! (is_page( 'checkout' ) || is_checkout())) {
         return;
@@ -137,7 +136,7 @@ function seshSetupDailyDataRefresh() {
         wp_schedule_event( time(), 'daily', 'seshRefreshDeliveryTables');
     }
 }
-//add_action( 'wp', 'seshSetupDailyDataRefresh' );
+add_action( 'wp', 'seshSetupDailyDataRefresh' );
 
 function seshGetRegions($table): array
 {
