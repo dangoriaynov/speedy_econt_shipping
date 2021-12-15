@@ -110,7 +110,11 @@ add_action( 'wp_head', function () {
             });
         }
         function changeFinalPriceElem() {
-            return changeFinalPrice(jQuery('<?php echo $shipping_to_sel; ?>:checked').attr('id'));
+            let checkedOpt = jQuery('<?php echo $shipping_to_sel; ?>:checked');
+            if (checkedOpt.size() > 0) {
+                return changeFinalPrice(checkedOpt.attr('id'));
+            }
+            return changeFinalPrice(delivOptions[defaultShippingMethod].id);
         }
 
         function changeFinalPrice(id) {
@@ -127,7 +131,7 @@ add_action( 'wp_head', function () {
                 showTillFreeDeliveryMsg();
             }, 500); // run every 500ms
             populateDeliveryOptions();
-            changeFinalPrice(delivOptions[defaultShippingMethod].id);
+            changeFinalPriceElem();
         });
         jQuery( document ).ajaxComplete(function() {
             showTillFreeDeliveryMsg();
