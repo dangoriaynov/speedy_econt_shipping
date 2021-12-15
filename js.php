@@ -98,7 +98,7 @@ add_action( 'wp_head', function () {
             const delivPrice = orderPrice() >= chosenOption.free_from ? 0 : chosenOption.shipping;
             // convert to id here since we do care about real dom elements here
             pricesCopy[delivOptions[key].id] = delivPrice;
-            const priceAdd = delivPrice === 0 ? "<?php _e('for free', 'speedy_econt_shipping') ?>" : '+'+curPrice.toFixed(2)+' <?php echo esc_js(getCurrencySymbol()); ?>';
+            const priceAdd = delivPrice === 0 ? "<?php _e('for free', 'speedy_econt_shipping') ?>" : '+'+delivPrice.toFixed(2)+' <?php echo esc_js(getCurrencySymbol()); ?>';
             const delivText = ' '+chosenOption.label+' ('+priceAdd+')';
             jQuery(".woocommerce-input-wrapper > label[for='"+chosenOption.id+"']").text(delivText);
         }
