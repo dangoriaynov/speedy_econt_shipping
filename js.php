@@ -111,7 +111,7 @@ add_action( 'wp_head', function () {
         }
         function changeFinalPriceElem() {
             let checkedOpt = jQuery('<?php echo $shipping_to_sel; ?>:checked');
-            if (checkedOpt.size() > 0) {
+            if (checkedOpt.length > 0) {
                 return changeFinalPrice(checkedOpt.attr('id'));
             }
             return changeFinalPrice(delivOptions[defaultShippingMethod].id);
