@@ -286,3 +286,13 @@ function sesh_customize_email_order_line_totals($total_rows, $order, $tax_displa
     }
     return $total_rows;
 }
+
+/* Add a link to the settings page on the plugins.php page. */
+function add_settings_page_link( $links ): array
+{
+    $links = array_merge( array(
+        '<a href="' . esc_url( admin_url( '/options-general.php?page=speedy-econt-shipping' ) ) . '">' . __( 'Settings', 'speedy_econt_shipping' ) . '</a>'
+    ), $links );
+    return $links;
+}
+add_action( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'add_settings_page_link' );
