@@ -8,7 +8,7 @@ require_once 'SeshSpeedyEcontShippingAdmin.php';
 
 global $speedy_region_sel, $speedy_city_sel, $speedy_office_sel, $econt_region_sel, $econt_city_sel, $econt_office_sel,
        $speedy_region_field, $speedy_city_field, $speedy_office_field, $econt_region_field, $econt_city_field, $econt_office_field,
-       $delivOpts, $defaultOpt, $shipping_to_sel, $speedy_region_id, $speedy_city_id, $speedy_office_id, $econt_region_id,
+       $shipping_to_sel, $speedy_region_id, $speedy_city_id, $speedy_office_id, $econt_region_id,
        $econt_city_id, $econt_office_id, $shipping_to_id;
 
 $speedy_region_id = "speedy_region_sel";
