@@ -227,8 +227,11 @@ add_action( 'wp_head', function () {
                 officeDomOuter.show();
             });
             officeDom.change(function() {
-                const office = officeDom.find('option:selected').text();
-                jQuery(locs.address.inner.office).val(delivOptions[key].label + getFreeLabel() + ": " + office);
+                let office = officeDom.find('option:selected').text();
+                if (office) {
+                    office = delivOptions[key].label + getFreeLabel() + ": " + office;
+                }
+                jQuery(locs.address.inner.office).val(office);
             });
         }
 

@@ -254,16 +254,16 @@ function sesh_custom_override_address_fields($fields): array
 add_filter( 'woocommerce_default_address_fields', 'sesh_custom_override_address_fields' );
 
 function sesh_custom_checkout_field_process() {
-    global $shipping_to_id, $delivOpts, $econt_region_id, $econt_city_id, $econt_office_id, $speedy_region_id, $speedy_city_id, $speedy_office_id;
+    global $shipping_to_id, $econt_region_id, $econt_city_id, $econt_office_id, $speedy_region_id, $speedy_city_id, $speedy_office_id;
     $shippingMethod = sanitize_text_field($_POST[$shipping_to_id]);
     if (! $shippingMethod) {
         wc_add_notice( __( 'Delivery method was not chosen. Please choose one.', 'speedy_econt_shipping' ), 'error' );
     }
-    if ($shippingMethod == $delivOpts['econt']['name']) {
+    if ($shippingMethod === seshDelivOptions()['econt']['name']) {
         if (! sanitize_text_field($_POST[$econt_region_id]) || ! sanitize_text_field($_POST[$econt_city_id]) || ! sanitize_text_field($_POST[$econt_office_id])) {
             wc_add_notice( __( 'Delivery details were not populated. Please fill them in.', 'speedy_econt_shipping' ), 'error' );
         }
-    } else if ($shippingMethod == $delivOpts['speedy']['name']) {
+    } else if ($shippingMethod === seshDelivOptions()['speedy']['name']) {
         if (! sanitize_text_field($_POST[$speedy_region_id]) || ! sanitize_text_field($_POST[$speedy_city_id]) || ! sanitize_text_field($_POST[$speedy_office_id])) {
             wc_add_notice( __( 'Delivery details were not populated. Please fill them in.', 'speedy_econt_shipping' ), 'error' );
         }
