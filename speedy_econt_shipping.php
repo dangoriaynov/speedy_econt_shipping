@@ -142,6 +142,18 @@ function seshSetupDailyDataRefresh() {
 }
 add_action( 'wp', 'seshSetupDailyDataRefresh' );
 
+function seshFillInitialData() {
+    seshCreateTables();
+    seshRefreshDeliveryTables();
+    seshSetupDailyDataRefresh();
+}
+register_activation_hook( __FILE__, 'seshFillInitialData' );
+
+function seshDeactivateDailyDataRefresh() {
+    wp_clear_scheduled_hook( 'seshRefreshDeliveryTables' );
+}
+register_deactivation_hook( __FILE__, 'seshDeactivateDailyDataRefresh' );
+
 function seshGetRegions($table): array
 {
     $sitesDB = seshReadTableData($table, "name");
@@ -151,12 +163,6 @@ function seshGetRegions($table): array
     }
     return $regions;
 }
-
-function seshFillInitialData() {
-    seshCreateTables();
-    seshRefreshDeliveryTables();
-}
-register_activation_hook( __FILE__, 'seshFillInitialData' );
 
 function sesh_custom_override_checkout_fields($fields ): array
 {
