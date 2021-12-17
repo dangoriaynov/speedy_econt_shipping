@@ -1,13 +1,17 @@
 <?php
 
 /*
-Plugin Name: Speedy and Econt Shipping
-Plugin URI: https://github.com/dangoriaynov/speedy_econt_shipping
-Description: Adds Speedy and Econt shipping methods along with their delivery options.
-Version: 0.1
-Author: Dan Goriaynov
-Author URI: https://github.com/dangoriaynov
-License: GPLv2
+ * Plugin Name:       Speedy and Econt Shipping
+ * Description:       Adds Speedy and Econt shipping methods along with their delivery options.
+ * Author:            Dan Goriaynov
+ * Author URI:        https://github.com/dangoriaynov
+ * Plugin URI:        https://github.com/dangoriaynov/speedy_econt_shipping
+ * Version:           0.1
+ * WC tested up to:   5.8.2
+ * License:           GNU General Public License, version 2
+ * License URI:       https://www.gnu.org/licenses/gpl-2.0.en.html
+ * Domain Path:       /languages/
+ * Text Domain:       speedy_econt_shipping
 */
 
 if ( ! defined( 'ABSPATH' ) ) {
