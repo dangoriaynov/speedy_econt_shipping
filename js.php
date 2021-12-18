@@ -189,6 +189,13 @@ add_action( 'wp_head', function () {
             return isFree ? " - <?php _e('for free', 'speedy_econt_shipping') ?>" : "";
         }
 
+        function officeValueChange(key, value) {
+            if (value) {
+                value = delivOptions[key].label + getFreeLabel() + ": " + value;
+            }
+            jQuery(locs.address.inner.office).val(delivOptions[key].label + getFreeLabel() + ": " + value);
+        }
+
         function processPopulatedData(key) {
             const regionDom = jQuery(locs[key].inner.region);
             const cityDomOuter = jQuery(locs[key].outer.city);
@@ -219,19 +226,16 @@ add_action( 'wp_head', function () {
                 cityDom.val(city).trigger('change.select2');
 
                 // chose the first office if only 1 is available in the list
-                const oneOffice = officeDom.find('option').length === 1 ? jQuery(locs[key].inner.office+' option:eq(0)').val() : "";
+                let oneOffice = officeDom.find('option').length === 1 ? jQuery(locs[key].inner.office+' option:eq(0)').val() : "";
                 officeDom.val(oneOffice).trigger('change.select2');
                 // auto-populate address field with single office available
-                jQuery(locs.address.inner.office).val(delivOptions[key].label + getFreeLabel() + ": " + oneOffice);
+                officeValueChange(key, oneOffice);
 
                 officeDomOuter.show();
             });
             officeDom.change(function() {
                 let office = officeDom.find('option:selected').text();
-                if (office) {
-                    office = delivOptions[key].label + getFreeLabel() + ": " + office;
-                }
-                jQuery(locs.address.inner.office).val(office);
+                officeValueChange(key, office);
             });
         }
 
@@ -251,6 +255,25 @@ add_action( 'wp_head', function () {
             } else if (option === locs.address.name) {
                 jQuery([locs.address.outer.region, locs.address.outer.city, locs.address.outer.office].join(',')).show("slow", function(){});
             }
+        }
+
+        const alphabet = "abcdefghijklmnopqrstuvwxyzабвгдежзийклмнопрстуфхцчшщъьюя";
+
+        function alphabetically(a, b) {
+            a = a.toLowerCase()
+            b = b.toLowerCase();
+            // Find the first position were the strings do not match
+            let position = 0;
+            while(a[position] === b[position]) {
+                // If both are the same don't swap
+                if(!a[position] && !b[position]) return 0;
+                // Otherwise the shorter one goes first
+                if(!a[position]) return 1;
+                if(!b[position]) return -1;
+                position++;
+            }
+            // Then sort by the characters position
+            return alphabet.indexOf(a[position]) - alphabet.indexOf(b[position]);
         }
 
         jQuery( document ).ready(function() {
@@ -299,7 +322,7 @@ add_action( 'wp_head', function () {
             [locs.address.inner.region, locs.econt.inner.region, locs.econt.inner.city, locs.econt.inner.office,
                 locs.speedy.inner.region, locs.speedy.inner.city, locs.speedy.inner.office].forEach(function(key) {
                 jQuery(key).select2({
-                    sortResults: data => data.sort((a, b) => a.text.localeCompare(b.text))
+                    sortResults: data => data.sort(alphabetically)
                 });
             });
         });
