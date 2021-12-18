@@ -135,17 +135,22 @@ function seshPrintCheckoutPageData() {
 }
 add_action( 'woocommerce_before_checkout_form', 'seshPrintCheckoutPageData', 10 );
 
-function seshSetupDailyDataRefresh() {
-    if ( !wp_next_scheduled( 'seshRefreshDeliveryTables' ) ) {
-        wp_schedule_event( time(), 'daily', 'seshRefreshDeliveryTables');
+function seshSetupDailyRun() {
+    if ( !wp_next_scheduled( 'seshDailyHook' ) ) {
+        wp_schedule_event( strtotime( '3am tomorrow' ), 'daily', 'seshDailyHook');
     }
 }
-add_action( 'wp', 'seshSetupDailyDataRefresh' );
+add_action( 'seshDailyHook', 'seshSetupDailyRun' );
+
+function seshOnActivate() {
+    seshSetupDailyRun();
+    seshRefreshDeliveryTables();
+}
+add_action( 'seshActivationHook', 'seshOnActivate' );
 
 function seshFillInitialData() {
     seshCreateTables();
-    seshRefreshDeliveryTables();
-    seshSetupDailyDataRefresh();
+    wp_schedule_single_event( time(), 'seshActivationHook' );
 }
 register_activation_hook( __FILE__, 'seshFillInitialData' );
 
