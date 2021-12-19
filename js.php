@@ -288,6 +288,15 @@ add_action( 'wp_head', function () {
                 }
             }, 100); // check every 100ms
 
+            let radioButtons = jQuery('<?php echo $shipping_to_sel; ?>');
+            // populate the offices data once DOM is loaded - it is happening later that onReady() is fired
+            let phonePopulated = setInterval(function() {
+                if (jQuery("#billing_phone").val().length > 0 && !radioButtons.is(":visible")) {
+                    clearInterval(phonePopulated);
+                    onChangePhoneNumber();
+                }
+            }, 100); // check every 100ms
+
             // for auto-populated fields - once they appear show values according to the option chosen
             let shippingChosen = setInterval(function() {
                 const checkedOpt = jQuery('<?php echo $shipping_to_sel; ?>:checked');
@@ -302,7 +311,6 @@ add_action( 'wp_head', function () {
                 }
             }, 500); // check every 500ms
 
-            let radioButtons = jQuery('<?php echo $shipping_to_sel; ?>');
             radioButtons.change(function () {
                 if (! jQuery(this).val()) {
                     return;
