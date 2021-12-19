@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 require 'utils.php';
 
 add_action( 'wp_head', function () {
-    // works when we have items in the cart
+    // works only when we have items in the cart
     if (WC()->cart->get_cart_contents_count() == 0) {
         return;
     }
@@ -317,9 +317,6 @@ add_action( 'wp_head', function () {
                 }
                 changeFinalPriceElem();
             });
-
-            onChangePhoneNumber();
-            jQuery('#billing_phone').keypress(onChangePhoneNumber);
 
             showTillFreeDeliveryMsg();
             jQuery('<?php echo $shipping_to_sel; ?>').change(onDeliveryOptionChange);
