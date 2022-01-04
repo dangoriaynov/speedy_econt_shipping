@@ -58,8 +58,8 @@ add_action( 'wp_head', function () {
         let isFree = false;
 
         function orderPrice() {
-            return parseFloat(jQuery(".cart-contents .woocommerce-Price-amount.amount").last().text()
-                || jQuery(".order-total .woocommerce-Price-amount.amount").last().text());
+            return parseFloat(jQuery(".cart-contents .woocommerce-Price-amount.amount").last().text().replace(",", ".")
+                || jQuery(".order-total .woocommerce-Price-amount.amount").last().text().replace(",", "."));
         }
 
         function doShippingPricesCopy() {

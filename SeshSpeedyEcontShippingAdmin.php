@@ -166,7 +166,7 @@ class SeshSpeedyEcontShippingAdmin {
 
     public function speedy_econt_shipping_section_info() {}
 
-    public function generic_callback($value, $type='text') {
+    private function generic_callback($value, $type='text') {
         $add = "";
         if ($type == 'number') {
             $add = 'step="0.1" min="0"';
