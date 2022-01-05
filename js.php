@@ -193,7 +193,7 @@ add_action( 'wp_head', function () {
             if (value) {
                 value = delivOptions[key].label + getFreeLabel() + ": " + value;
             }
-            jQuery(locs.address.inner.office).val(delivOptions[key].label + getFreeLabel() + ": " + value);
+            jQuery(locs.address.inner.office).val(value);
         }
 
         function processPopulatedData(key) {
