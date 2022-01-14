@@ -27,8 +27,10 @@ global $keepCase;
 
 $keepCase = ['Столица' => 'столица', 'Ул.' => 'ул.', 'Ту ' => 'ТУ '];
 
-function seshInsertSpeedyTableData() {
-    global $keepCase;
+function seshInsertSpeedyTableData(): bool
+{
+    global $keepCase, $speedy_sites_table, $speedy_offices_table;
+    $officesAdded = 0;
     $speedy_sites_added = array();
     $offices = seshApiSpeedyOfficesList();
     foreach ($offices as $id => $value) {
@@ -42,32 +44,65 @@ function seshInsertSpeedyTableData() {
             $site = seshApiSpeedySitesList($site_id);
             $site_name = seshConvertCase($site['name'], $keepCase);
             $site_region = seshConvertCase($site['region'], $keepCase);
+            if ($site_region === 'София (столица)') {
+                $site_region = 'София-Град';
+            }
             $site_municipality = seshConvertCase($site['municipality'], $keepCase);
             seshInsertSpeedySite($site_id, $site_name, $site_region, $site_municipality);
             $speedy_sites_added[$site_id] = $site_name;
         }
+        $officesAdded += 1;
         seshInsertSpeedyOffice($id, $name, $site_name, $address);
     }
+
+    $sitesDB = seshReadTableData($speedy_sites_table);
+    $officesDB = seshReadTableData($speedy_offices_table);
+    // this way we prevent cleaning up the table when API request returned empty result
+    return sizeof($speedy_sites_added) / sizeof($sitesDB) >= 0.9 &&
+        $officesAdded / sizeof($officesDB) >= 0.9;
 }
 
-function seshInsertEcontTableData() {
-    global $keepCase;
+function seshInsertEcontTableData(): bool
+{
+    global $keepCase, $econt_sites_table, $econt_offices_table;
+    $officesAdded = 0;
     $econt_sites_added = array();
+    $sites_with_offices = array();
     $cities = seshApiEcontSitesList();
+    $offices = seshApiEcontOfficesList();
     foreach ($cities as $city_id => $city_data) {
         $city_name = seshConvertCase($city_data['name'], $keepCase);
         $econt_sites_added[$city_id] = $city_name;
-        $region_name = seshConvertCase($city_data['region'], $keepCase);
-        seshInsertEcontSite($city_id, $city_name, $region_name);
     }
-    $offices = seshApiEcontOfficesList();
     foreach ($offices as $office_id => $office_data) {
         $site_id = $office_data['site_id'];
         $site_name = $econt_sites_added[$site_id];
+        $sites_with_offices[] = $site_id;
         $office_name = seshConvertCase($office_data['name'], $keepCase);
         $office_address = seshConvertCase($office_data['address'], $keepCase);
+        $officesAdded += 1;
         seshInsertEcontOffice($office_id, $office_name, $site_name, $office_address);
     }
+    foreach ($cities as $city_id => $city_data) {
+        // skip sites which do not have offices in them
+        if (! in_array($city_id, $sites_with_offices) ) {
+            continue;
+        }
+        $city_name = seshConvertCase($city_data['name'], $keepCase);
+        $region_name = seshConvertCase($city_data['region'], $keepCase);
+        if ($region_name === 'София') {
+            $region_name = 'София-Град';
+        } else if ($region_name === 'София Област') {
+            $region_name = 'София';
+        }
+        seshInsertEcontSite($city_id, $city_name, $region_name);
+    }
+
+    $sitesDB = seshReadTableData($econt_sites_table);
+    $officesDB = seshReadTableData($econt_offices_table);
+    // this way we prevent cleaning up the table when API request returned empty result
+    return sizeof($econt_sites_added) / sizeof($sitesDB) >= 0.9 &&
+        $officesAdded / sizeof($officesDB) >= 0.9;
 }
 
 function seshGenerateJsVar($sitesTable, $officesTable, $varName) {
@@ -81,7 +116,7 @@ function seshGenerateJsVar($sitesTable, $officesTable, $varName) {
         foreach ($officesDB as $officeDB) {
             if ($officeDB->city === $siteDB->name) {
                 $officeObj = array('id'=> $officeDB->id, 'name' => $officeDB->name, 'address' => $officeDB->address);
-                array_push($offices, $officeObj);
+                $offices[] = $officeObj;
             }
         }
         // on empty offices list
@@ -104,7 +139,7 @@ function seshGenerateJsVar($sitesTable, $officesTable, $varName) {
         }
         $cityObj = array('id' => $siteDB->id, 'name' => $siteDB->name,
             'municipality' => $siteDB->municipality, 'offices' => $offices);
-        array_push($citiesExisting, $cityObj);
+        $citiesExisting[] = $cityObj;
         // update the region value
         $data[$siteDB->region] = $citiesExisting;
     }
@@ -115,9 +150,12 @@ function seshGenerateJsVar($sitesTable, $officesTable, $varName) {
 }
 
 function seshRefreshDeliveryTables() {
+    // preliminary table clean-up
+    seshTruncateTables();
     // insert offices/sites data as preliminary one
-    seshInsertSpeedyTableData();
-    seshInsertEcontTableData();
+    if (!seshInsertSpeedyTableData() or !seshInsertEcontTableData()) {
+        return;
+    }
     // clear production data from the destination tables
     seshTruncateTables(true);
     // mark newly inserted data as production one
@@ -136,7 +174,7 @@ function seshPrintCheckoutPageData() {
 add_action( 'woocommerce_before_checkout_form', 'seshPrintCheckoutPageData', 10 );
 
 function seshSetupDailyRun() {
-    if ( !wp_next_scheduled( 'seshDailyHook' ) ) {
+    if (! wp_next_scheduled( 'seshDailyHook' ) ) {
         wp_schedule_event( strtotime( '3am tomorrow' ), 'daily', 'seshDailyHook');
     }
 }

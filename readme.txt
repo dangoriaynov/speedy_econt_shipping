@@ -4,7 +4,7 @@ Tags: econt, еконт, speedy, спиди, shipping, bulgaria, bulgaria courie
 Requires at least: 4.4
 Requires PHP: 7.0
 Tested up to: 5.8
-Stable tag: 0.1
+Stable tag: 0.2
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -70,3 +70,9 @@ If you wish to donate to support this plugin please do this to one of the non-pr
 ### 0.1 - 2021-12-27
 #### Enhancements
 Created initial version of the plugin
+### 0.2 - 2022-01-14
+#### Bug fixes
+Incorrect final order price calculation by JS script
+#### Enhancements
+Only Econt sites having offices are now inserted in the table
+Prevent cleaning up of the courier tables when API request returns incomplete data
