@@ -76,3 +76,6 @@ Incorrect final order price calculation by JS script
 #### Enhancements
 Only Econt sites having offices are now inserted in the table
 Prevent cleaning up of the courier tables when API request returns incomplete data
+### 0.3 - 2022-01-14
+#### Enhancements
+Fixed wrong version in the main php file
