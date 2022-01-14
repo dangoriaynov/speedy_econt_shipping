@@ -193,7 +193,8 @@ function seshFillInitialData() {
 register_activation_hook( __FILE__, 'seshFillInitialData' );
 
 function seshDeactivateDailyDataRefresh() {
-    wp_clear_scheduled_hook( 'seshRefreshDeliveryTables' );
+    wp_clear_scheduled_hook( 'seshDailyHook' );
+    wp_clear_scheduled_hook( 'seshActivationHook' );
 }
 register_deactivation_hook( __FILE__, 'seshDeactivateDailyDataRefresh' );
 
