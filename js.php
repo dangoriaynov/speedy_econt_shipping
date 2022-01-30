@@ -70,6 +70,9 @@ add_action( 'wp_head', function () {
         }
 
         function showTillFreeDeliveryMsg() {
+            if (orderPrice() === 0) {
+                return;
+            }
             const chosenShippingOpt = jQuery('<?php echo $shipping_to_sel ?>:checked').val();
             const chosenOrDefaultOpt = delivOptions[chosenShippingOpt ? delivOptions[chosenShippingOpt].name : defaultShippingMethod];
             const leftTillFree = chosenOrDefaultOpt.free_from - orderPrice();
