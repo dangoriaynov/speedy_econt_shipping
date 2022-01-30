@@ -79,3 +79,7 @@ Prevent cleaning up of the courier tables when API request returns incomplete da
 ### 0.3 - 2022-01-14
 #### Enhancements
 Fixed wrong version in the main php file
+### 0.4 - 2022-01-30
+#### Enhancements
+Compatible with WordPress 5.9
+Not showing the 'Left till free' message on empty cart
