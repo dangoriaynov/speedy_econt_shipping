@@ -26,7 +26,7 @@ The functionality might get extended to other countries by simply adding paramet
  - create 1 shipping method (with any name)
  - open plugin' settings and specify all the parameters requested + data obtained in prerequisites
  - click [Save] button
- - deactivate and activate the plugin or wait till data is refreshed (done at 3:05 AM daily)
+ - wait till data is refreshed (for first set - wait for 1 minute, for subsequent change - at 3:05 AM daily)
  - add few items to your cart and proceed to checkout
  - verify checkout process is smooth and no errors are raised when placing the order
 
