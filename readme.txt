@@ -4,7 +4,7 @@ Tags: econt, еконт, speedy, спиди, shipping, bulgaria, bulgaria courie
 Requires at least: 4.4
 Requires PHP: 7.0
 Tested up to: 5.9
-Stable tag: 0.7
+Stable tag: 0.8
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Donate link: http://
@@ -97,3 +97,6 @@ Fixed the readme file format
 ### 0.7 - 2022-05-03
 #### Fixes
 Changed stable version link and tested up to
+### 0.8 - 2022-05-03
+#### Fixes
+Aligned the versions along different files to fix plugin update issues
