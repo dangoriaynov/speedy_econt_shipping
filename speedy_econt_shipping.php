@@ -6,7 +6,7 @@
  * Author:            Dan Goriaynov
  * Author URI:        https://github.com/dangoriaynov
  * Plugin URI:        https://github.com/dangoriaynov/speedy_econt_shipping
- * Version:           0.8
+ * Version:           0.9
  * WC tested up to:   5.9
  * License:           GNU General Public License, version 2
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.en.html
@@ -174,6 +174,15 @@ function seshRefreshDeliveryTables() {
     }
 }
 
+function isEmptyAnyOfTables($tables): bool
+{
+    $hasEmptyTable = false;
+    foreach ($tables as $table) {
+        $hasEmptyTable = $hasEmptyTable || count(seshReadTableData($table)) === 0;
+    }
+    return $hasEmptyTable;
+}
+
 function seshPrintCheckoutPageData() {
     // works only on 'checkout' page
     if (! (is_page( 'checkout' ) || is_checkout())) {
@@ -191,11 +200,32 @@ function seshSetupDailyRun() {
     }
 }
 
+function seshSetupEveryMinuteRun() {
+    if (! wp_next_scheduled( 'seshEveryMinuteHook' ) ) {
+        wp_schedule_event( time(), 'every_minute', 'seshEveryMinuteHook');
+    }
+}
+
 function seshOnActivate() {
+    // this will assure that data is updated at least once per day (at 3AM)
     seshSetupDailyRun();
+    // this will assure that we have data populated in tables and will try to populate it every minute
+    seshSetupEveryMinuteRun();
+    // attempt to populate tables with the settings we currently have
     seshRefreshDeliveryTables();
 }
+
+function seshOnActivateOnEmpty() {
+    global $speedy_sites_table, $speedy_offices_table, $econt_sites_table, $econt_offices_table;
+    if (! isEmptyAnyOfTables(array($econt_sites_table, $econt_offices_table, $speedy_sites_table, $speedy_offices_table))) {
+        // this logic will work only once after the plugin activation since we don't want to spam the APIs
+        wp_clear_scheduled_hook( 'seshEveryMinuteHook' );
+        return;
+    }
+    seshOnActivate();
+}
 add_action( 'seshActivationHook', 'seshOnActivate' );
+add_action( 'seshEveryMinuteHook', 'seshOnActivateOnEmpty' );
 add_action( 'seshDailyHook', 'seshOnActivate' );
 
 function seshFillInitialData() {
@@ -206,6 +236,7 @@ register_activation_hook( __FILE__, 'seshFillInitialData' );
 
 function seshDeactivateDailyDataRefresh() {
     wp_clear_scheduled_hook( 'seshDailyHook' );
+    wp_clear_scheduled_hook( 'seshEveryMinuteHook' );
     wp_clear_scheduled_hook( 'seshActivationHook' );
 }
 register_deactivation_hook( __FILE__, 'seshDeactivateDailyDataRefresh' );

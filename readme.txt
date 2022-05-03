@@ -4,7 +4,7 @@ Tags: econt, еконт, speedy, спиди, shipping, bulgaria, bulgaria courie
 Requires at least: 4.4
 Requires PHP: 7.0
 Tested up to: 5.9
-Stable tag: 0.8
+Stable tag: 0.9
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Donate link: http://
@@ -30,11 +30,16 @@ The functionality might get extended to other countries by simply adding paramet
  - free shipping from <sum>
  - currency to be used
 
+== Prerequisites ==
+ - contact Speedy and Econt couriers to provide you with API access
+ - store username (should be digits only) and password provided by them
+
 == Setup steps ==
  - install and activate plugin
  - create 1 shipping method (with any name)
- - open plugin' settings and specify all the parameters requested
+ - open plugin' settings and specify all the parameters requested + data obtained in prerequisites
  - click [Save] button
+ - wait till data is refreshed (for first set - wait for 1 minute, for subsequent change - at 3:05 AM daily)
  - add few items to your cart and proceed to checkout
  - verify checkout process is smooth and no errors are raised when placing the order
 
@@ -100,3 +105,7 @@ Changed stable version link and tested up to
 ### 0.8 - 2022-05-03
 #### Fixes
 Aligned the versions along different files to fix plugin update issues
+### 0.9 - 2022-05-03
+#### Fixes
+Aligned readme files to have same content
+Fixed necessity to re-enable plugin once its data was initially set or changed
