@@ -3,8 +3,8 @@ Contributors: winter2007d
 Tags: econt, еконт, speedy, спиди, shipping, bulgaria, bulgaria couriers
 Requires at least: 4.4
 Requires PHP: 7.0
-Tested up to: 5.8
-Stable tag: 0.5
+Tested up to: 5.9
+Stable tag: 0.7
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Donate link: http://
@@ -94,3 +94,6 @@ Delivery method is now bold in the top bar notification
 ### 0.6 - 2022-05-03
 #### Fixes
 Fixed the readme file format
+### 0.7 - 2022-05-03
+#### Fixes
+Changed stable version link and tested up to
