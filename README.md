@@ -18,7 +18,7 @@ The functionality might get extended to other countries by simply adding paramet
  - currency to be used
  
 ### Prerequisites
- - contact Speedy and Econt offices to provide you with API access
+ - contact Speedy and Econt couriers to provide you with API access
  - store username (should be digits only) and password provided by them
 
 ### Setup steps

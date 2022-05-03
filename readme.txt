@@ -4,9 +4,10 @@ Tags: econt, еконт, speedy, спиди, shipping, bulgaria, bulgaria courie
 Requires at least: 4.4
 Requires PHP: 7.0
 Tested up to: 5.8
-Stable tag: 0.2
+Stable tag: 0.5
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Donate link: http://
 
 Adds functionality to specify delivery addresses for the Speedy and Econt couriers in Bulgaria.
 
@@ -90,3 +91,6 @@ Offices update logic was not working
 #### Enhancements
 Econt office number is now skipped from the order details
 Delivery method is now bold in the top bar notification
+### 0.6 - 2022-05-03
+#### Fixes
+Fixed the readme file format
