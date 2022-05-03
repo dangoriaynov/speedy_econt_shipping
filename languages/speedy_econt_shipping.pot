@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Speedy and Econt Shipping\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-12-05 06:39+0000\n"
+"POT-Creation-Date: 2022-05-03 10:19+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: \n"
@@ -16,7 +16,7 @@ msgstr ""
 "X-Loco-Version: 2.5.5; wp-5.8.2\n"
 "X-Domain: speedy_econt_shipping"
 
-#: utils.php:39
+#: utils.php:51
 msgid "address"
 msgstr ""
 
@@ -25,20 +25,20 @@ msgid ""
 "Adds Speedy and Econt shipping methods along with their delivery options."
 msgstr ""
 
-#: speedy_econt_shipping.php:190 speedy_econt_shipping.php:218
+#: speedy_econt_shipping.php:265 speedy_econt_shipping.php:293
 msgid "Choose region first"
 msgstr ""
 
-#: speedy_econt_shipping.php:187 speedy_econt_shipping.php:215
+#: speedy_econt_shipping.php:262 speedy_econt_shipping.php:290
 msgid "City"
 msgstr ""
 
-#: js.php:76
+#: js.php:94
 msgid "Congrats, you won free delivery using"
 msgstr ""
 
 #. id
-#: SpeedyEcontShippingAdmin.php:87
+#: SeshSpeedyEcontShippingAdmin.php:91
 msgid "Currency Symbol"
 msgstr ""
 
@@ -46,92 +46,104 @@ msgstr ""
 msgid "Dan Goriaynov"
 msgstr ""
 
-#: js.php:216
+#: js.php:128
 msgid "delivery"
 msgstr ""
 
-#: speedy_econt_shipping.php:250 speedy_econt_shipping.php:254
+#: speedy_econt_shipping.php:326 speedy_econt_shipping.php:330
 msgid "Delivery details were not populated. Please fill them in."
 msgstr ""
 
-#: speedy_econt_shipping.php:246
-msgid "Delivery method was not chosen. Please chose one."
+#: speedy_econt_shipping.php:322
+msgid "Delivery method was not chosen. Please choose one."
 msgstr ""
 
-#: speedy_econt_shipping.php:166
+#: speedy_econt_shipping.php:241
 msgid "Delivery to"
 msgstr ""
 
+#: SeshSpeedyEcontShippingAdmin.php:182 SeshSpeedyEcontShippingAdmin.php:186
+msgid "digit value like: 123456"
+msgstr ""
+
 #. id
-#: SpeedyEcontShippingAdmin.php:119
+#: SeshSpeedyEcontShippingAdmin.php:123
 msgid "Econt free delivery from"
 msgstr ""
 
-#: utils.php:37
+#: utils.php:49
 msgid "Econt office"
 msgstr ""
 
 #. id
-#: SpeedyEcontShippingAdmin.php:79
+#: SeshSpeedyEcontShippingAdmin.php:83
 msgid "Econt Password"
 msgstr ""
 
 #. id
-#: SpeedyEcontShippingAdmin.php:127
+#: SeshSpeedyEcontShippingAdmin.php:131
 msgid "Econt shipping fee"
 msgstr ""
 
 #. id
-#: SpeedyEcontShippingAdmin.php:71
+#: SeshSpeedyEcontShippingAdmin.php:75
 msgid "Econt Username"
 msgstr ""
 
-#: js.php:95
+#: SeshSpeedyEcontShippingAdmin.php:190
+msgid "email address like: abc@mail.com"
+msgstr ""
+
+#: js.php:108 js.php:198
 msgid "for free"
 msgstr ""
 
 #. Author URI of the plugin
-msgid "http://dobavki.club"
+msgid "https://github.com/dangoriaynov"
 msgstr ""
 
 #. URI of the plugin
 msgid "https://github.com/dangoriaynov/speedy_econt_shipping"
 msgstr ""
 
-#: speedy_econt_shipping.php:181 speedy_econt_shipping.php:209
+#: speedy_econt_shipping.php:256 speedy_econt_shipping.php:284
 msgid "Make your choice"
 msgstr ""
 
-#: speedy_econt_shipping.php:198 speedy_econt_shipping.php:217
-#: speedy_econt_shipping.php:226
+#: speedy_econt_shipping.php:255 speedy_econt_shipping.php:264
+#: speedy_econt_shipping.php:273 speedy_econt_shipping.php:283
+#: speedy_econt_shipping.php:292 speedy_econt_shipping.php:301
 msgid "nothing loaded"
 msgstr ""
 
-#: speedy_econt_shipping.php:196 speedy_econt_shipping.php:224
+#: speedy_econt_shipping.php:271 speedy_econt_shipping.php:299
 msgid "Office"
 msgstr ""
 
-#: speedy_econt_shipping.php:178 speedy_econt_shipping.php:206
+#: speedy_econt_shipping.php:253 speedy_econt_shipping.php:281
 msgid "Region"
 msgstr ""
 
 #. id
-#: SpeedyEcontShippingAdmin.php:48
+#: SeshSpeedyEcontShippingAdmin.php:52 speedy_econt_shipping.php:360
 msgid "Settings"
 msgstr ""
 
 #. id
-#: SpeedyEcontShippingAdmin.php:95
+#: SeshSpeedyEcontShippingAdmin.php:99
 msgid "Shop page"
 msgstr ""
 
-#: SpeedyEcontShippingAdmin.php:26
-msgid "Specify here the information needed for the plugin to work"
+#: SeshSpeedyEcontShippingAdmin.php:30
+msgid ""
+"Specify here the information needed for the plugin to work.<br><b>Please "
+"request API access from Speedy and Econt couriers and specify the values "
+"given by them.</b>"
 msgstr ""
 
 #. page_title
-#: SpeedyEcontShippingAdmin.php:13 SpeedyEcontShippingAdmin.php:14
-#: SpeedyEcontShippingAdmin.php:25
+#: SeshSpeedyEcontShippingAdmin.php:17 SeshSpeedyEcontShippingAdmin.php:18
+#: SeshSpeedyEcontShippingAdmin.php:29
 msgid "Speedy & Econt shipping"
 msgstr ""
 
@@ -140,47 +152,47 @@ msgid "Speedy and Econt Shipping"
 msgstr ""
 
 #. id
-#: SpeedyEcontShippingAdmin.php:103
+#: SeshSpeedyEcontShippingAdmin.php:107
 msgid "Speedy free delivery from"
 msgstr ""
 
-#: utils.php:35
+#: utils.php:47
 msgid "Speedy office"
 msgstr ""
 
 #. id
-#: SpeedyEcontShippingAdmin.php:63
+#: SeshSpeedyEcontShippingAdmin.php:67
 msgid "Speedy Password"
 msgstr ""
 
 #. id
-#: SpeedyEcontShippingAdmin.php:111
+#: SeshSpeedyEcontShippingAdmin.php:115
 msgid "Speedy shipping fee"
 msgstr ""
 
 #. id
-#: SpeedyEcontShippingAdmin.php:55
+#: SeshSpeedyEcontShippingAdmin.php:59
 msgid "Speedy Username"
 msgstr ""
 
-#: js.php:79
+#: js.php:97
 msgid "Still left"
 msgstr ""
 
 #. id
-#: SpeedyEcontShippingAdmin.php:135
+#: SeshSpeedyEcontShippingAdmin.php:139
 msgid "To address free delivery from"
 msgstr ""
 
 #. id
-#: SpeedyEcontShippingAdmin.php:143
+#: SeshSpeedyEcontShippingAdmin.php:147
 msgid "To address shipping fee"
 msgstr ""
 
-#: js.php:79
+#: js.php:97
 msgid "to get a free shipping to"
 msgstr ""
 
-#: js.php:79
+#: js.php:97
 msgid "To shop"
 msgstr ""
