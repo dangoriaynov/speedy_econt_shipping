@@ -76,10 +76,14 @@ add_action( 'wp_head', function () {
             const chosenShippingOpt = jQuery('<?php echo $shipping_to_sel ?>:checked').val();
             const chosenOrDefaultOpt = delivOptions[chosenShippingOpt ? delivOptions[chosenShippingOpt].name : defaultShippingMethod];
             const leftTillFree = chosenOrDefaultOpt.free_from - orderPrice();
+            if (isNaN(leftTillFree)) {
+                return;
+            }
             const msgContainer = jQuery('div#deliv_msg');
             if (! msgContainer.length ) {
                 jQuery(".woocommerce-notices-wrapper").first().append('<div id="deliv_msg">');
             }
+            const labelBold = '<b style="font-weight:900;">'+chosenOrDefaultOpt.label+'</b>';
             const msgDiv = msgContainer.first();
             msgDiv.removeClass();
             msgDiv.hide();
@@ -87,10 +91,10 @@ add_action( 'wp_head', function () {
             isFree = leftTillFree <= 0;
             if (isFree) {
                 msgDiv.addClass("woocommerce-message");
-                msg = '<?php _e('Congrats, you won free delivery using', 'speedy_econt_shipping'); ?> '+chosenOrDefaultOpt.label+'!';
+                msg = '<?php _e('Congrats, you won free delivery using', 'speedy_econt_shipping'); ?> '+labelBold+'!';
             } else {
                 msgDiv.addClass("woocommerce-error");
-                msg = '<?php _e('Still left', 'speedy_econt_shipping'); ?> <span class="woocommerce-Price-amount amount">'+leftTillFree.toFixed(2)+'&nbsp;<span class="woocommerce-Price-currencySymbol"><?php echo getCurrencySymbol(); ?></span></span> <?php _e('to get a free shipping to', 'speedy_econt_shipping')?> '+chosenOrDefaultOpt.label+'! <a class="button" href="<?php echo getShopUrl(); ?>"><?php _e('To shop', 'speedy_econt_shipping') ?></a>';
+                msg = '<?php _e('Still left', 'speedy_econt_shipping'); ?> <span class="woocommerce-Price-amount amount">'+leftTillFree.toFixed(2)+'&nbsp;<span class="woocommerce-Price-currencySymbol"><?php echo getCurrencySymbol(); ?></span></span> <?php _e('to get a free shipping to', 'speedy_econt_shipping')?> '+labelBold+'! <a class="button" href="<?php echo getShopUrl(); ?>"><?php _e('To shop', 'speedy_econt_shipping') ?></a>';
             }
             msgDiv.html(msg);
             msgDiv.show();
@@ -182,7 +186,9 @@ add_action( 'wp_head', function () {
                         if (selectedCity && selectedCity !== city.name) {
                             return;
                         }
-                        officeDom.append(jQuery('<option id="' + office.id + '">№' + office.id + ', ' + office.address + '</option>'));
+                        // do not output office # for te Econt offices
+                        const officeAddress = key === locs.econt.name ? office.address : '№' + office.id + ', ' + office.address;
+                        officeDom.append(jQuery('<option id="' + office.id + '">'+officeAddress+'</option>'));
                     });
                 });
             });
@@ -228,7 +234,7 @@ add_action( 'wp_head', function () {
                 regionDom.val(region).trigger('change.select2');
                 cityDom.val(city).trigger('change.select2');
 
-                // chose the first office if only 1 is available in the list
+                // choose the first office if only 1 is available in the list
                 let oneOffice = officeDom.find('option').length === 1 ? jQuery(locs[key].inner.office+' option:eq(0)').val() : "";
                 officeDom.val(oneOffice).trigger('change.select2');
                 // auto-populate address field with single office available

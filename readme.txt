@@ -83,3 +83,10 @@ Fixed wrong version in the main php file
 #### Enhancements
 Compatible with WordPress 5.9
 Not showing the 'Left till free' message on empty cart
+### 0.5 - 2022-05-03
+#### Fixes
+Force opening of the checkout page won't show NaN warning
+Offices update logic was not working
+#### Enhancements
+Econt office number is now skipped from the order details
+Delivery method is now bold in the top bar notification

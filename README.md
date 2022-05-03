@@ -17,10 +17,14 @@ The functionality might get extended to other countries by simply adding paramet
  - free shipping from <sum>
  - currency to be used
  
+### Prerequisites
+ - contact Speedy and Econt offices to provide you with API access
+ - store username (should be digits only) and password provided by them
+
 ### Setup steps
  - install and activate plugin
  - create 1 shipping method (with any name)
- - open plugin' settings and specify all the parameters requested
+ - open plugin' settings and specify all the parameters requested + data obtained in prerequisites
  - click [Save] button
  - add few items to your cart and proceed to checkout
  - verify checkout process is smooth and no errors are raised when placing the order

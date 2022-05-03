@@ -27,7 +27,7 @@ class SeshSpeedyEcontShippingAdmin {
 
         <div class="wrap">
             <h2><?php _e('Speedy & Econt shipping', 'speedy_econt_shipping') ?></h2>
-            <p><?php _e('Specify here the information needed for the plugin to work', 'speedy_econt_shipping') ?></p>
+            <p><?php _e('Specify here the information needed for the plugin to work.<br><b>Please request API access from Speedy and Econt couriers and specify the values given by them.</b>', 'speedy_econt_shipping') ?></p>
             <?php settings_errors(); ?>
 
             <form method="post" action="options.php">
@@ -166,27 +166,28 @@ class SeshSpeedyEcontShippingAdmin {
 
     public function speedy_econt_shipping_section_info() {}
 
-    private function generic_callback($value, $type='text') {
+    private function generic_callback($value, $type='text', $placeholder='') {
         $add = "";
         if ($type == 'number') {
             $add = 'step="0.1" min="0"';
         }
+        $placeholderHtml = $placeholder ? 'placeholder="'.$placeholder.'"' : '';
         printf(
-            '<input class="regular-text" type="'.$type.'" name="speedy_econt_shipping_option_name['.$value.']" id="'.$value.'" value="%s" '.$add.'>',
+            '<input class="regular-text" type="'.$type.'" name="speedy_econt_shipping_option_name['.$value.']" id="'.$value.'" value="%s" '.$placeholderHtml.' '.$add.'>',
             isset( $this->speedy_econt_shipping_options[$value] ) ? esc_attr( $this->speedy_econt_shipping_options[$value]) : ''
         );
     }
 
     public function speedy_username_0_callback() {
-        $this->generic_callback('speedy_username_0');
+        $this->generic_callback('speedy_username_0', 'text', __('digit value like: 123456', 'speedy_econt_shipping'));
     }
 
     public function speedy_password_1_callback() {
-        $this->generic_callback('speedy_password_1', 'password');
+        $this->generic_callback('speedy_password_1', 'password', __('digit value like: 123456', 'speedy_econt_shipping'));
     }
 
     public function econt_username_2_callback() {
-        $this->generic_callback('econt_username_2');
+        $this->generic_callback('econt_username_2', 'text', __('email address like: abc@mail.com', 'speedy_econt_shipping'));
     }
 
     public function econt_password_3_callback() {

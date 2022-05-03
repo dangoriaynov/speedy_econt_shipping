@@ -6,7 +6,7 @@
  * Author:            Dan Goriaynov
  * Author URI:        https://github.com/dangoriaynov
  * Plugin URI:        https://github.com/dangoriaynov/speedy_econt_shipping
- * Version:           0.4
+ * Version:           0.5
  * WC tested up to:   5.9
  * License:           GNU General Public License, version 2
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.en.html
@@ -23,9 +23,10 @@ require 'db.php';
 require 'js.php';
 require 'css.php';
 
-global $keepCase;
+global $keepCase, $isUpgradeInProgress;
 
 $keepCase = ['Столица' => 'столица', 'Ул.' => 'ул.', 'Ту ' => 'ТУ '];
+$isUpgradeInProgress = false;
 
 function seshInsertSpeedyTableData(): bool
 {
@@ -44,6 +45,7 @@ function seshInsertSpeedyTableData(): bool
             $site = seshApiSpeedySitesList($site_id);
             $site_name = seshConvertCase($site['name'], $keepCase);
             $site_region = seshConvertCase($site['region'], $keepCase);
+            // align the values between to-office and to-address delivery options
             if ($site_region === 'София (столица)') {
                 $site_region = 'София-Град';
             }
@@ -58,8 +60,8 @@ function seshInsertSpeedyTableData(): bool
     $sitesDB = seshReadTableData($speedy_sites_table);
     $officesDB = seshReadTableData($speedy_offices_table);
     // this way we prevent cleaning up the table when API request returned empty result
-    return sizeof($speedy_sites_added) / sizeof($sitesDB) >= 0.9 &&
-        $officesAdded / sizeof($officesDB) >= 0.9;
+    return sizeof($speedy_sites_added) / sizeof($sitesDB) >= 0.8 &&
+        $officesAdded / sizeof($officesDB) >= 0.8;
 }
 
 function seshInsertEcontTableData(): bool
@@ -90,6 +92,7 @@ function seshInsertEcontTableData(): bool
         }
         $city_name = seshConvertCase($city_data['name'], $keepCase);
         $region_name = seshConvertCase($city_data['region'], $keepCase);
+        // align the values between to-office and to-address delivery options
         if ($region_name === 'София') {
             $region_name = 'София-Град';
         } else if ($region_name === 'София Област') {
@@ -150,16 +153,25 @@ function seshGenerateJsVar($sitesTable, $officesTable, $varName) {
 }
 
 function seshRefreshDeliveryTables() {
-    // preliminary table clean-up
-    seshTruncateTables();
-    // insert offices/sites data as preliminary one
-    if (!seshInsertSpeedyTableData() or !seshInsertEcontTableData()) {
+    global $isUpgradeInProgress;
+    if ($isUpgradeInProgress) {
         return;
     }
-    // clear production data from the destination tables
-    seshTruncateTables(true);
-    // mark newly inserted data as production one
-    seshMarkDataAsProd();
+    $isUpgradeInProgress = true;
+    try {
+        // preliminary table clean-up
+        seshTruncateTables();
+        // insert offices/sites data as preliminary one
+        if (!seshInsertSpeedyTableData() or !seshInsertEcontTableData()) {
+            return;
+        }
+        // clear production data from the destination tables
+        seshTruncateTables(true);
+        // mark newly inserted data as production one
+        seshMarkDataAsProd();
+    } finally {
+        $isUpgradeInProgress = false;
+    }
 }
 
 function seshPrintCheckoutPageData() {
@@ -175,16 +187,16 @@ add_action( 'woocommerce_before_checkout_form', 'seshPrintCheckoutPageData', 10 
 
 function seshSetupDailyRun() {
     if (! wp_next_scheduled( 'seshDailyHook' ) ) {
-        wp_schedule_event( strtotime( '3am tomorrow' ), 'daily', 'seshDailyHook');
+        wp_schedule_event( strtotime('03:05:00'), 'daily', 'seshDailyHook');
     }
 }
-add_action( 'seshDailyHook', 'seshSetupDailyRun' );
 
 function seshOnActivate() {
     seshSetupDailyRun();
     seshRefreshDeliveryTables();
 }
 add_action( 'seshActivationHook', 'seshOnActivate' );
+add_action( 'seshDailyHook', 'seshOnActivate' );
 
 function seshFillInitialData() {
     seshCreateTables();
