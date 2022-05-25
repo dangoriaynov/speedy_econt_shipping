@@ -76,12 +76,14 @@ add_action( 'wp_head', function () {
             const chosenShippingOpt = jQuery('<?php echo $shipping_to_sel ?>:checked').val();
             const chosenOrDefaultOpt = delivOptions[chosenShippingOpt ? delivOptions[chosenShippingOpt].name : defaultShippingMethod];
             const leftTillFree = chosenOrDefaultOpt.free_from - orderPrice();
+            // don't do anything if unable to calculate the amount left till free shipping
             if (isNaN(leftTillFree)) {
                 return;
             }
             const msgContainer = jQuery('div#deliv_msg');
             if (! msgContainer.length ) {
-                jQuery(".woocommerce-notices-wrapper").first().append('<div id="deliv_msg">');
+                const p = jQuery('<div role="alert">').appendTo(jQuery(".woocommerce-notices-wrapper").first());
+                p.append('<div id="deliv_msg" class="message-inner" style="display: block;">');
             }
             const labelBold = '<b style="font-weight:900;">'+chosenOrDefaultOpt.label+'</b>';
             const msgDiv = msgContainer.first();

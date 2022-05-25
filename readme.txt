@@ -3,8 +3,8 @@ Contributors: winter2007d
 Tags: econt, еконт, speedy, спиди, shipping, bulgaria, bulgaria couriers
 Requires at least: 4.4
 Requires PHP: 7.0
-Tested up to: 5.9
-Stable tag: 1.0
+Tested up to: 6.0
+Stable tag: 1.1
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Donate link: http://
@@ -112,3 +112,9 @@ Fixed necessity to re-enable plugin once its data was initially set or changed
 ### 1.0 - 2022-05-03
 #### Fixes
 Made new tag since previous was submitted with incorrect files
+### 1.1 - 2022-05-25
+#### Fixes
+Made new way to showing the 'shipping left till free' message
+Loading css styles on checkout page only
+#### Enhancements
+Compatible with WP 6.0

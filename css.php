@@ -4,7 +4,12 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly....
 }
 
-add_action( 'wp_head', function () { ?>
+add_action( 'wp_head', function () {
+    // works only on 'checkout' page
+    if (! (is_page( 'checkout' ) || is_checkout())) {
+        return;
+    }
+    ?>
     <style>
         #speedy_region_sel_field, #speedy_city_sel_field, #speedy_office_sel_field,
         #econt_region_sel_field, #econt_city_sel_field, #econt_office_sel_field,
