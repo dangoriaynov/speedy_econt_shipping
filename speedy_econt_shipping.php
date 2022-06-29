@@ -6,8 +6,8 @@
  * Author:            Dan Goriaynov
  * Author URI:        https://github.com/dangoriaynov
  * Plugin URI:        https://github.com/dangoriaynov/speedy_econt_shipping
- * Version:           1.2
- * WC tested up to:   5.9
+ * Version:           1.4
+ * WC tested up to:   6.0
  * License:           GNU General Public License, version 2
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.en.html
  * Domain Path:       /languages/
@@ -146,7 +146,9 @@ function seshGenerateJsVar($sitesTable, $officesTable, $varName) {
         // update the region value
         $data[$siteDB->region] = $citiesExisting;
     }
-    ksort($data);
+    //ksort($data);
+    setlocale(LC_COLLATE, 'bg_BG.utf8');
+    uksort($data,'strcoll');
     ?><script>
         const <?php echo $varName.'='.json_encode($data); ?>;
     </script><?php

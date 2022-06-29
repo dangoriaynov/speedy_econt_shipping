@@ -36,7 +36,7 @@ function seshSpeedyApiRequest($url)
         'userName' => getSpeedyUser(),
         'password' => getSpeedyPass(),
         'language' => 'BG',
-        'countryId' => 100, // BULGARIA
+        'countryId' => 100 // BULGARIA
     );
     return seshPostRequest('https://api.speedy.bg/v1/'.$url, $payload);
 }
