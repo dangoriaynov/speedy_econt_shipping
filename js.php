@@ -3,7 +3,7 @@
 if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly....
 }
-
+// todo check whether speedy office is closed and do not add it to the list of available
 require 'utils.php';
 
 add_action( 'wp_head', function () {
@@ -105,7 +105,7 @@ add_action( 'wp_head', function () {
         function populateDeliveryOption(key){
             const chosenOption = delivOptions[key];
             const delivPrice = orderPrice() >= chosenOption.free_from ? 0 : chosenOption.shipping;
-            // convert to id here since we do care about real dom elements here
+            // convert to id here since we do care about real DOM elements here
             pricesCopy[delivOptions[key].id] = delivPrice;
             const priceAdd = delivPrice === 0 ? "<?php _e('for free', 'speedy_econt_shipping') ?>" : '+'+delivPrice.toFixed(2)+' <?php echo esc_js(getCurrencySymbol()); ?>';
             const delivText = ' '+chosenOption.label+' ('+priceAdd+')';
@@ -273,12 +273,12 @@ add_action( 'wp_head', function () {
         function alphabetically(a, b) {
             a = a.toLowerCase()
             b = b.toLowerCase();
-            // Find the first position were the strings do not match
+            // Find the first position where the strings do not match
             let position = 0;
             while(a[position] === b[position]) {
                 // If both are the same don't swap
                 if(!a[position] && !b[position]) return 0;
-                // Otherwise the shorter one goes first
+                // Otherwise - the shorter one goes first
                 if(!a[position]) return 1;
                 if(!b[position]) return -1;
                 position++;
