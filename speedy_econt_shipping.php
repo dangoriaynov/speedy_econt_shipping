@@ -60,8 +60,16 @@ function seshInsertSpeedyTableData(): bool
     $sitesDB = seshReadTableData($speedy_sites_table);
     $officesDB = seshReadTableData($speedy_offices_table);
     // this way we prevent cleaning up the table when API request returned empty result
-    return sizeof($speedy_sites_added) / sizeof($sitesDB) >= 0.8 &&
-        $officesAdded / sizeof($officesDB) >= 0.8;
+    $sitesDBSize = sizeof($sitesDB);
+    if ($sitesDBSize == 0) {
+        $sitesDBSize = 1;
+    }
+    $officesDBSize = sizeof($officesDB);
+    if ($officesDBSize == 0) {
+        $officesDBSize = 1;
+    }
+    return sizeof($speedy_sites_added) / $sitesDBSize >= 0.8 &&
+        $officesAdded / $officesDBSize >= 0.8;
 }
 
 function seshInsertEcontTableData(): bool
