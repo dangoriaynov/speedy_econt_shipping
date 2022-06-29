@@ -54,11 +54,13 @@ function seshApiSpeedyOfficesList() {
     $dataJson = seshSpeedyApiRequest('location/office/');
     $sites = $dataJson->offices;
     $results = array();
-    foreach ($sites as $office) {
-        $results[$office->id] = array(
-            'name' => $office->name,
-            'site_id' => $office->address->siteId,
-            'address' => $office->address->fullAddressString);
+    if (is_array($sites) || is_object($sites)) {
+        foreach ($sites as $office) {
+            $results[$office->id] = array(
+                'name' => $office->name,
+                'site_id' => $office->address->siteId,
+                'address' => $office->address->fullAddressString);
+        }
     }
     return $results;
 }
@@ -68,18 +70,20 @@ function seshEcontApiRequest($url)
     $payload = array(
         'countryCode' => 'BGR',
     );
-    $headers = array('Authorization' => 'Basic '. base64_encode(getEcontUser().":".getEcontPass()));
-    return seshPostRequest('https://ee.econt.com/services/Nomenclatures/NomenclaturesService.'.$url.'.json', $payload, $headers);
+    // $headers = array('Authorization' => 'Basic '. base64_encode(getEcontUser().":".getEcontPass()));
+    return seshPostRequest('https://ee.econt.com/services/Nomenclatures/NomenclaturesService.'.$url.'.json', $payload, array());
 }
 
 function seshApiEcontSitesList() {
     $dataJson = seshEcontApiRequest('getCities');
     $sites = $dataJson->cities;
     $results = array();
-    foreach ($sites as $site) {
-        $results[$site->id] = array(
-            'name' => $site->name,
-            'region' => $site->regionName);
+    if (is_array($sites) || is_object($sites)) {
+        foreach ($sites as $site) {
+            $results[$site->id] = array(
+                'name' => $site->name,
+                'region' => $site->regionName);
+        }
     }
     return $results;
 }
