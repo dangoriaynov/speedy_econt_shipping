@@ -28,6 +28,9 @@ class SeshSpeedyEcontShippingAdmin {
         <div class="wrap">
             <h2><?php _e('Speedy & Econt shipping', 'speedy_econt_shipping') ?></h2>
             <p><?php _e('Specify here the information needed for the plugin to work.<br><b>Please request API access from Speedy and Econt couriers and specify the values given by them.</b>', 'speedy_econt_shipping') ?></p>
+            <p><?php _e('<b>In case of errors, please check output of the following commands on your hosting:</b>', 'speedy_econt_shipping') ?></p>
+            <p><i>curl -X POST -H "Content-Type: application/json" --data '{"countryCode": "BGR"} ' https://ee.econt.com/services/Nomenclatures/NomenclaturesService.getCities.json</i><br><i>curl -X POST -H "Content-Type: application/json" --data '{"userName": "<speedy username>","password": "<speedy password>","language": "BG","countryId": 100}' https://api.speedy.bg/v1/location/office/</i>
+            </p>
             <?php settings_errors(); ?>
 
             <form method="post" action="options.php">

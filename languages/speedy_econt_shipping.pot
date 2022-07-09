@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Speedy and Econt Shipping\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-03 10:19+0000\n"
+"POT-Creation-Date: 2022-07-09 10:14+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: \n"
@@ -16,6 +16,12 @@ msgstr ""
 "X-Loco-Version: 2.5.5; wp-5.8.2\n"
 "X-Domain: speedy_econt_shipping"
 
+#: SeshSpeedyEcontShippingAdmin.php:31
+msgid ""
+"<b>In case of errors, please check output of the following commands on your "
+"hosting:</b>"
+msgstr ""
+
 #: utils.php:51
 msgid "address"
 msgstr ""
@@ -25,20 +31,20 @@ msgid ""
 "Adds Speedy and Econt shipping methods along with their delivery options."
 msgstr ""
 
-#: speedy_econt_shipping.php:265 speedy_econt_shipping.php:293
+#: speedy_econt_shipping.php:307 speedy_econt_shipping.php:335
 msgid "Choose region first"
 msgstr ""
 
-#: speedy_econt_shipping.php:262 speedy_econt_shipping.php:290
+#: speedy_econt_shipping.php:304 speedy_econt_shipping.php:332
 msgid "City"
 msgstr ""
 
-#: js.php:94
+#: js.php:96
 msgid "Congrats, you won free delivery using"
 msgstr ""
 
 #. id
-#: SeshSpeedyEcontShippingAdmin.php:91
+#: SeshSpeedyEcontShippingAdmin.php:94
 msgid "Currency Symbol"
 msgstr ""
 
@@ -46,28 +52,28 @@ msgstr ""
 msgid "Dan Goriaynov"
 msgstr ""
 
-#: js.php:128
+#: js.php:130
 msgid "delivery"
 msgstr ""
 
-#: speedy_econt_shipping.php:326 speedy_econt_shipping.php:330
+#: speedy_econt_shipping.php:368 speedy_econt_shipping.php:372
 msgid "Delivery details were not populated. Please fill them in."
 msgstr ""
 
-#: speedy_econt_shipping.php:322
+#: speedy_econt_shipping.php:364
 msgid "Delivery method was not chosen. Please choose one."
 msgstr ""
 
-#: speedy_econt_shipping.php:241
+#: speedy_econt_shipping.php:283
 msgid "Delivery to"
 msgstr ""
 
-#: SeshSpeedyEcontShippingAdmin.php:182 SeshSpeedyEcontShippingAdmin.php:186
+#: SeshSpeedyEcontShippingAdmin.php:185 SeshSpeedyEcontShippingAdmin.php:189
 msgid "digit value like: 123456"
 msgstr ""
 
 #. id
-#: SeshSpeedyEcontShippingAdmin.php:123
+#: SeshSpeedyEcontShippingAdmin.php:126
 msgid "Econt free delivery from"
 msgstr ""
 
@@ -76,25 +82,25 @@ msgid "Econt office"
 msgstr ""
 
 #. id
-#: SeshSpeedyEcontShippingAdmin.php:83
+#: SeshSpeedyEcontShippingAdmin.php:86
 msgid "Econt Password"
 msgstr ""
 
 #. id
-#: SeshSpeedyEcontShippingAdmin.php:131
+#: SeshSpeedyEcontShippingAdmin.php:134
 msgid "Econt shipping fee"
 msgstr ""
 
 #. id
-#: SeshSpeedyEcontShippingAdmin.php:75
+#: SeshSpeedyEcontShippingAdmin.php:78
 msgid "Econt Username"
 msgstr ""
 
-#: SeshSpeedyEcontShippingAdmin.php:190
+#: SeshSpeedyEcontShippingAdmin.php:193
 msgid "email address like: abc@mail.com"
 msgstr ""
 
-#: js.php:108 js.php:198
+#: js.php:110 js.php:200
 msgid "for free"
 msgstr ""
 
@@ -106,31 +112,31 @@ msgstr ""
 msgid "https://github.com/dangoriaynov/speedy_econt_shipping"
 msgstr ""
 
-#: speedy_econt_shipping.php:256 speedy_econt_shipping.php:284
+#: speedy_econt_shipping.php:298 speedy_econt_shipping.php:326
 msgid "Make your choice"
 msgstr ""
 
-#: speedy_econt_shipping.php:255 speedy_econt_shipping.php:264
-#: speedy_econt_shipping.php:273 speedy_econt_shipping.php:283
-#: speedy_econt_shipping.php:292 speedy_econt_shipping.php:301
+#: speedy_econt_shipping.php:297 speedy_econt_shipping.php:306
+#: speedy_econt_shipping.php:315 speedy_econt_shipping.php:325
+#: speedy_econt_shipping.php:334 speedy_econt_shipping.php:343
 msgid "nothing loaded"
 msgstr ""
 
-#: speedy_econt_shipping.php:271 speedy_econt_shipping.php:299
+#: speedy_econt_shipping.php:313 speedy_econt_shipping.php:341
 msgid "Office"
 msgstr ""
 
-#: speedy_econt_shipping.php:253 speedy_econt_shipping.php:281
+#: speedy_econt_shipping.php:295 speedy_econt_shipping.php:323
 msgid "Region"
 msgstr ""
 
 #. id
-#: SeshSpeedyEcontShippingAdmin.php:52 speedy_econt_shipping.php:360
+#: SeshSpeedyEcontShippingAdmin.php:55 speedy_econt_shipping.php:402
 msgid "Settings"
 msgstr ""
 
 #. id
-#: SeshSpeedyEcontShippingAdmin.php:99
+#: SeshSpeedyEcontShippingAdmin.php:102
 msgid "Shop page"
 msgstr ""
 
@@ -152,7 +158,7 @@ msgid "Speedy and Econt Shipping"
 msgstr ""
 
 #. id
-#: SeshSpeedyEcontShippingAdmin.php:107
+#: SeshSpeedyEcontShippingAdmin.php:110
 msgid "Speedy free delivery from"
 msgstr ""
 
@@ -161,38 +167,38 @@ msgid "Speedy office"
 msgstr ""
 
 #. id
-#: SeshSpeedyEcontShippingAdmin.php:67
+#: SeshSpeedyEcontShippingAdmin.php:70
 msgid "Speedy Password"
 msgstr ""
 
 #. id
-#: SeshSpeedyEcontShippingAdmin.php:115
+#: SeshSpeedyEcontShippingAdmin.php:118
 msgid "Speedy shipping fee"
 msgstr ""
 
 #. id
-#: SeshSpeedyEcontShippingAdmin.php:59
+#: SeshSpeedyEcontShippingAdmin.php:62
 msgid "Speedy Username"
 msgstr ""
 
-#: js.php:97
+#: js.php:99
 msgid "Still left"
 msgstr ""
 
 #. id
-#: SeshSpeedyEcontShippingAdmin.php:139
+#: SeshSpeedyEcontShippingAdmin.php:142
 msgid "To address free delivery from"
 msgstr ""
 
 #. id
-#: SeshSpeedyEcontShippingAdmin.php:147
+#: SeshSpeedyEcontShippingAdmin.php:150
 msgid "To address shipping fee"
 msgstr ""
 
-#: js.php:97
+#: js.php:99
 msgid "to get a free shipping to"
 msgstr ""
 
-#: js.php:97
+#: js.php:99
 msgid "To shop"
 msgstr ""
