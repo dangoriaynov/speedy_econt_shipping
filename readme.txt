@@ -4,7 +4,7 @@ Tags: econt, еконт, speedy, спиди, shipping, bulgaria, bulgaria courie
 Requires at least: 4.4
 Requires PHP: 7.0
 Tested up to: 6.0
-Stable tag: 1.5
+Stable tag: 1.5.1
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Donate link: http://
@@ -130,3 +130,6 @@ Fixed incorrect MySQL syntax while deleting entries from the DB. Part 2 (actual 
 ### 1.5 - 2022-06-30
 #### Fixes
 Do not use the auth for the econt data retrieval
+### 1.5.1 - 2022-07-09
+#### Fixes
+Added debugging logic
