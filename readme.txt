@@ -139,3 +139,6 @@ Fixed small typos
 ### 1.5.3 - 2022-10-09
 #### Fixes
 Fixed Speedy offices selection for the Sofia city
+### 1.5.4 - 2022-10-09
+#### Fixes
+Fixed Speedy offices selection for the Sofia city №2
