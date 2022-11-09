@@ -4,7 +4,7 @@ Tags: econt, еконт, speedy, спиди, shipping, bulgaria, bulgaria courie
 Requires at least: 4.4
 Requires PHP: 7.0
 Tested up to: 6.1
-Stable tag: 1.5.5
+Stable tag: 1.5.6
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Donate link: http://
@@ -142,3 +142,6 @@ Fixed Speedy offices selection for the Sofia city
 ### 1.5.5 - 2022-10-09
 #### Fixes
 Fixed Speedy offices selection for the Sofia city №2
+### 1.5.6 - 2022-10-09
+#### Fixes
+Fixed Speedy offices selection for the Sofia city №3

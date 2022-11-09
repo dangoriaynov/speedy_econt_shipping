@@ -6,7 +6,7 @@
  * Author:            Dan Goriaynov
  * Author URI:        https://github.com/dangoriaynov
  * Plugin URI:        https://github.com/dangoriaynov/speedy_econt_shipping
- * Version:           1.5.5
+ * Version:           1.5.6
  * WC tested up to:   6.1
  * License:           GNU General Public License, version 2
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.en.html
@@ -47,7 +47,9 @@ function seshInsertSpeedyTableData(): bool
             $site_name = seshConvertCase($site['name'], $keepCase);
             $site_region = seshConvertCase($site['region'], $keepCase);
             // align the values between to-office and to-address delivery options
-            if ($site_region === 'София (столица)') {
+            if ($site_region === 'София') {
+                $site_region = 'София Област';
+            } else if ($site_region === 'София (столица)') {
                 $site_region = 'София';
             }
             $site_municipality = seshConvertCase($site['municipality'], $keepCase);
