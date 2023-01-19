@@ -4,10 +4,10 @@ Tags: econt, еконт, speedy, спиди, shipping, bulgaria, bulgaria courie
 Requires at least: 4.4
 Requires PHP: 7.0
 Tested up to: 6.1
-Stable tag: 1.5.6
+Stable tag: 1.6.1
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Donate link: http://
+Donate link: http://revolut.me/danq6lus
 
 Adds functionality to specify delivery addresses for the Speedy and Econt couriers in Bulgaria.
 
@@ -155,3 +155,6 @@ Added ability to specify custom list of fields which should be used when "Delive
 Added option to show all delivery fields altogether (without entering the phone number)
 Added check whether Speedy office is opened before adding it to the list of available
 Preventing plugin logic from being loaded on non-checkout pages
+### 1.6.1 - 2023-01-19
+#### Fixes
+fixed version issue

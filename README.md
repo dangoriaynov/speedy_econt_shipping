@@ -11,15 +11,14 @@ The functionality might get extended to other countries by simply adding paramet
  - shows how much order value left till free delivery with selected delivery option
  
 ### Plugin settings allow to set the following
- - credentials to access Speedy and Econt APIs
+ - credentials to access Speedy API
  - shipping labels
  - shipping fees
  - free shipping from <sum>
- - currency to be used
  
 ### Prerequisites
- - contact Speedy and Econt couriers to provide you with API access
- - store username (should be digits only) and password provided by them
+ - contact Speedy courier to provide you with API access
+ - store username (should be digits only) and password provided
 
 ### Setup steps
  - install and activate plugin
@@ -29,6 +28,8 @@ The functionality might get extended to other countries by simply adding paramet
  - wait till data is refreshed (for first set - wait for 1 minute, for subsequent change - at 3:05 AM daily)
  - add few items to your cart and proceed to checkout
  - verify checkout process is smooth and no errors are raised when placing the order
+ - if you see errors - try to enable WordPress debug and check the debug.log for errors
+ - you may also contact me via winter2007d(at)gmail.com
 
 ### Note
 This plugin creates tables and populate data from respective APIs asynchronously.
