@@ -6,7 +6,7 @@
  * Author:            Dan Goriaynov
  * Author URI:        https://github.com/dangoriaynov
  * Plugin URI:        https://github.com/dangoriaynov/speedy_econt_shipping
- * Version:           1.5.6
+ * Version:           1.6
  * WC tested up to:   6.1
  * License:           GNU General Public License, version 2
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.en.html
@@ -36,6 +36,9 @@ function seshInsertSpeedyTableData(): bool
     $speedy_sites_added = array();
     $offices = seshApiSpeedyOfficesList();
     foreach ($offices as $id => $value) {
+        if (! $value['is_open']) {
+            continue;  # skip closed offices
+        }
         $name = seshConvertCase($value['name']);
 
         $site_id = $value['site_id'];
@@ -63,22 +66,14 @@ function seshInsertSpeedyTableData(): bool
     $sitesDB = seshReadTableData($speedy_sites_table);
     $officesDB = seshReadTableData($speedy_offices_table);
     // this way we prevent cleaning up the table when API request returned empty result
-    $sitesDBSize = sizeof($sitesDB);
-    if ($sitesDBSize == 0) {
-        $sitesDBSize = 1;
-    }
-    $officesDBSize = sizeof($officesDB);
-    if ($officesDBSize == 0) {
-        $officesDBSize = 1;
-    }
-    return sizeof($speedy_sites_added) / $sitesDBSize >= 0.8 &&
-        $officesAdded / $officesDBSize >= 0.8;
+    return sizeof($speedy_sites_added) / (sizeof($sitesDB) + 0.1) >= 0.8 &&
+        $officesAdded / (sizeof($officesDB) + 0.1) >= 0.8;
 }
 
 function seshInsertEcontTableData(): bool
 {
     global $keepCase, $econt_sites_table, $econt_offices_table;
-    $officesAdded = 0;
+    $officesAddedAmt = 0;
     $econt_sites_added = array();
     $sites_with_offices = array();
     $cities = seshApiEcontSitesList();
@@ -88,12 +83,15 @@ function seshInsertEcontTableData(): bool
         $econt_sites_added[$city_id] = $city_name;
     }
     foreach ($offices as $office_id => $office_data) {
+        if (! $office_data['is_open']) {
+            continue;  # skip closed offices
+        }
         $site_id = $office_data['site_id'];
         $site_name = $econt_sites_added[$site_id];
         $sites_with_offices[] = $site_id;
         $office_name = seshConvertCase($office_data['name'], $keepCase);
         $office_address = seshConvertCase($office_data['address'], $keepCase);
-        $officesAdded += 1;
+        $officesAddedAmt += 1;
         seshInsertEcontOffice($office_id, $office_name, $site_name, $office_address);
     }
     foreach ($cities as $city_id => $city_data) {
@@ -109,8 +107,8 @@ function seshInsertEcontTableData(): bool
     $sitesDB = seshReadTableData($econt_sites_table);
     $officesDB = seshReadTableData($econt_offices_table);
     // this way we prevent cleaning up the table when API request returned empty result
-    return sizeof($econt_sites_added) / sizeof($sitesDB) >= 0.9 &&
-        $officesAdded / sizeof($officesDB) >= 0.9;
+    return sizeof($econt_sites_added) / (sizeof($sitesDB) + 0.1) >= 0.9 &&
+        $officesAddedAmt / (sizeof($officesDB) + 0.1) >= 0.9;
 }
 
 function seshGenerateJsVar($sitesTable, $officesTable, $varName) {
@@ -123,8 +121,7 @@ function seshGenerateJsVar($sitesTable, $officesTable, $varName) {
         // iterate over all elements in the offices DB table
         foreach ($officesDB as $officeDB) {
             if ($officeDB->city === $siteDB->name) {
-                $officeObj = array('id'=> $officeDB->id, 'name' => $officeDB->name, 'address' => $officeDB->address);
-                $offices[] = $officeObj;
+                $offices[] = array('id'=> $officeDB->id, 'name' => $officeDB->name, 'address' => $officeDB->address);
             }
         }
         // on empty offices list

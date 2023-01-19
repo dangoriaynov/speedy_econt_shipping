@@ -59,7 +59,8 @@ function seshApiSpeedyOfficesList() {
             $results[$office->id] = array(
                 'name' => $office->name,
                 'site_id' => $office->address->siteId,
-                'address' => $office->address->fullAddressString);
+                'address' => $office->address->fullAddressString,
+                'is_open' => $office->pickUpAllowed && $office->dropOffAllowed);
         }
     }
     return $results;
@@ -96,7 +97,8 @@ function seshApiEcontOfficesList() {
         $results[$office->id] = array(
             'name' => $office->name,
             'site_id' => $office->address->city->id,
-            'address' => $office->address->fullAddress);
+            'address' => $office->address->fullAddress,
+            'is_open' => true);
     }
     return $results;
 }

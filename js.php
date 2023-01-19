@@ -3,17 +3,23 @@
 if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly....
 }
-// todo check whether speedy office is closed and do not add it to the list of available
+
 require 'utils.php';
+require_once 'SeshSpeedyEcontShippingAdmin.php';
 
 add_action( 'wp_head', function () {
+    // works only on 'checkout' page
+    if (! (is_page( 'checkout' ) || is_checkout())) {
+        return;
+    }
     // works only when we have items in the cart
     if (WC()->cart->get_cart_contents_count() == 0) {
         return;
     }
     global $speedy_region_sel, $speedy_city_sel, $speedy_office_sel, $econt_region_sel, $econt_city_sel, $econt_office_sel,
            $speedy_region_field, $speedy_city_field, $speedy_office_field, $econt_region_field, $econt_city_field,
-           $econt_office_field, $shipping_to_sel;
+           $econt_office_field, $shipping_to_sel, $address_region_sel, $address_city_sel, $address_address_sel,
+           $address_region_field, $address_city_field, $address_address_field;
     ?>
     <script>
         const locs = {
@@ -42,13 +48,13 @@ add_action( 'wp_head', function () {
             'address': {
                 'name' : 'address',
                 'outer': {
-                    'region': '#billing_state_field',
-                    'city': '#billing_city_field',
-                    'office': '#billing_address_1_field'},
+                    'region': '<?php echo esc_js($address_region_field); ?>',
+                    'city': '<?php echo esc_js($address_city_field); ?>',
+                    'office': '<?php echo esc_js($address_address_field); ?>'},
                 'inner': {
-                    'region': '#billing_state',
-                    'city': '#billing_city',
-                    'office': '#billing_address_1'}
+                    'region': '<?php echo esc_js($address_region_sel); ?>',
+                    'city': '<?php echo esc_js($address_city_sel); ?>',
+                    'office': '<?php echo esc_js($address_address_sel); ?>'}
             }
         };
 
@@ -70,7 +76,7 @@ add_action( 'wp_head', function () {
         }
 
         function showTillFreeDeliveryMsg() {
-            if (orderPrice() === 0) {
+            if (<?php echo isShowStoreMessages() ? 'false' : 'true'; ?> || orderPrice() === 0) {
                 return;
             }
             const chosenShippingOpt = jQuery('<?php echo $shipping_to_sel ?>:checked').val();
@@ -96,7 +102,7 @@ add_action( 'wp_head', function () {
                 msg = '<?php _e('Congrats, you won free delivery using', 'speedy_econt_shipping'); ?> '+labelBold+'!';
             } else {
                 msgDiv.addClass("woocommerce-error");
-                msg = '<?php _e('Still left', 'speedy_econt_shipping'); ?> <span class="woocommerce-Price-amount amount">'+leftTillFree.toFixed(2)+'&nbsp;<span class="woocommerce-Price-currencySymbol"><?php echo getCurrencySymbol(); ?></span></span> <?php _e('to get a free shipping to', 'speedy_econt_shipping')?> '+labelBold+'! <a class="button" href="<?php echo getShopUrl(); ?>"><?php _e('To shop', 'speedy_econt_shipping') ?></a>';
+                msg = '<?php _e('Still left', 'speedy_econt_shipping'); ?> <span class="woocommerce-Price-amount amount">'+leftTillFree.toFixed(2)+'&nbsp;<span class="woocommerce-Price-currencySymbol"><?php echo html_entity_decode(get_woocommerce_currency_symbol()); ?></span></span> <?php _e('to get a free shipping to', 'speedy_econt_shipping')?> '+labelBold+'! <a class="button" href="<?php echo get_permalink( wc_get_page_id( 'shop' ) ); ?>"><?php _e('To shop', 'speedy_econt_shipping') ?></a>';
             }
             msgDiv.html(msg);
             msgDiv.show();
@@ -107,7 +113,7 @@ add_action( 'wp_head', function () {
             const delivPrice = orderPrice() >= chosenOption.free_from ? 0 : chosenOption.shipping;
             // convert to id here since we do care about real DOM elements here
             pricesCopy[delivOptions[key].id] = delivPrice;
-            const priceAdd = delivPrice === 0 ? "<?php _e('for free', 'speedy_econt_shipping') ?>" : '+'+delivPrice.toFixed(2)+' <?php echo esc_js(getCurrencySymbol()); ?>';
+            const priceAdd = delivPrice === 0 ? "<?php _e('for free', 'speedy_econt_shipping') ?>" : '+'+delivPrice.toFixed(2)+' <?php echo html_entity_decode(get_woocommerce_currency_symbol()); ?>';
             const delivText = ' '+chosenOption.label+' ('+priceAdd+')';
             jQuery(".woocommerce-input-wrapper > label[for='"+chosenOption.id+"']").text(delivText);
         }
@@ -128,7 +134,7 @@ add_action( 'wp_head', function () {
 
         function changeFinalPrice(id) {
             const addText = pricesCopy[id] > 0 ? " + <?php _e('delivery', 'speedy_econt_shipping') ?>" : "";
-            jQuery(".woocommerce-Price-amount.amount").last().text(orderPrice().toFixed(2) + ' <?php echo esc_js(getCurrencySymbol()); ?>' + addText);
+            jQuery(".woocommerce-Price-amount.amount").last().text(orderPrice().toFixed(2) + ' <?php echo html_entity_decode(get_woocommerce_currency_symbol()); ?>' + addText);
         }
 
         jQuery( document ).ready(function() {
@@ -188,9 +194,9 @@ add_action( 'wp_head', function () {
                         if (selectedCity && selectedCity !== city.name) {
                             return;
                         }
-                        // do not output office # for te Econt offices
+                        // do not output office # for the Econt offices
                         const officeAddress = key === locs.econt.name ? office.address : '№' + office.id + ', ' + office.address;
-                        officeDom.append(jQuery('<option id="' + office.id + '">'+officeAddress+'</option>'));
+                        officeDom.append(jQuery('<option id="' + office.id + '">'+office.name+' ('+officeAddress+')</option>'));
                     });
                 });
             });

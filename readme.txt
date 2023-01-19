@@ -145,3 +145,13 @@ Fixed Speedy offices selection for the Sofia city №2
 ### 1.5.6 - 2022-10-09
 #### Fixes
 Fixed Speedy offices selection for the Sofia city №3
+### 1.6 - 2023-01-19
+#### Enhancements
+Removed Econt username and password fields since they are not needed for the plugin to work
+Added an option to disable messages about the free shipping earned
+Added ability to enable only particular shipping methods (not all at the same time)
+Made Econt office alias visible along with the address to ease up the search
+Added ability to specify custom list of fields which should be used when "Delivery to address" option is chosen and hidden otherwise
+Added option to show all delivery fields altogether (without entering the phone number)
+Added check whether Speedy office is opened before adding it to the list of available
+Preventing plugin logic from being loaded on non-checkout pages
