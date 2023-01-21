@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: Speedy and Econt Shipping\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-02 07:12+0000\n"
-"PO-Revision-Date: 2023-01-21 21:59+0000\n"
+"PO-Revision-Date: 2023-01-21 22:48+0000\n"
 "Last-Translator: \n"
 "Language-Team: Български\n"
 "Language: bg_BG\n"
@@ -110,7 +110,7 @@ msgstr "Добавя методи на доставка със Speedy и Еко�
 #. id
 #: SeshSpeedyEcontShippingAdmin.php:193
 msgid "Calculate final price on checkout"
-msgstr "Да се добавя цена на доставка в общата сума на поръчка"
+msgstr "Да се добавя цена на доставка към общата сума на поръчка"
 
 #: speedy_econt_shipping.php:312 speedy_econt_shipping.php:340
 msgid "Choose region first"

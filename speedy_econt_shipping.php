@@ -6,7 +6,7 @@
  * Author:            Dan Goriaynov
  * Author URI:        https://github.com/dangoriaynov
  * Plugin URI:        https://github.com/dangoriaynov/speedy_econt_shipping
- * Version:           1.7.1
+ * Version:           1.7.2
  * WC tested up to:   6.1
  * License:           GNU General Public License, version 2
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.en.html
@@ -25,7 +25,6 @@ require 'js.php';
 require 'css.php';
 
 global $keepCase, $isUpgradeInProgress;
-
 $keepCase = ['Столица' => 'столица', 'Ул.' => 'ул.', 'Ту ' => 'ТУ '];
 $isUpgradeInProgress = false;
 
@@ -148,7 +147,7 @@ function seshGenerateJsVar($sitesTable, $officesTable, $varName) {
                 break;
             }
         }
-        // add new if no existing entry for the current region
+        // add new if no existing entry exists for the current region
         if (! $citiesExisting) {
             $citiesExisting = array();
             $data[$siteDB->region] = $citiesExisting;
@@ -232,27 +231,22 @@ function seshOnActivate() {
 function seshOnActivateOnEmpty() {
     global $speedy_sites_table, $speedy_offices_table, $econt_sites_table, $econt_offices_table;
     if (! isEmptyAnyOfTables(array($econt_sites_table, $econt_offices_table, $speedy_sites_table, $speedy_offices_table))) {
-        // this logic will work only once after the plugin activation since we don't want to spam the APIs
         wp_clear_scheduled_hook( 'seshEveryMinuteHook' );
         return;
     }
     seshOnActivate();
 }
-add_action( 'seshActivationHook', 'seshOnActivate' );
 add_action( 'seshEveryMinuteHook', 'seshOnActivateOnEmpty' );
 add_action( 'seshDailyHook', 'seshOnActivate' );
 
 function seshFillInitialData() {
     seshCreateTables();
-    wp_schedule_single_event( time(), 'seshActivationHook' );
 }
 register_activation_hook( __FILE__, 'seshFillInitialData' );
 
 function seshDeactivateDailyDataRefresh() {
     wp_clear_scheduled_hook( 'seshDailyHook' );
     wp_clear_scheduled_hook( 'seshEveryMinuteHook' );
-    wp_clear_scheduled_hook( 'seshActivationHook' );
-
     seshDropTables();
 }
 register_deactivation_hook( __FILE__, 'seshDeactivateDailyDataRefresh' );
