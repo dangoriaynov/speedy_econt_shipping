@@ -7,7 +7,7 @@ The functionality might get extended to other countries by simply adding paramet
  - update the offices' data on daily basis
  - generates select boxes for the region-city-office bundle for each courier
  - provides option for delivery to home address
- - hides all shipping methods available (since other way of chosing them is used)
+ - hides all shipping methods available (since other way of choosing them is used)
  - shows how much order value left till free delivery with selected delivery option
  
 ### Plugin settings allow to set the following
