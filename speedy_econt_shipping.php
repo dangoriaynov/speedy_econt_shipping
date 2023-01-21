@@ -6,7 +6,7 @@
  * Author:            Dan Goriaynov
  * Author URI:        https://github.com/dangoriaynov
  * Plugin URI:        https://github.com/dangoriaynov/speedy_econt_shipping
- * Version:           1.6.1
+ * Version:           1.7
  * WC tested up to:   6.1
  * License:           GNU General Public License, version 2
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.en.html
@@ -111,6 +111,17 @@ function seshInsertEcontTableData(): bool
         $officesAddedAmt / (sizeof($officesDB) + 0.1) >= 0.9;
 }
 
+function seshInsertOfficesData() {
+    $result = true;
+    if (isSpeedyEnabled()) {
+        $result &= seshInsertSpeedyTableData();
+    }
+    if (isEcontEnabled()) {
+        $result &= seshInsertEcontTableData();
+    }
+    return $result;
+}
+
 function seshGenerateJsVar($sitesTable, $officesTable, $varName) {
     $sitesDB = seshReadTableData($sitesTable, "name");
     $officesDB = seshReadTableData($officesTable, "name");
@@ -148,7 +159,6 @@ function seshGenerateJsVar($sitesTable, $officesTable, $varName) {
         // update the region value
         $data[$siteDB->region] = $citiesExisting;
     }
-    //ksort($data);
     setlocale(LC_COLLATE, 'bg_BG.utf8');
     uksort($data,'strcoll');
     ?><script>
@@ -165,8 +175,8 @@ function seshRefreshDeliveryTables() {
     try {
         // preliminary table clean-up
         seshTruncateTables();
-        // insert offices/sites data as preliminary one
-        if (!seshInsertSpeedyTableData() or !seshInsertEcontTableData()) {
+        // try to insert offices/sites data
+        if (!seshInsertOfficesData()) {
             return;
         }
         // clear production data from the destination tables
@@ -242,6 +252,8 @@ function seshDeactivateDailyDataRefresh() {
     wp_clear_scheduled_hook( 'seshDailyHook' );
     wp_clear_scheduled_hook( 'seshEveryMinuteHook' );
     wp_clear_scheduled_hook( 'seshActivationHook' );
+
+    seshDropTables();
 }
 register_deactivation_hook( __FILE__, 'seshDeactivateDailyDataRefresh' );
 
@@ -396,4 +408,3 @@ function add_settings_page_link( $links ): array
     ), $links );
     return $links;
 }
-add_action( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'add_settings_page_link' );

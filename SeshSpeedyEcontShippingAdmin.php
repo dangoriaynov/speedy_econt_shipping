@@ -32,6 +32,7 @@ class SeshSpeedyEcontShippingAdmin {
             <p><i>curl -X POST -H "Content-Type: application/json" --data '{"countryCode": "BGR"} ' https://ee.econt.com/services/Nomenclatures/NomenclaturesService.getCities.json</i><br><i>curl -X POST -H "Content-Type: application/json" --data '{"userName": "&lt;speedy username&gt;","password": "&lt;speedy password&gt;","language": "BG","countryId": 100}' https://api.speedy.bg/v1/location/office/</i>
             </p>
             <p><?php _e('<b>You may also enable the <a href="https://wordpress.org/support/article/debugging-in-wordpress/" target="_blank">debug mode</a> in your site and check the debug.log file for errors.</b>', 'speedy_econt_shipping') ?></p>
+            <p><?php _e('<b>Be aware that in order to do the force update of the Econt/Speedy offices and sites tables you could simply disable and re-enable the plugin.</b>', 'speedy_econt_shipping') ?></p>
             <?php settings_errors(); ?>
 
             <form method="post" action="options.php">
@@ -116,9 +117,9 @@ class SeshSpeedyEcontShippingAdmin {
         );
 
         add_settings_field(
-            'econt_free_from_9', // id
+            'econt_shipping_9', // id
             __('`Econt` shipping fee', 'speedy_econt_shipping'), // title
-            array( $this, 'econt_free_from_9_callback' ), // callback
+            array( $this, 'econt_shipping_9_callback' ), // callback
             'speedy-econt-shipping-admin', // page
             'speedy_econt_shipping_setting_section' // section
         );
@@ -186,16 +187,24 @@ class SeshSpeedyEcontShippingAdmin {
 //            'speedy-econt-shipping-admin', // page
 //            'speedy_econt_shipping_setting_section' // section
 //        );
+
+        add_settings_field(
+            'calculate_final_price_8', // id
+            __('Calculate final price on checkout', 'speedy_econt_shipping'), // title
+            array( $this, 'calculate_final_price_8_callback' ), // callback
+            'speedy-econt-shipping-admin', // page
+            'speedy_econt_shipping_setting_section' // section
+        );
     }
 
     public function speedy_econt_shipping_sanitize($input): array {
         $sanitary_values = array();
         $keys = array('speedy_username_0', 'speedy_password_1', 'speedy_free_from_6', 'speedy_shipping_7',
-            'econt_free_from_8', 'econt_free_from_9',
+            'econt_free_from_8', 'econt_shipping_9',
             'address_free_from_10', 'address_shipping_11',
             'address_fields_3', 'additionally_hidden_fields_3');
         $checkboxes = array('enable_speedy_0', 'enable_econt_1', 'enable_address_2',
-            'show_store_messages_6', 'show_deliv_opts_6', 'repopulate_tables_7');
+            'show_store_messages_6', 'show_deliv_opts_6', 'repopulate_tables_7', 'calculate_final_price_8');
         foreach($keys as &$value) {
             if ( isset( $input[$value] ) ) {
                 $sanitary_values[$value] = sanitize_text_field( $input[$value] );
@@ -268,15 +277,15 @@ class SeshSpeedyEcontShippingAdmin {
     }
 
     public function enable_econt_1_callback() {
-        $this->checkbox_callback('enable_econt_1', array('econt_free_from_8', 'econt_free_from_9'), true);
+        $this->checkbox_callback('enable_econt_1', array('econt_free_from_8', 'econt_shipping_9'), true);
     }
 
     public function econt_free_from_8_callback() {
         $this->generic_callback('econt_free_from_8', 'number');
     }
 
-    public function econt_free_from_9_callback() {
-        $this->generic_callback('econt_free_from_9', 'number');
+    public function econt_shipping_9_callback() {
+        $this->generic_callback('econt_shipping_9', 'number');
     }
 
     public function enable_address_2_callback() {
@@ -309,6 +318,10 @@ class SeshSpeedyEcontShippingAdmin {
 
     public function repopulate_tables_7_callback() {
         $this->checkbox_callback('repopulate_tables_7', array(), false);
+    }
+
+    public function calculate_final_price_8_callback() {
+        $this->checkbox_callback('calculate_final_price_8', array(), false);
     }
 }
 
@@ -393,3 +406,8 @@ function isShowDelivOpts() {
 function isRepopulateTables() {
     return getStoredOption('repopulate_tables_7', false);
 }
+
+function isCalculateFinalPrice() {
+    return getStoredOption('calculate_final_price_8', false);
+}
+
