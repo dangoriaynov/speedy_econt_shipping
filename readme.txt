@@ -4,7 +4,7 @@ Tags: econt, еконт, speedy, спиди, shipping, bulgaria, bulgaria courie
 Requires at least: 4.4
 Requires PHP: 7.0
 Tested up to: 6.1
-Stable tag: 1.6.2
+Stable tag: 1.7.1
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Donate link: http://revolut.me/danq6lus
@@ -166,3 +166,6 @@ Fixed Econt shipping calculation issue
 Added option to explicitly calculate final order price in the checkout page
 Speedy/Econt data collection is done only when proper office' option is enabled
 DB tables are now removed on plugin deactivation
+### 1.7.1 - 2023-01-22
+#### Fixes
+fixed version issue

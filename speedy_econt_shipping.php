@@ -6,7 +6,7 @@
  * Author:            Dan Goriaynov
  * Author URI:        https://github.com/dangoriaynov
  * Plugin URI:        https://github.com/dangoriaynov/speedy_econt_shipping
- * Version:           1.7
+ * Version:           1.7.1
  * WC tested up to:   6.1
  * License:           GNU General Public License, version 2
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.en.html
@@ -221,7 +221,7 @@ function seshSetupEveryMinuteRun() {
 }
 
 function seshOnActivate() {
-    // this will assure that data is updated at least once per day (at 3AM)
+    // this will assure that data is updated at least once per day (at 3:05 AM)
     seshSetupDailyRun();
     // this will assure that we have data populated in tables and will try to populate it every minute
     seshSetupEveryMinuteRun();
