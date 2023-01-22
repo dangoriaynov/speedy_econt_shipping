@@ -32,7 +32,8 @@ class SeshSpeedyEcontShippingAdmin {
             <p><i>curl -X POST -H "Content-Type: application/json" --data '{"countryCode": "BGR"} ' https://ee.econt.com/services/Nomenclatures/NomenclaturesService.getCities.json</i><br><i>curl -X POST -H "Content-Type: application/json" --data '{"userName": "&lt;speedy username&gt;","password": "&lt;speedy password&gt;","language": "BG","countryId": 100}' https://api.speedy.bg/v1/location/office/</i>
             </p>
             <p><?php _e('<b>You may also enable the <a href="https://wordpress.org/support/article/debugging-in-wordpress/" target="_blank">debug mode</a> in your site and check the debug.log file for errors.</b>', 'speedy_econt_shipping') ?></p>
-            <p><?php _e('<b>Be aware that in order to do the force update of the Econt/Speedy offices and sites tables you could simply disable and re-enable the plugin.</b>', 'speedy_econt_shipping') ?></p>
+            <p><?php _e('Be aware that in order to do the force update of the Econt/Speedy offices and sites tables you could simply disable and re-enable the plugin.', 'speedy_econt_shipping') ?></p>
+            <p><?php _e('Office information is usually available 5 minutes after plugin was enabled.', 'speedy_econt_shipping') ?></p>
             <?php settings_errors(); ?>
 
             <form method="post" action="options.php">
