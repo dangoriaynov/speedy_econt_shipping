@@ -6,7 +6,7 @@
  * Author:            Dan Goriaynov
  * Author URI:        https://github.com/dangoriaynov
  * Plugin URI:        https://github.com/dangoriaynov/speedy_econt_shipping
- * Version:           1.7.2
+ * Version:           1.7.3
  * WC tested up to:   6.1
  * License:           GNU General Public License, version 2
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.en.html
@@ -26,7 +26,7 @@ require 'css.php';
 
 global $keepCase, $isUpgradeInProgress;
 $keepCase = ['Столица' => 'столица', 'Ул.' => 'ул.', 'Ту ' => 'ТУ '];
-$isUpgradeInProgress = false;
+static $isUpgradeInProgress = false;
 
 function seshInsertSpeedyTableData(): bool
 {
@@ -113,10 +113,18 @@ function seshInsertEcontTableData(): bool
 function seshInsertOfficesData() {
     $result = true;
     if (isSpeedyEnabled()) {
-        $result &= seshInsertSpeedyTableData();
+        try {
+            $result &= seshInsertSpeedyTableData();
+        } catch (Exception $e) {
+            write_log('Caught exception: '.$e->getMessage()."\n");
+        }
     }
     if (isEcontEnabled()) {
-        $result &= seshInsertEcontTableData();
+        try {
+            $result &= seshInsertEcontTableData();
+        } catch (Exception $e) {
+            write_log('Caught exception: '.$e->getMessage()."\n");
+        }
     }
     return $result;
 }
@@ -219,28 +227,28 @@ function seshSetupEveryMinuteRun() {
     }
 }
 
-function seshOnActivate() {
+function seshActivation() {
     // this will assure that data is updated at least once per day (at 3:05 AM)
     seshSetupDailyRun();
     // this will assure that we have data populated in tables and will try to populate it every minute
     seshSetupEveryMinuteRun();
-    // attempt to populate tables with the settings we currently have
-    seshRefreshDeliveryTables();
 }
 
-function seshOnActivateOnEmpty() {
+function seshRetryTillHasEmptyTables() {
     global $speedy_sites_table, $speedy_offices_table, $econt_sites_table, $econt_offices_table;
     if (! isEmptyAnyOfTables(array($econt_sites_table, $econt_offices_table, $speedy_sites_table, $speedy_offices_table))) {
         wp_clear_scheduled_hook( 'seshEveryMinuteHook' );
         return;
     }
-    seshOnActivate();
+    // attempt to populate tables with the settings we currently have
+    seshRefreshDeliveryTables();
 }
-add_action( 'seshEveryMinuteHook', 'seshOnActivateOnEmpty' );
-add_action( 'seshDailyHook', 'seshOnActivate' );
+add_action( 'seshEveryMinuteHook', 'seshRetryTillHasEmptyTables' );
+add_action( 'seshDailyHook', 'seshActivation' );
 
 function seshFillInitialData() {
     seshCreateTables();
+    seshActivation();
 }
 register_activation_hook( __FILE__, 'seshFillInitialData' );
 
@@ -386,19 +394,19 @@ function sesh_hide_shipping_fields($needs_address, $hide, $order ): bool
 add_filter( 'woocommerce_order_needs_shipping_address', 'sesh_hide_shipping_fields', 10, 3 );
 
 /* remove shipping column from emails */
-add_filter( 'woocommerce_get_order_item_totals', 'sesh_customize_email_order_line_totals', 1000, 3 );
 function sesh_customize_email_order_line_totals($total_rows, $order, $tax_display ){
     if( ! is_wc_endpoint_url() || ! is_admin() ) {
         unset($total_rows['shipping']);
     }
     return $total_rows;
 }
+add_filter( 'woocommerce_get_order_item_totals', 'sesh_customize_email_order_line_totals', 1000, 3 );
 
 /* Add a link to the settings page on the plugins.php page. */
-function add_settings_page_link( $links ): array
+function sesh_add_plugin_page_settings_link( $links ): array
 {
-    $links = array_merge( array(
-        '<a href="' . esc_url( admin_url( '/options-general.php?page=speedy-econt-shipping' ) ) . '">' . __( 'Settings', 'speedy_econt_shipping' ) . '</a>'
+    return array_merge( array(
+        '<a href="' . esc_url( admin_url( '/options-general.php?page=speedy-econt-shipping' ) ) . '">' . __( 'Settings' ) . '</a>'
     ), $links );
-    return $links;
 }
+add_filter('plugin_action_links_'.plugin_basename(__FILE__), 'sesh_add_plugin_page_settings_link');
