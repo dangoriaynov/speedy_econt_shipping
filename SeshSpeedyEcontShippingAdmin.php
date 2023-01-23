@@ -27,13 +27,13 @@ class SeshSpeedyEcontShippingAdmin {
 
         <div class="wrap">
             <h2><?php _e('Speedy & Econt shipping', 'speedy_econt_shipping') ?></h2>
-            <p><?php _e('Specify here the information needed for the plugin to work.<br><b>Please request API access from Speedy courier and specify the values given.</b>', 'speedy_econt_shipping') ?></p>
+            <p><?php _e('<b>Please <a href="mailto:cs@speedy.bg">request API access from Speedy courier</a> and specify the values given.</b>', 'speedy_econt_shipping') ?></p>
+            <p><?php _e('Be aware that in order to do the force update of the Econt/Speedy offices and sites tables you could enable corresponding option in the plugin settings.', 'speedy_econt_shipping') ?></p>
+            <p><?php _e('Office information is usually loaded during first 5 minutes after plugin was enabled.', 'speedy_econt_shipping') ?></p>
             <p><?php _e('<b>In case of errors, please check output of the following commands on your hosting:</b>', 'speedy_econt_shipping') ?></p>
             <p><i>curl -X POST -H "Content-Type: application/json" --data '{"countryCode": "BGR"} ' https://ee.econt.com/services/Nomenclatures/NomenclaturesService.getCities.json</i><br><i>curl -X POST -H "Content-Type: application/json" --data '{"userName": "&lt;speedy username&gt;","password": "&lt;speedy password&gt;","language": "BG","countryId": 100}' https://api.speedy.bg/v1/location/office/</i>
             </p>
             <p><?php _e('<b>You may also enable the <a href="https://wordpress.org/support/article/debugging-in-wordpress/" target="_blank">debug mode</a> in your site and check the debug.log file for errors.</b>', 'speedy_econt_shipping') ?></p>
-            <p><?php _e('Be aware that in order to do the force update of the Econt/Speedy offices and sites tables you could simply disable and re-enable the plugin.', 'speedy_econt_shipping') ?></p>
-            <p><?php _e('Office information is usually available 5 minutes after plugin was enabled.', 'speedy_econt_shipping') ?></p>
             <?php settings_errors(); ?>
 
             <form method="post" action="options.php">
@@ -41,7 +41,7 @@ class SeshSpeedyEcontShippingAdmin {
                 submit_button();
                 settings_fields( 'speedy_econt_shipping_option_group' );
                 do_settings_sections( 'speedy-econt-shipping-admin' );
-                submit_button();
+                submit_button(__('Save Changes'), 'primary', 'submit', true, array('id'=>'submit_bottom'));
                 ?>
             </form>
         </div>
@@ -181,18 +181,18 @@ class SeshSpeedyEcontShippingAdmin {
             'speedy_econt_shipping_setting_section' // section
         );
 
-//        add_settings_field(
-//            'repopulate_tables_7', // id
-//            __('Force re-populate tables', 'speedy_econt_shipping'), // title
-//            array( $this, 'repopulate_tables_7_callback' ), // callback
-//            'speedy-econt-shipping-admin', // page
-//            'speedy_econt_shipping_setting_section' // section
-//        );
-
         add_settings_field(
             'calculate_final_price_8', // id
             __('Calculate final price on checkout', 'speedy_econt_shipping'), // title
             array( $this, 'calculate_final_price_8_callback' ), // callback
+            'speedy-econt-shipping-admin', // page
+            'speedy_econt_shipping_setting_section' // section
+        );
+
+        add_settings_field(
+            'repopulate_tables_7', // id
+            __('Force re-populate tables', 'speedy_econt_shipping'), // title
+            array( $this, 'repopulate_tables_7_callback' ), // callback
             'speedy-econt-shipping-admin', // page
             'speedy_econt_shipping_setting_section' // section
         );
@@ -318,7 +318,14 @@ class SeshSpeedyEcontShippingAdmin {
     }
 
     public function repopulate_tables_7_callback() {
-        $this->checkbox_callback('repopulate_tables_7', array(), false);
+        global $wpdb;
+        $name = 'repopulate_tables_7';
+        if (getStoredOption($name, false) === true) {
+            $wpdb->query("UPDATE ".$wpdb->prefix."OPTIONS SET OPTION_VALUE = REPLACE(OPTION_VALUE, '\"".$name."\";b:1', '\"".$name."\";b:0') WHERE OPTION_NAME = 'speedy_econt_shipping_option_name';");
+            wp_schedule_single_event( time(), 'seshForceUpdateHook' );  // force populate tables now
+            add_action( 'admin_notices', 'seshWarnDataRefresh' );
+        }
+        echo '<input type="checkbox" id="'.$name.'" name="speedy_econt_shipping_option_name['.$name.']" value="1" />';
     }
 
     public function calculate_final_price_8_callback() {
@@ -326,19 +333,16 @@ class SeshSpeedyEcontShippingAdmin {
     }
 }
 
+add_action( 'seshForceUpdateHook', 'seshRefreshTableData');
+function seshWarnDataRefresh() {
+    global $pagenow;
+    if ('options-general.php' === $pagenow && 'speedy-econt-shipping' === $_GET['page']) {
+        echo '<div class="notice notice-warning is-dismissible"><p>' . __('Speedy and Econt data refresh was started.', 'speedy_econt_shipping') . '</p></div>';
+    }
+}
+
 if ( is_admin() )
     $speedy_econt_shipping = new SeshSpeedyEcontShippingAdmin();
-
-//do_action( 'updated_option', 'repopulate_tables_7', '0', '1' );
-//function chosen_repopulate_tables_7_callback($key, $new_val)
-//{
-//    if ($key !== 'repopulate_tables_7') {
-//        return;
-//    }
-//    echo '>>> chosen_repopulate_tables_7_callback clicked!';
-//    update_option($key, '0');  // return to the original value
-//}
-//add_action( 'updated_option', 'chosen_repopulate_tables_7_callback', 10, 2 );
 
 function getStoredOption($name, $default="") {
     return get_option( 'speedy_econt_shipping_option_name' )[$name] ?? $default;
