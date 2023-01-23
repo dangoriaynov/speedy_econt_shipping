@@ -3,19 +3,24 @@
 if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly....
 }
+require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
-global $jal_db_version, $speedy_offices_table, $speedy_sites_table, $econt_offices_table, $econt_sites_table;
+global $jal_db_version, $speedy_offices_table, $speedy_sites_table, $econt_offices_table, $econt_sites_table, $queries,
+       $econt_offices_inserted, $econt_sites_inserted, $speedy_offices_inserted, $speedy_sites_inserted;
 $speedy_offices_table = 'speedy_offices';
 $econt_offices_table = 'econt_offices';
 $speedy_sites_table = 'speedy_sites';
 $econt_sites_table = 'econt_sites';
 $jal_db_version = '1.1';
+$queries = array();
+$econt_offices_inserted = array();
+$econt_sites_inserted = array();
+$speedy_offices_inserted = array();
+$speedy_sites_inserted = array();
 
 
 function seshCreateTables() {
     global $wpdb, $jal_db_version, $speedy_offices_table, $econt_offices_table, $speedy_sites_table, $econt_sites_table;
-    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-
     $charset_collate = $wpdb->get_charset_collate();
 
     $sql = "CREATE TABLE IF NOT EXISTS ".$wpdb->prefix.$speedy_sites_table." (
@@ -61,66 +66,87 @@ function seshCreateTables() {
     add_option( 'jal_db_version', $jal_db_version );
 }
 
+function clearQueries() {
+    global $queries, $econt_offices_inserted, $econt_sites_inserted, $speedy_offices_inserted, $speedy_sites_inserted;
+    $queries = array();
+    $econt_offices_inserted = array();
+    $econt_sites_inserted = array();
+    $speedy_offices_inserted = array();
+    $speedy_sites_inserted = array();
+
+}
+
+function appendQueries($short_table_name, $query) {
+    global $wpdb, $queries;
+    $table_name = $wpdb->prefix . $short_table_name;
+    $queries[] = str_replace('{table_name}', $table_name, $query);
+}
+
+function executeQueries() {
+    global $queries, $wpdb;
+    if (count($queries) == 0) {
+        return;
+    }
+    try {
+        mysqli_multi_query($wpdb->__get('dbh'), implode('; ', $queries));
+    } finally {
+        clearQueries();
+    }
+}
+
 function seshDropTables() {
     global $wpdb, $speedy_offices_table, $econt_offices_table, $speedy_sites_table, $econt_sites_table;
-
     foreach (array($speedy_sites_table, $speedy_offices_table, $econt_sites_table, $econt_offices_table) as $table_name) {
-        $table_name_full = $wpdb->prefix . $table_name;
-        $sql = "DROP TABLE IF EXISTS $table_name_full";
-        $wpdb->query($sql);
+        $wpdb->query("DROP TABLE IF EXISTS " . $wpdb->prefix . $table_name);
     }
     delete_option("jal_db_version");
 }
 
 function seshInsertSite($id, $name, $region, $municipality, $short_table_name) {
-    global $wpdb;
-    $table_name = $wpdb->prefix . $short_table_name;
-    $wpdb->replace(
-        $table_name,
-        array(
-            'id' => $id,
-            'name' => trim($name),
-            'region' => trim($region),
-            'municipality' => trim($municipality)
-        )
-    );
+    appendQueries($short_table_name, "INSERT INTO {table_name} (id, name, region, municipality) VALUES ($id, '".trim($name)."', '".trim($region)."','".trim($municipality)."') ON DUPLICATE KEY UPDATE name=name");
 }
 
 function seshInsertSpeedySite($id, $name, $region, $municipality) {
-    global $speedy_sites_table;
+    global $speedy_sites_table, $speedy_sites_inserted;
+    if (in_array($id, $speedy_sites_inserted)) {
+        return;
+    }
+    $speedy_sites_inserted[] = $id;
     seshInsertSite($id, $name, $region, $municipality, $speedy_sites_table);
 }
 
 function seshInsertEcontSite($id, $name, $region) {
-    global $econt_sites_table;
+    global $econt_sites_table, $econt_sites_inserted;
+    if (in_array($id, $econt_sites_inserted)) {
+        return;
+    }
+    $econt_sites_inserted[] = $id;
     seshInsertSite($id, $name, $region, '', $econt_sites_table);
 }
 
 function seshInsertOffice($id, $name, $city, $address, $short_table_name) {
-    global $wpdb;
-    $table_name = $wpdb->prefix . $short_table_name;
-    $wpdb->replace(
-        $table_name,
-        array(
-            'id' => $id,
-            'name' => trim($name),
-            'city' => trim($city),
-            'address' => trim($address)
-        )
-    );
+    appendQueries($short_table_name, "INSERT INTO {table_name} (id, name, city, address) VALUES ($id, '".trim($name)."', '".trim($city)."','".trim($address)."') ON DUPLICATE KEY UPDATE name=name");
 }
 
 function seshInsertSpeedyOffice($id, $name, $city, $address) {
-    global $speedy_offices_table;
+    global $speedy_offices_table, $speedy_offices_inserted;
+    if (in_array($id, $speedy_offices_inserted)) {
+        return;
+    }
+    $speedy_offices_inserted[] = $id;
     seshInsertOffice($id, $name, $city, $address, $speedy_offices_table);
 }
 
 function seshInsertEcontOffice($id, $name, $city, $address) {
-    global $econt_offices_table;
+    global $econt_offices_table, $econt_offices_inserted;
+    if (in_array($id, $econt_offices_inserted)) {
+        return;
+    }
+    $econt_offices_inserted[] = $id;
     seshInsertOffice($id, $name, $city, $address, $econt_offices_table);
 }
 
-function dbTablesArray() {
+function composeDbTablesArray() {
     global $speedy_offices_table, $speedy_sites_table, $econt_offices_table, $econt_sites_table;
     $table_names = array();
     if (isSpeedyEnabled()) {
@@ -138,17 +164,17 @@ function dbTablesArray() {
 // 2. delete existing data with is_prod=1
 // 3. mark newly inserted data with is_prod=1
 function seshTruncateTables($is_prod=false) {
-    global $wpdb;
-    foreach (dbTablesArray() as $table_name) {
+    global $wpdb, $queries;
+    foreach (composeDbTablesArray() as $table_name) {
         $full_table_name = $wpdb->prefix . $table_name;
-        $wpdb->query("DELETE FROM $full_table_name WHERE IS_PROD = ".((int) $is_prod));
+        $queries[] = "DELETE FROM $full_table_name WHERE IS_PROD = ".((int) $is_prod);
     }
 }
 
 function seshMarkDataAsProd() {
-    global $wpdb;
-    foreach (dbTablesArray() as $table_name) {
+    global $wpdb, $queries;
+    foreach (composeDbTablesArray() as $table_name) {
         $full_table_name = $wpdb->prefix . $table_name;
-        $wpdb->query("UPDATE $full_table_name SET IS_PROD = 1");
+        $queries[] = "UPDATE $full_table_name SET IS_PROD = 1";
     }
 }

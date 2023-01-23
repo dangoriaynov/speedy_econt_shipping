@@ -183,9 +183,12 @@ add_action( 'wp_head', function () {
                         if (selectedCity && selectedCity !== city.name) {
                             return;
                         }
-                        // do not output office # for the Econt offices
-                        const officeAddress = key === locs.econt.name ? office.address : '№' + office.id + ', ' + office.address;
-                        officeDom.append(jQuery('<option id="' + office.id + '">'+office.name+' ('+officeAddress+')</option>'));
+                        let officeName = office.name+' ('+office.address+')';
+                        // output office # for the Speedy offices
+                        if (key === locs.speedy.name) {
+                            officeName = '№' + office.id + ' ,' + officeName;
+                        }
+                        officeDom.append(jQuery('<option id="' + office.id + '">'+officeName+'</option>'));
                     });
                 });
             });

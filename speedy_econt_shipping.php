@@ -6,7 +6,7 @@
  * Author:            Dan Goriaynov
  * Author URI:        https://github.com/dangoriaynov
  * Plugin URI:        https://github.com/dangoriaynov/speedy_econt_shipping
- * Version:           1.7.3
+ * Version:           1.8
  * WC tested up to:   6.1
  * License:           GNU General Public License, version 2
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.en.html
@@ -173,7 +173,7 @@ function seshGenerateJsVar($sitesTable, $officesTable, $varName) {
     </script><?php
 }
 
-function seshRefreshDeliveryTables() {
+function seshRefreshTableData() {
     global $isUpgradeInProgress;
     if ($isUpgradeInProgress) {
         return;
@@ -184,12 +184,16 @@ function seshRefreshDeliveryTables() {
         seshTruncateTables();
         // try to insert offices/sites data
         if (!seshInsertOfficesData()) {
+            // rollback all the pending DB operations
+            clearQueries();
             return;
         }
         // clear production data from the destination tables
         seshTruncateTables(true);
         // mark newly inserted data as production one
         seshMarkDataAsProd();
+        // do the actual DB operations
+        executeQueries();
     } finally {
         $isUpgradeInProgress = false;
     }
@@ -215,46 +219,51 @@ function seshPrintCheckoutPageData() {
 }
 add_action( 'woocommerce_before_checkout_form', 'seshPrintCheckoutPageData', 10 );
 
+function customCronSchedules($schedules){
+    if(! isset($schedules["5min"])){
+        $schedules["5min"] = array(
+            'interval' => 5*60,
+            'display' => __('Once every 5 minutes'));
+    }
+    return $schedules;
+}
+add_filter('cron_schedules','customCronSchedules');
+
 function seshSetupDailyRun() {
     if (! wp_next_scheduled( 'seshDailyHook' ) ) {
         wp_schedule_event( strtotime('03:05:00'), 'daily', 'seshDailyHook');
     }
 }
 
-function seshSetupEveryMinuteRun() {
-    if (! wp_next_scheduled( 'seshEveryMinuteHook' ) ) {
-        wp_schedule_event( time(), 'every_minute', 'seshEveryMinuteHook');
+function seshSetupEveryFiveMinutesRun() {
+    if (! wp_next_scheduled( 'seshEveryFiveMinutesHook' ) ) {
+        wp_schedule_event( time(), '5min', 'seshEveryFiveMinutesHook');
     }
-}
-
-function seshActivation() {
-    // this will assure that data is updated at least once per day (at 3:05 AM)
-    seshSetupDailyRun();
-    // this will assure that we have data populated in tables and will try to populate it every minute
-    seshSetupEveryMinuteRun();
 }
 
 function seshRetryTillHasEmptyTables() {
     global $speedy_sites_table, $speedy_offices_table, $econt_sites_table, $econt_offices_table;
     if (! isEmptyAnyOfTables(array($econt_sites_table, $econt_offices_table, $speedy_sites_table, $speedy_offices_table))) {
-        wp_clear_scheduled_hook( 'seshEveryMinuteHook' );
+        wp_clear_scheduled_hook( 'seshEveryFiveMinutesHook' );
         return;
     }
     // attempt to populate tables with the settings we currently have
-    seshRefreshDeliveryTables();
+    seshRefreshTableData();
 }
-add_action( 'seshEveryMinuteHook', 'seshRetryTillHasEmptyTables' );
-add_action( 'seshDailyHook', 'seshActivation' );
+add_action( 'seshEveryFiveMinutesHook', 'seshRetryTillHasEmptyTables' );
+add_action( 'seshDailyHook', 'seshRefreshTableData' );
 
 function seshFillInitialData() {
     seshCreateTables();
-    seshActivation();
+    wp_schedule_single_event( time(), 'seshDailyHook' );  // try to populate tables now
+    seshSetupEveryFiveMinutesRun();  // re-try to populate tables every 5 minutes
+    seshSetupDailyRun();  // do the table re-population every day
 }
 register_activation_hook( __FILE__, 'seshFillInitialData' );
 
 function seshDeactivateDailyDataRefresh() {
     wp_clear_scheduled_hook( 'seshDailyHook' );
-    wp_clear_scheduled_hook( 'seshEveryMinuteHook' );
+    wp_clear_scheduled_hook( 'seshEveryFiveMinutesHook' );
     seshDropTables();
 }
 register_deactivation_hook( __FILE__, 'seshDeactivateDailyDataRefresh' );
@@ -401,6 +410,18 @@ function sesh_customize_email_order_line_totals($total_rows, $order, $tax_displa
     return $total_rows;
 }
 add_filter( 'woocommerce_get_order_item_totals', 'sesh_customize_email_order_line_totals', 1000, 3 );
+
+//add_filter( 'woocommerce_package_rates', 'override_shipping_costs' );
+//function override_shipping_costs( $rates ) {
+//    foreach( $rates as $rate_key => $rate ){
+//        // Check if the shipping method ID is UPS
+//        if( ($rate->method_id == 'flexible_shipping_ups') ) {
+//            // Set cost to zero
+//            $rates[$rate_key]->cost = 0;
+//        }
+//    }
+//    return $rates;
+//}
 
 /* Add a link to the settings page on the plugins.php page. */
 function sesh_add_plugin_page_settings_link( $links ): array
