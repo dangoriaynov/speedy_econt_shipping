@@ -85,9 +85,7 @@ add_action( 'wp_head', function () {
             if (<?php echo isShowStoreMessages() ? 'false' : 'true'; ?> || Math.abs(originalOrderPrice) < 1e-10) {
                 return;
             }
-            const chosenShippingOpt = jQuery('<?php echo $shipping_to_sel ?>:checked').val();
-            const chosenOrDefaultOpt = delivOptions[chosenShippingOpt ? delivOptions[chosenShippingOpt].name : defaultShippingMethod];
-            const leftTillFree = chosenOrDefaultOpt.free_from - originalOrderPrice;
+            const leftTillFree = delivOptionChosen.free_from - originalOrderPrice;
             // don't do anything if unable to calculate the amount left till free shipping
             if (isNaN(leftTillFree)) {
                 return;
@@ -97,7 +95,7 @@ add_action( 'wp_head', function () {
                 const p = jQuery('<div role="alert">').appendTo(jQuery(".woocommerce-notices-wrapper").first());
                 p.append('<div id="deliv_msg" class="message-inner" style="display: block;">');
             }
-            const labelBold = '<b style="font-weight:900;">'+chosenOrDefaultOpt.label+'</b>';
+            const labelBold = '<b style="font-weight:900;">'+delivOptionChosen.label+'</b>';
             const msgDiv = msgContainer.first();
             msgDiv.removeClass();
             msgDiv.hide();
@@ -116,7 +114,7 @@ add_action( 'wp_head', function () {
 
         function populateDeliveryOption(key){
             const chosenOption = delivOptions[key];
-            const delivPrice = originalOrderPrice >= chosenOption.free_from ? 0 : chosenOption.shipping;
+            const delivPrice = originalOrderPrice >= chosenOption.free_from ? 0 : parseFloat(chosenOption.shipping);
             // convert to id here since we do care about real DOM elements here
             const delivPriceNormal = delivPrice.toFixed(2);
             pricesCopy[delivOptions[key].id] = delivPriceNormal;
@@ -131,19 +129,43 @@ add_action( 'wp_head', function () {
                 populateDeliveryOption(key);
             });
         }
-        function changeFinalPriceElem() {
-            let checkedOpt = jQuery('<?php echo $shipping_to_sel; ?>:checked');
-            if (checkedOpt.length > 0) {
-                delivOptionChosen = checkedOpt.attr('id');
-                return changeFinalPrice();
+
+        function updateChosenShippingOpt() {
+            const opt = jQuery('<?php echo $shipping_to_sel; ?>:checked');
+            const val = opt.val();
+            if (val === undefined) {
+                delivOptionChosen = delivOptions[defaultShippingMethod];
+                return;
             }
-            delivOptionChosen = delivOptions[defaultShippingMethod].id;
+            let foundShippingMethod = null;
+            // there are some themes which do the rendering in strange way, so let's guess
+            if (delivOptions[val] !== undefined) {
+                foundShippingMethod = delivOptions[val].name;
+            } else {
+                let guessed = false;
+                for (const [_, delivOptionData] of Object.entries(delivOptions)) {
+                    if (delivOptionData.label === val) {
+                        foundShippingMethod = delivOptionData.name;
+                        guessed = true;
+                        break;
+                    }
+                }
+                if (! guessed) {
+                    console.log('Not guessed the way shipping methods are represented in the theme. Please contact developers');
+                    return;
+                }
+            }
+            delivOptionChosen = delivOptions[foundShippingMethod ?? defaultShippingMethod];
+        }
+
+        function changeFinalPriceElem() {
+            updateChosenShippingOpt();
             return changeFinalPrice();
         }
 
         function changeFinalPrice() {
-            const deliveryPrice = pricesCopy[delivOptionChosen];
-            var elemText;
+            const deliveryPrice = pricesCopy[delivOptionChosen.id];
+            let elemText;
             <?php if (isCalculateFinalPrice()) { ?>
                 elemText = (parseFloat(originalOrderPrice) + parseFloat(deliveryPrice)).toFixed(2) + ' ' + currencySymbol;
             <?php } else { ?>
@@ -186,7 +208,7 @@ add_action( 'wp_head', function () {
                         let officeName = office.name+' ('+office.address+')';
                         // output office # for the Speedy offices
                         if (key === locs.speedy.name) {
-                            officeName = '№' + office.id + ' ,' + officeName;
+                            officeName = '№' + office.id + ', ' + officeName;
                         }
                         officeDom.append(jQuery('<option id="' + office.id + '">'+officeName+'</option>'));
                     });

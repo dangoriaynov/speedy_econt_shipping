@@ -321,6 +321,7 @@ class SeshSpeedyEcontShippingAdmin {
         global $wpdb;
         $name = 'repopulate_tables_7';
         if (getStoredOption($name, false) === true) {
+            write_log("tables re-population was forced!");
             $wpdb->query("UPDATE ".$wpdb->prefix."OPTIONS SET OPTION_VALUE = REPLACE(OPTION_VALUE, '\"".$name."\";b:1', '\"".$name."\";b:0') WHERE OPTION_NAME = 'speedy_econt_shipping_option_name';");
             wp_schedule_single_event( time(), 'seshForceUpdateHook' );  // force populate tables now
             add_action( 'admin_notices', 'seshWarnDataRefresh' );
@@ -333,7 +334,7 @@ class SeshSpeedyEcontShippingAdmin {
     }
 }
 
-add_action( 'seshForceUpdateHook', 'seshRefreshTableData');
+add_action( 'seshForceUpdateHook', 'seshRefreshTableDataAll');
 function seshWarnDataRefresh() {
     global $pagenow;
     if ('options-general.php' === $pagenow && 'speedy-econt-shipping' === $_GET['page']) {
@@ -406,10 +407,6 @@ function isShowStoreMessages() {
 
 function isShowDelivOpts() {
     return getStoredOption('show_deliv_opts_6', false);
-}
-
-function isRepopulateTables() {
-    return getStoredOption('repopulate_tables_7', false);
 }
 
 function isCalculateFinalPrice() {
