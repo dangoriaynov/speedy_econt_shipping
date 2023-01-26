@@ -10,7 +10,7 @@ global $speedy_region_sel, $speedy_city_sel, $speedy_office_sel, $econt_region_s
        $speedy_region_field, $speedy_city_field, $speedy_office_field, $econt_region_field, $econt_city_field, $econt_office_field,
        $shipping_to_sel, $speedy_region_id, $speedy_city_id, $speedy_office_id, $econt_region_id,
        $econt_city_id, $econt_office_id, $shipping_to_id, $address_region_sel, $address_city_sel, $address_address_sel,
-       $shipping_to_speedy_key;
+       $shipping_to_speedy_key, $speedy_opt_key, $econt_opt_key, $insert_edge;
 
 $speedy_region_id = "speedy_region_sel";
 $speedy_city_id = "speedy_city_sel";
@@ -46,6 +46,10 @@ $shipping_to_speedy_key = 'shipping_to_speedy';
 $shipping_to_econt_key = 'shipping_to_econt';
 $shipping_to_address_key = 'shipping_to_address';
 
+$speedy_opt_key = 'speedy';
+$econt_opt_key = 'econt';
+$insert_edge = 0.9;
+
 
 // default delivery option
 function seshDefaultDelivOpt() {
@@ -55,28 +59,28 @@ function seshDefaultDelivOpt() {
 
 function seshDelivOptions(): array
 {
-    global $shipping_to_speedy_key, $shipping_to_econt_key, $shipping_to_address_key;
+    global $shipping_to_speedy_key, $shipping_to_econt_key, $shipping_to_address_key, $speedy_opt_key, $econt_opt_key;
     $delivOpts = array();
-    $delivOpts['speedy'] =
+    $delivOpts[$speedy_opt_key] =
         array('id' => $shipping_to_speedy_key,
-            'name' => 'speedy',
+            'name' => $speedy_opt_key,
             'label' => __('Speedy office', 'speedy_econt_shipping'),
-            'shipping' => getSpeedyShipping(),
-            'free_from' => getSpeedyFreeFrom(),
+            'shipping' => number_format(getSpeedyShipping(), 2),
+            'free_from' => number_format(getSpeedyFreeFrom(), 2),
             'data' => 'speedyData');
-    $delivOpts['econt'] =
+    $delivOpts[$econt_opt_key] =
         array('id' => $shipping_to_econt_key,
-            'name' => 'econt',
+            'name' => $econt_opt_key,
             'label' => __('Econt office', 'speedy_econt_shipping'),
-            'shipping' => getEcontShipping(),
-            'free_from' => getEcontFreeFrom(),
+            'shipping' => number_format(getEcontShipping(), 2),
+            'free_from' => number_format(getEcontFreeFrom(), 2),
             'data' => 'econtData');
     $delivOpts['address'] =
         array('id' => $shipping_to_address_key,
             'name' => 'address',
             'label' => __('address', 'speedy_econt_shipping'),
-            'shipping' => getAddressShipping(),
-            'free_from' => getAddressFreeFrom());
+            'shipping' => number_format(getAddressShipping(), 2),
+            'free_from' => number_format(getAddressFreeFrom(), 2));
     return $delivOpts;
 }
 

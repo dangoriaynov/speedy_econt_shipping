@@ -25,7 +25,13 @@ function seshPostRequest($url, $payload, $headers=array())
 
     $jsonResponse = wp_remote_post($url, $args);
     if (! $jsonResponse) {
-        exit("error while accessing ".$url);
+        $msg = "error while accessing ".$url;
+        write_log($msg);
+        exit($msg);
+    } else if ( is_wp_error( $jsonResponse ) ) {
+        $msg = 'ERROR: ' . $jsonResponse->get_error_message();
+        write_log($msg);
+        exit($msg);
     }
     return json_decode($jsonResponse['body']);
 }
@@ -71,7 +77,6 @@ function seshEcontApiRequest($url)
     $payload = array(
         'countryCode' => 'BGR',
     );
-    // $headers = array('Authorization' => 'Basic '. base64_encode(getEcontUser().":".getEcontPass()));
     return seshPostRequest('https://ee.econt.com/services/Nomenclatures/NomenclaturesService.'.$url.'.json', $payload, array());
 }
 
