@@ -172,7 +172,7 @@ add_action( 'wp_head', function () {
                 const addText = deliveryPrice > 0 ? " + <?php _e('delivery', 'speedy_econt_shipping') ?>" : "";
                 elemText = originalOrderPrice + ' ' + currencySymbol + addText;
             <?php } ?>
-            jQuery(".woocommerce-Price-amount.amount").last().text(elemText);
+            jQuery(".order-total  .woocommerce-Price-amount.amount").last().text(elemText);
         }
 
         function onChangePhoneNumber(){
