@@ -11,7 +11,7 @@ $speedy_offices_table = 'speedy_offices';
 $econt_offices_table = 'econt_offices';
 $speedy_sites_table = 'speedy_sites';
 $econt_sites_table = 'econt_sites';
-$jal_db_version = '1.1';
+$jal_db_version = '1.2';
 $queries = array();
 $econt_offices_inserted = array();
 $econt_sites_inserted = array();
@@ -24,7 +24,7 @@ function seshCreateTables() {
     $charset_collate = $wpdb->get_charset_collate();
 
     $sql = "CREATE TABLE IF NOT EXISTS ".$wpdb->prefix.$speedy_sites_table." (
-      id mediumint(9) NOT NULL,
+      id int(15) NOT NULL,
       name text NOT NULL,
       region text NOT NULL,
       municipality text NOT NULL,
@@ -34,7 +34,7 @@ function seshCreateTables() {
     dbDelta( $sql );
 
     $sql = "CREATE TABLE IF NOT EXISTS ".$wpdb->prefix.$speedy_offices_table." (
-      id mediumint(9) NOT NULL,
+      id int(15) NOT NULL,
       name text NOT NULL,
       city text NOT NULL,
       address text NOT NULL,
@@ -44,7 +44,7 @@ function seshCreateTables() {
     dbDelta( $sql );
 
     $sql = "CREATE TABLE IF NOT EXISTS ".$wpdb->prefix.$econt_sites_table." (
-      id mediumint(9) NOT NULL,
+      id int(15) NOT NULL,
       name text NOT NULL,
       region text NOT NULL,
       municipality text NOT NULL,
@@ -54,7 +54,7 @@ function seshCreateTables() {
     dbDelta( $sql );
 
     $sql = "CREATE TABLE IF NOT EXISTS ".$wpdb->prefix.$econt_offices_table." (
-      id mediumint(9) NOT NULL,
+      id int(15) NOT NULL,
       name text NOT NULL,
       city text NOT NULL,
       address text NOT NULL,
@@ -66,6 +66,14 @@ function seshCreateTables() {
     add_option( 'jal_db_version', $jal_db_version );
 }
 
+function seshUpdateCheck() {
+    global $jal_db_version;
+    if (get_site_option( 'jal_db_version' ) != $jal_db_version) {
+        seshCreateTables();
+    }
+}
+add_action( 'plugins_loaded', 'seshUpdateCheck' );
+
 function clearQueries() {
     global $queries, $econt_offices_inserted, $econt_sites_inserted, $speedy_offices_inserted, $speedy_sites_inserted;
     $queries = array();
@@ -73,7 +81,6 @@ function clearQueries() {
     $econt_sites_inserted = array();
     $speedy_offices_inserted = array();
     $speedy_sites_inserted = array();
-
 }
 
 function appendQuery($short_table_name, $query) {
@@ -85,13 +92,17 @@ function appendQuery($short_table_name, $query) {
 function executeQueries() {
     global $queries, $wpdb;
     if (count($queries) === 0) {
+        write_log("no queries left to be run");
         return;
     }
+    $connect = $wpdb->__get('dbh');
     try {
-        $queries_str = implode('; ', $queries);
-//        write_log("Will run: ".$queries_str);
-        mysqli_multi_query($wpdb->__get('dbh'), $queries_str);
+        // do the whole run as 1 transaction
+        $queries_str = "BEGIN; ".implode('; ', $queries)."; COMMIT;";
+        write_log("Will run: ".$queries_str);
+        mysqli_multi_query($connect, $queries_str);
     } finally {
+        while(mysqli_more_results($connect)){mysqli_next_result($connect);}
         clearQueries();
     }
 }
@@ -104,8 +115,12 @@ function seshDropTables() {
     delete_option("jal_db_version");
 }
 
+function for_sql($value) : string {
+    return str_replace("'", '', trim($value));
+}
+
 function seshInsertSite($id, $name, $region, $municipality, $short_table_name) {
-    appendQuery($short_table_name, "INSERT INTO {table_name} (id, name, region, municipality) VALUES ($id, '".trim($name)."', '".trim($region)."','".trim($municipality)."') ON DUPLICATE KEY UPDATE name=name");
+    appendQuery($short_table_name, "INSERT INTO {table_name} (id, name, region, municipality) VALUES ($id,'".for_sql($name)."','".for_sql($region)."','".for_sql($municipality)."')");
 }
 
 function seshInsertSpeedySite($id, $name, $region, $municipality) {
@@ -127,7 +142,7 @@ function seshInsertEcontSite($id, $name, $region) {
 }
 
 function seshInsertOffice($id, $name, $city, $address, $short_table_name) {
-    appendQuery($short_table_name, "INSERT INTO {table_name} (id, name, city, address) VALUES ($id, '".trim($name)."', '".trim($city)."','".trim($address)."')");
+    appendQuery($short_table_name, "INSERT INTO {table_name} (id, name, city, address) VALUES ($id,'".for_sql($name)."','".for_sql($city)."','".for_sql($address)."')");
 }
 
 function seshInsertSpeedyOffice($id, $name, $city, $address) {
