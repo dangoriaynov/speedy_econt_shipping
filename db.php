@@ -100,7 +100,7 @@ function executeQueries() {
     try {
         // do the whole run as 1 transaction
         $queries_str = "BEGIN; ".implode('; ', $queries)."; COMMIT;";
-        write_log("Will run: ".$queries_str);
+//        write_log("Will run: ".$queries_str);
         mysqli_multi_query($connect, $queries_str);
     } finally {
         while(mysqli_more_results($connect)){mysqli_next_result($connect);}
