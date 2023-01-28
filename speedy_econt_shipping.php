@@ -6,7 +6,7 @@
  * Author:            Dan Goriaynov
  * Author URI:        https://github.com/dangoriaynov
  * Plugin URI:        https://github.com/dangoriaynov/speedy_econt_shipping
- * Version:           1.9
+ * Version:           1.9.1
  * WC tested up to:   6.1
  * License:           GNU General Public License, version 2
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.en.html
@@ -289,13 +289,17 @@ add_action( 'seshEcontUpdateDbHook', 'seshRefreshEcontData' );
 add_action( 'seshSpeedyEcontUpdateDbHook', 'seshRefreshTableDataAll' );
 add_action( 'seshDailyDbHook', 'seshRefreshTableDataAll' );
 
-function seshFillInitialData() {
-    seshCreateTables();
+function seshScheduleImmediateDataRefresh() {
     if (isSpeedyEnabled() && !empty(getSpeedyUser()) && !empty(getSpeedyPass())) {
         wp_schedule_single_event( time(), 'seshSpeedyEcontUpdateDbHook' );  // try to populate all tables
     } else if (isEcontEnabled()) {
         wp_schedule_single_event( time(), 'seshEcontUpdateDbHook' );  // try to populate Econt tables only
     }
+}
+
+function seshFillInitialData() {
+    seshCreateTables();
+    seshScheduleImmediateDataRefresh();
     seshSetupDailyRun();  // do the table re-population every day
 }
 register_activation_hook( __FILE__, 'seshFillInitialData' );
@@ -442,64 +446,7 @@ function sesh_hide_shipping_fields($needs_address, $hide, $order ): bool
 }
 add_filter( 'woocommerce_order_needs_shipping_address', 'sesh_hide_shipping_fields', 10, 3 );
 
-///* remove shipping column from emails */
-//function sesh_customize_email_order_line_totals($total_rows, $order, $tax_display ){
-//    if( ! is_wc_endpoint_url() || ! is_admin() ) {
-//        unset($total_rows['shipping']);
-//    }
-//    return $total_rows;
-//}
-//add_filter( 'woocommerce_get_order_item_totals', 'sesh_customize_email_order_line_totals', 1000, 3 );
-
-function get_shipping_rate($is_free=FALSE) : string {
-    $country_code      = WC()->customer->get_shipping_country();
-    $defined_zones     = WC_Shipping_Zones::get_zones();
-    $shipping_rate_ids = array();
-    $country_found     = false;
-
-    // Loop through defined shipping zones
-    foreach ($defined_zones as $zone) {
-        foreach ($zone['zone_locations'] as $location ) {
-            if ( 'country' === $location->type && $country_code === $location->code ) {
-                foreach ($zone['shipping_methods'] as $shipping_method ) {
-                    $method_id   = $shipping_method->id;
-                    $instance_id = $shipping_method->instance_id;
-                    $rate_id     = $method_id . ':' . $instance_id;
-                    write_log("method_id=$method_id, instance_id=$instance_id, rate_id=$rate_id");
-                    $shipping_rate_ids[$instance_id] = array('rate_id' => $rate_id, 'method_id' => $method_id);
-                }
-                $country_found = true;
-                break; // Country found stop "locations" loop
-            }
-        }
-    }
-
-// Rest of the word (shipping zone)
-    if( ! $country_found ) {
-        $zone = new \WC_Shipping_Zone(0); // Rest of the word (zone)
-
-        foreach ($zone->get_shipping_methods(true, 'values') as $shipping_method) {
-            $method_id = $shipping_method->id;
-            $instance_id = $shipping_method->instance_id;
-            $rate_id = $method_id . ':' . $instance_id;
-            write_log("method_id=$method_id, instance_id=$instance_id, rate_id=$rate_id");
-            $shipping_rate_ids[$instance_id] = array('rate_id' => $rate_id, 'method_id' => $method_id);
-        }
-    }
-    $desired_shipping = $is_free ? 'free_shipping' : 'flat_rate';
-    write_log("desired_shipping=$desired_shipping");
-    foreach ($shipping_rate_ids as $key => $values) {
-        if ($values['method_id'] === $desired_shipping) {
-            write_log("found delivery method: ".$values['method_id']);
-            return $values['rate_id'];
-        }
-    }
-    write_log("falling back to default (any) delivery method");
-    return count($shipping_rate_ids) > 0 ? array_key_first($shipping_rate_ids)['rate_id'] : '';  // not found
-}
-
 add_action( 'woocommerce_checkout_order_processed', 'customise_shipping_charges',  1, 3  );
-
 function customise_shipping_charges($order_id, $posted_data, $order ){
     if( is_wc_endpoint_url() || is_admin() ) {
         return $posted_data;
@@ -531,12 +478,10 @@ function customise_shipping_charges($order_id, $posted_data, $order ){
     }
     write_log("delivery_price: $delivery_price");
     $is_free = $delivery_price === 0;
-    $shipping_method_id = get_shipping_rate(false);
-    write_log("shipping_method_id: $shipping_method_id");
     $new_shipping = new WC_Order_Item_Shipping();
     $add = $is_free ? __('for free', 'speedy_econt_shipping') : "";
     $new_shipping->set_method_title( "$add (". __('to', 'speedy_econt_shipping') . " $label)" );
-    $new_shipping->set_method_id( $shipping_method_id );
+    $new_shipping->set_method_id( '' );
     $new_shipping->set_total( $delivery_price );
     $items = (array) $order->get_items('shipping');
     if ( sizeof( $items ) > 0 ) {

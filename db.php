@@ -5,13 +5,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
-global $jal_db_version, $speedy_offices_table, $speedy_sites_table, $econt_offices_table, $econt_sites_table, $queries,
+global $sesh_db_version, $speedy_offices_table, $speedy_sites_table, $econt_offices_table, $econt_sites_table, $queries,
        $econt_offices_inserted, $econt_sites_inserted, $speedy_offices_inserted, $speedy_sites_inserted;
 $speedy_offices_table = 'speedy_offices';
 $econt_offices_table = 'econt_offices';
 $speedy_sites_table = 'speedy_sites';
 $econt_sites_table = 'econt_sites';
-$jal_db_version = '1.2';
+$sesh_db_version = '1.2';
 $queries = array();
 $econt_offices_inserted = array();
 $econt_sites_inserted = array();
@@ -20,7 +20,7 @@ $speedy_sites_inserted = array();
 
 
 function seshCreateTables() {
-    global $wpdb, $jal_db_version, $speedy_offices_table, $econt_offices_table, $speedy_sites_table, $econt_sites_table;
+    global $wpdb, $sesh_db_version, $speedy_offices_table, $econt_offices_table, $speedy_sites_table, $econt_sites_table;
     $charset_collate = $wpdb->get_charset_collate();
 
     $sql = "CREATE TABLE IF NOT EXISTS ".$wpdb->prefix.$speedy_sites_table." (
@@ -63,13 +63,14 @@ function seshCreateTables() {
     ) $charset_collate;";
     dbDelta( $sql );
 
-    add_option( 'jal_db_version', $jal_db_version );
+    add_option( 'sesh_db_version', $sesh_db_version );
 }
 
 function seshUpdateCheck() {
-    global $jal_db_version;
-    if (get_site_option( 'jal_db_version' ) != $jal_db_version) {
-        seshCreateTables();
+    global $sesh_db_version;
+    if (get_site_option( 'sesh_db_version' ) != $sesh_db_version) {
+        seshDropTables();
+        seshFillInitialData();
     }
 }
 add_action( 'plugins_loaded', 'seshUpdateCheck' );
