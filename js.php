@@ -63,6 +63,18 @@ add_action( 'wp_head', function () {
         const defaultShippingMethod = '<?php echo seshDefaultDelivOpt(); ?>';
         const currencySymbol = '<?php echo html_entity_decode(get_woocommerce_currency_symbol()); ?>';
         const shopUrl = '<?php echo get_permalink( wc_get_page_id( 'shop' ) ); ?>';
+        <?php
+        $enabledOptions = array();
+        if (isSpeedyEnabled()) {
+            global $speedy_opt_key;
+            $enabledOptions[] = $speedy_opt_key;
+        }
+        if (isEcontEnabled()) {
+            global $econt_opt_key;
+            $enabledOptions[] = $econt_opt_key;
+        }
+        ?>
+        const enabledOptions = <?php echo json_encode($enabledOptions) ?>;
         let originalOrderPrice = orderPrice().toFixed(2);
         let pricesCopy = {};
         let isFree = false;
@@ -85,7 +97,7 @@ add_action( 'wp_head', function () {
             if (<?php echo isShowStoreMessages() ? 'false' : 'true'; ?> || Math.abs(originalOrderPrice) < 1e-10) {
                 return;
             }
-            const leftTillFree = delivOptionChosen.free_from - originalOrderPrice;
+            const leftTillFree = parseFloat(delivOptionChosen.free_from) - parseFloat(originalOrderPrice);
             // don't do anything if unable to calculate the amount left till free shipping
             if (isNaN(leftTillFree)) {
                 return;
@@ -114,7 +126,7 @@ add_action( 'wp_head', function () {
 
         function populateDeliveryOption(key){
             const chosenOption = delivOptions[key];
-            const delivPrice = originalOrderPrice >= chosenOption.free_from ? 0 : parseFloat(chosenOption.shipping);
+            const delivPrice = parseFloat(originalOrderPrice) >= parseFloat(chosenOption.free_from) ? 0 : parseFloat(chosenOption.shipping);
             // convert to id here since we do care about real DOM elements here
             const delivPriceNormal = delivPrice.toFixed(2);
             pricesCopy[delivOptions[key].id] = delivPriceNormal;
@@ -182,7 +194,7 @@ add_action( 'wp_head', function () {
         }
 
         function populateFields(key, selectedRegion=null, selectedCity=null) {
-            if (! [delivOptions.speedy.name, delivOptions.econt.name].includes(key)) {
+            if (! enabledOptions.includes(key)) {
                 return;
             }
             const citySel = locs[key].inner.city;
@@ -333,7 +345,7 @@ add_action( 'wp_head', function () {
                 if (jQuery(locs.speedy.inner.region).length) {
                     clearInterval(regionExists);
                     jQuery([locs.address.outer.region, locs.address.outer.city, locs.address.outer.office].join(',')).attr("style", "");
-                    [delivOptions.speedy.name, delivOptions.econt.name].forEach(function(key) {
+                    enabledOptions.forEach(function(key) {
                         populateFields(key);
                     });
                 }
@@ -371,7 +383,7 @@ add_action( 'wp_head', function () {
 
             showTillFreeDeliveryMsg();
             jQuery('<?php echo $shipping_to_sel; ?>').change(onDeliveryOptionChange);
-            [delivOptions.speedy.name, delivOptions.econt.name].forEach(function(key) {
+            enabledOptions.forEach(function(key) {
                 processPopulatedData(key);
                 jQuery(locs[key].inner.region).val("").trigger('change.select2');
             });

@@ -4,7 +4,7 @@ Tags: econt, еконт, speedy, спиди, shipping, bulgaria, bulgaria courie
 Requires at least: 4.4
 Requires PHP: 7.0
 Tested up to: 6.1
-Stable tag: 1.8.5
+Stable tag: 1.9
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Donate link: http://revolut.me/danq6lus
@@ -31,13 +31,13 @@ The functionality might get extended to other countries by simply adding paramet
  - currency to be used
 
 == Prerequisites ==
- - contact Speedy and Econt couriers to provide you with API access
- - store username (should be digits only) and password provided by them
+ - contact Speedy courier to provide you with API access
+ - store username (should be digits only) and password provided in the settings
 
 == Setup steps ==
  - install and activate plugin
- - create 1 shipping method (with any name)
- - open plugin' settings and specify all the parameters requested + data obtained in prerequisites
+ - create 1 fixed_fee shipping method
+ - open plugin' settings and specify all the parameters requested
  - click [Save] button
  - wait till data is refreshed (for first set - wait for 1 minute, for subsequent change - at 3:05 AM daily)
  - add few items to your cart and proceed to checkout
@@ -196,3 +196,9 @@ Fixed sporadically clearing of the offices tables
 ### 1.8.5 - 2023-01-26
 #### Fixes
 Small improvement on price calculation on checkout page
+### 1.9 - 2023-01-28
+#### Fixes
+Made delivery prices shown at the thank you page and in the confirmation email
+Added option to make email address optional
+All offices are now updated in 1 transaction
+Fixed nasty econt offices update issue

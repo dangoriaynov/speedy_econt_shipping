@@ -134,6 +134,14 @@ class SeshSpeedyEcontShippingAdmin {
         );
 
         add_settings_field(
+            'address_label_12', // id
+            __('`To address` method name', 'speedy_econt_shipping'), // title
+            array( $this, 'address_label_12_callback' ), // callback
+            'speedy-econt-shipping-admin', // page
+            'speedy_econt_shipping_setting_section' // section
+        );
+
+        add_settings_field(
             'address_free_from_10', // id
             __('`To address` free delivery from', 'speedy_econt_shipping'), // title
             array( $this, 'address_free_from_10_callback' ), // callback
@@ -166,6 +174,14 @@ class SeshSpeedyEcontShippingAdmin {
         );
 
         add_settings_field(
+            'emergency_contact_13', // id
+            __('Shop emergency contact', 'speedy_econt_shipping'), // title
+            array( $this, 'emergency_contact_13_callback' ), // callback
+            'speedy-econt-shipping-admin', // page
+            'speedy_econt_shipping_setting_section' // section
+        );
+
+        add_settings_field(
             'show_store_messages_6', // id
             __('Show store messages', 'speedy_econt_shipping'), // title
             array( $this, 'show_store_messages_6_callback' ), // callback
@@ -190,6 +206,14 @@ class SeshSpeedyEcontShippingAdmin {
         );
 
         add_settings_field(
+            'email_required_9', // id
+            __('Is email field required?', 'speedy_econt_shipping'), // title
+            array( $this, 'email_required_9_callback' ), // callback
+            'speedy-econt-shipping-admin', // page
+            'speedy_econt_shipping_setting_section' // section
+        );
+
+        add_settings_field(
             'repopulate_tables_7', // id
             __('Force re-populate tables', 'speedy_econt_shipping'), // title
             array( $this, 'repopulate_tables_7_callback' ), // callback
@@ -202,9 +226,9 @@ class SeshSpeedyEcontShippingAdmin {
         $sanitary_values = array();
         $keys = array('speedy_username_0', 'speedy_password_1', 'speedy_free_from_6', 'speedy_shipping_7',
             'econt_free_from_8', 'econt_shipping_9',
-            'address_free_from_10', 'address_shipping_11',
-            'address_fields_3', 'additionally_hidden_fields_3');
-        $checkboxes = array('enable_speedy_0', 'enable_econt_1', 'enable_address_2',
+            'address_label_12', 'address_free_from_10', 'address_shipping_11',
+            'address_fields_3', 'additionally_hidden_fields_3', 'emergency_contact_13');
+        $checkboxes = array('enable_speedy_0', 'enable_econt_1', 'enable_address_2', 'email_required_9',
             'show_store_messages_6', 'show_deliv_opts_6', 'repopulate_tables_7', 'calculate_final_price_8');
         foreach($keys as &$value) {
             if ( isset( $input[$value] ) ) {
@@ -290,7 +314,11 @@ class SeshSpeedyEcontShippingAdmin {
     }
 
     public function enable_address_2_callback() {
-        $this->checkbox_callback('enable_address_2', array('address_free_from_10', 'address_shipping_11'), true);
+        $this->checkbox_callback('enable_address_2', array('address_label_12', 'address_free_from_10', 'address_shipping_11'), true);
+    }
+
+    public function address_label_12_callback() {
+        $this->generic_callback('address_label_12', 'text', '', __('address', 'speedy_econt_shipping'));
     }
 
     public function address_free_from_10_callback() {
@@ -331,6 +359,14 @@ class SeshSpeedyEcontShippingAdmin {
 
     public function calculate_final_price_8_callback() {
         $this->checkbox_callback('calculate_final_price_8', array(), false);
+    }
+
+    public function email_required_9_callback() {
+        $this->checkbox_callback('email_required_9', array(), false);
+    }
+
+    public function emergency_contact_13_callback() {
+        $this->generic_callback('emergency_contact_13', 'text', __('emergency contact to show in case of error', 'speedy_econt_shipping'), '');
     }
 }
 
@@ -385,6 +421,11 @@ function isAddressEnabled() {
     return getStoredOption('enable_address_2', true);
 }
 
+function getAddressLabel() {
+    global $address_label;
+    return getStoredOption('address_label_12', __($address_label, 'speedy_econt_shipping'));
+}
+
 function getAddressFreeFrom() {
     return (float) getStoredOption('address_free_from_10');
 }
@@ -411,5 +452,13 @@ function isShowDelivOpts() {
 
 function isCalculateFinalPrice() {
     return getStoredOption('calculate_final_price_8', false);
+}
+
+function isEmailRequired() {
+    return getStoredOption('email_required_9', false);
+}
+
+function getEmergencyContactData() {
+    return getStoredOption('emergency_contact_13', '');
 }
 

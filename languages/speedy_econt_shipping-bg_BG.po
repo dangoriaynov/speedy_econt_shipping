@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: Speedy and Econt Shipping\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-02 07:12+0000\n"
-"PO-Revision-Date: 2023-01-23 12:25+0000\n"
+"PO-Revision-Date: 2023-01-28 14:51+0000\n"
 "Last-Translator: \n"
 "Language-Team: Български\n"
 "Language: bg_BG\n"
@@ -15,7 +15,7 @@ msgstr ""
 "X-Loco-Version: 2.6.3; wp-6.1.1\n"
 "X-Domain: speedy_econt_shipping"
 
-#: SeshSpeedyEcontShippingAdmin.php:31
+#: SeshSpeedyEcontShippingAdmin.php:33
 msgid ""
 "<b>In case of errors, please check output of the following commands on your "
 "hosting:</b>"
@@ -31,7 +31,7 @@ msgstr ""
 "<b>Моля да се обърнете <a href='mailto:cs@speedy.bg'>към Speedy</a> за да "
 "получите актуалните дани за достъп към API.</b>"
 
-#: SeshSpeedyEcontShippingAdmin.php:34
+#: SeshSpeedyEcontShippingAdmin.php:36
 #| msgid ""
 #| "<b>You may also enable the <a href=\"https://wordpress."
 #| "org/support/article/debugging-in-wordpress/\">debug mode</a> in your site "
@@ -82,23 +82,28 @@ msgid "`Speedy` Username"
 msgstr "Ползвателско име за `Speedy`"
 
 #. id
-#: SeshSpeedyEcontShippingAdmin.php:138
+#: SeshSpeedyEcontShippingAdmin.php:146
 #| msgid "To address free delivery from"
 msgid "`To address` free delivery from"
 msgstr "Безплатна доставка `до адрес` над"
 
 #. id
-#: SeshSpeedyEcontShippingAdmin.php:146
+#: SeshSpeedyEcontShippingAdmin.php:138
+msgid "`To address` method name"
+msgstr "Името на метод на доставка `До адрес`"
+
+#. id
+#: SeshSpeedyEcontShippingAdmin.php:154
 #| msgid "To address shipping fee"
 msgid "`To address` shipping fee"
 msgstr "Цена за доставка `до адрес`"
 
 #. id
-#: SeshSpeedyEcontShippingAdmin.php:162
+#: SeshSpeedyEcontShippingAdmin.php:170
 msgid "Additionally hidden checkout fields"
 msgstr "Допълнителни поленца за скриване"
 
-#: utils.php:77
+#: SeshSpeedyEcontShippingAdmin.php:321
 msgid "address"
 msgstr "адрес"
 
@@ -107,7 +112,7 @@ msgid ""
 "Adds Speedy and Econt shipping methods along with their delivery options."
 msgstr "Добавя методи на доставка със Speedy и Еконт към вашия Wordpress сайт"
 
-#: SeshSpeedyEcontShippingAdmin.php:35
+#: SeshSpeedyEcontShippingAdmin.php:31
 msgid ""
 "Be aware that in order to do the force update of the Econt/Speedy offices "
 "and sites tables you could enable corresponding option in the plugin "
@@ -117,19 +122,19 @@ msgstr ""
 "съответната опция в настройките на плъгина."
 
 #. id
-#: SeshSpeedyEcontShippingAdmin.php:186
+#: SeshSpeedyEcontShippingAdmin.php:202
 msgid "Calculate final price on checkout"
 msgstr "Да се добавя цена на доставка към общата сума на поръчка"
 
-#: speedy_econt_shipping.php:323 speedy_econt_shipping.php:351
+#: speedy_econt_shipping.php:363 speedy_econt_shipping.php:391
 msgid "Choose region first"
 msgstr "Първо изберете област"
 
-#: speedy_econt_shipping.php:320 speedy_econt_shipping.php:348
+#: speedy_econt_shipping.php:360 speedy_econt_shipping.php:388
 msgid "City"
 msgstr "Град"
 
-#: js.php:108
+#: js.php:118
 msgid "Congrats, you won free delivery using"
 msgstr "Честито, спечелихте безплатна доставка до"
 
@@ -137,30 +142,34 @@ msgstr "Честито, спечелихте безплатна доставка
 msgid "Dan Goriaynov"
 msgstr "Дан Горяйнов"
 
-#: js.php:150
+#: js.php:184
 msgid "delivery"
 msgstr "доставка"
 
-#: speedy_econt_shipping.php:384 speedy_econt_shipping.php:388
+#: speedy_econt_shipping.php:424 speedy_econt_shipping.php:428
 msgid "Delivery details were not populated. Please fill them in."
 msgstr "Даните доставка не бяха попълнени. Моля оправете ги."
 
-#: speedy_econt_shipping.php:380
+#: speedy_econt_shipping.php:420
 #| msgid "Delivery method was not chosen. Please chose one."
 msgid "Delivery method was not chosen. Please choose one."
 msgstr "Моля изберете метод за доставка."
 
-#: speedy_econt_shipping.php:299
+#: speedy_econt_shipping.php:339
 msgid "Delivery to"
 msgstr "Доставка до"
 
-#: SeshSpeedyEcontShippingAdmin.php:265 SeshSpeedyEcontShippingAdmin.php:269
+#: SeshSpeedyEcontShippingAdmin.php:289 SeshSpeedyEcontShippingAdmin.php:293
 msgid "digit value like: 123456"
 msgstr "цифрово значение, като: 123456"
 
-#: utils.php:70
+#: speedy_econt_shipping.php:277 speedy_econt_shipping.php:510 utils.php:79
 msgid "Econt office"
 msgstr "офис на Еконт"
+
+#: SeshSpeedyEcontShippingAdmin.php:369
+msgid "emergency contact to show in case of error"
+msgstr "контакт който да са показва при грешките"
 
 #. id
 #: SeshSpeedyEcontShippingAdmin.php:106
@@ -177,12 +186,16 @@ msgstr "Включване на доставка със `Speedy`"
 msgid "Enable `To Address` shipping method"
 msgstr "Включване на доставка `До адрес`"
 
-#: js.php:123 js.php:198
+#: speedy_econt_shipping.php:40
+msgid "Following delivery method is not working: "
+msgstr "Следващ метод за доставка не работи:"
+
+#: js.php:133 js.php:232 speedy_econt_shipping.php:537
 msgid "for free"
 msgstr "безплатно"
 
 #. id
-#: SeshSpeedyEcontShippingAdmin.php:194
+#: SeshSpeedyEcontShippingAdmin.php:218
 msgid "Force re-populate tables"
 msgstr "Да се обновят таблиците с дани"
 
@@ -195,30 +208,35 @@ msgid "https://github.com/dangoriaynov/speedy_econt_shipping"
 msgstr "https://github.com/dangoriaynov/speedy_econt_shipping"
 
 #. id
-#: SeshSpeedyEcontShippingAdmin.php:178
+#: SeshSpeedyEcontShippingAdmin.php:194
 msgid "Immediately show delivery options"
 msgstr "Опциите за доставка да се показват веднага"
 
 #. id
-#: SeshSpeedyEcontShippingAdmin.php:154
+#: SeshSpeedyEcontShippingAdmin.php:210
+msgid "Is email field required?"
+msgstr "Имейла да е задължителен?"
+
+#. id
+#: SeshSpeedyEcontShippingAdmin.php:162
 msgid "List of `To address` shipping fields"
 msgstr "Поленца за доставка `до адрес`"
 
-#: speedy_econt_shipping.php:314 speedy_econt_shipping.php:342
+#: speedy_econt_shipping.php:354 speedy_econt_shipping.php:382
 msgid "Make your choice"
 msgstr "Изберете опцията"
 
-#: speedy_econt_shipping.php:313 speedy_econt_shipping.php:322
-#: speedy_econt_shipping.php:331 speedy_econt_shipping.php:341
-#: speedy_econt_shipping.php:350 speedy_econt_shipping.php:359
+#: speedy_econt_shipping.php:353 speedy_econt_shipping.php:362
+#: speedy_econt_shipping.php:371 speedy_econt_shipping.php:381
+#: speedy_econt_shipping.php:390 speedy_econt_shipping.php:399
 msgid "nothing loaded"
 msgstr "няма заредени"
 
-#: speedy_econt_shipping.php:329 speedy_econt_shipping.php:357
+#: speedy_econt_shipping.php:369 speedy_econt_shipping.php:397
 msgid "Office"
 msgstr "Офис"
 
-#: SeshSpeedyEcontShippingAdmin.php:36
+#: SeshSpeedyEcontShippingAdmin.php:32
 #| msgid ""
 #| "Office information is usually available 5 minutes after plugin was "
 #| "enabled."
@@ -229,7 +247,13 @@ msgstr ""
 "Информацията за офисите обикновено се обновява в рамките на 5 минути след "
 "включването на плъгина."
 
-#: speedy_econt_shipping.php:311 speedy_econt_shipping.php:339
+#: speedy_econt_shipping.php:41
+msgid "Please contact us to place your order and get it fixed"
+msgstr ""
+"Моля да се свържете с нас за да направете вашата поръчка и да оправим "
+"проблемът в сайтата ни"
+
+#: speedy_econt_shipping.php:351 speedy_econt_shipping.php:379
 msgid "Region"
 msgstr "Област"
 
@@ -239,7 +263,12 @@ msgid "Settings"
 msgstr "Настройки"
 
 #. id
-#: SeshSpeedyEcontShippingAdmin.php:170
+#: SeshSpeedyEcontShippingAdmin.php:178
+msgid "Shop emergency contact"
+msgstr "Екстрен контакт"
+
+#. id
+#: SeshSpeedyEcontShippingAdmin.php:186
 msgid "Show store messages"
 msgstr "Показване на съобщения за доставка"
 
@@ -249,7 +278,7 @@ msgstr "Показване на съобщения за доставка"
 msgid "Speedy & Econt shipping"
 msgstr "Доставка със Speedy и Еконт"
 
-#: SeshSpeedyEcontShippingAdmin.php:340
+#: SeshSpeedyEcontShippingAdmin.php:377
 msgid "Speedy and Econt data refresh was started."
 msgstr "Обновяване на дани за офиси Спиди и Еконт се започна."
 
@@ -257,18 +286,22 @@ msgstr "Обновяване на дани за офиси Спиди и Еко�
 msgid "Speedy and Econt Shipping"
 msgstr "Speedy and Econt Shipping"
 
-#: utils.php:63
+#: speedy_econt_shipping.php:274 speedy_econt_shipping.php:508 utils.php:70
 msgid "Speedy office"
 msgstr "офис на Speedy"
 
-#: js.php:111
+#: js.php:121
 msgid "Still left"
 msgstr "Остава Ви още"
 
-#: js.php:111
+#: speedy_econt_shipping.php:538
+msgid "to"
+msgstr "до"
+
+#: js.php:121
 msgid "to get a free shipping to"
 msgstr "за да спечелите безплатна доставка до"
 
-#: js.php:111
+#: js.php:121
 msgid "To shop"
 msgstr "Към магазина"

@@ -6,7 +6,7 @@
  * Author:            Dan Goriaynov
  * Author URI:        https://github.com/dangoriaynov
  * Plugin URI:        https://github.com/dangoriaynov/speedy_econt_shipping
- * Version:           1.8.5
+ * Version:           1.9
  * WC tested up to:   6.1
  * License:           GNU General Public License, version 2
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.en.html
@@ -32,9 +32,15 @@ class UpgradeRunner {
 }
 
 
-function seshGenerateJsVar($sitesTable, $officesTable, $varName) {
+function seshGenerateJsVar($sitesTable, $officesTable, $varName, $key) {
     $sitesDB = seshReadTableData($sitesTable, "name");
     $officesDB = seshReadTableData($officesTable, "name");
+    if (empty($sitesDB) || empty($officesDB)) {
+        $contact = getEmergencyContactData();
+        $msg = __('Following delivery method is not working: ', 'speedy_econt_shipping') . '<b>' . $key . '</b>.<br/>' .
+            __('Please contact us to place your order and get it fixed', 'speedy_econt_shipping') . (empty($contact) ? '' : ': <b>' . $contact . '</b>');
+        wc_add_notice( $msg, 'error' );
+    }
     $data = array();
     // iterate over all elements in the sites DB table
     foreach ($sitesDB as $siteDB) {
@@ -195,6 +201,8 @@ function seshInsertOfficesData($key) : bool {
             return false;
         }
         try {
+            // preliminary table clean-up
+            seshTruncateTables($key);
             return seshInsertSpeedyTableData();
         } catch (Exception $e) {
             write_log('Caught exception: '.$e->getMessage()."\n");
@@ -205,6 +213,8 @@ function seshInsertOfficesData($key) : bool {
             return false;
         }
         try {
+            // preliminary table clean-up
+            seshTruncateTables($key);
             return seshInsertEcontTableData();
         } catch (Exception $e) {
             write_log('Caught exception: '.$e->getMessage()."\n");
@@ -238,19 +248,15 @@ function seshRefreshTableData($keys) {
     try {
         UpgradeRunner::$isUpgradeInProgress = true;
         foreach ($keys as $key) {
-            // preliminary table clean-up
-            seshTruncateTables($key);
             if (! seshInsertOfficesData($key) ) {
                 write_log("Didn't insert any data for $key");
                 continue;
             }
-            // clear production data from the destination tables
             seshTruncateTables($key, true);
-            // mark newly inserted data as production one
             seshMarkDataAsProd($key);
+            // do the actual DB operations for each delivery method we have enabled
+            executeQueries();
         }
-        // do the actual DB operations
-        executeQueries();
     } finally {
         // rollback all the pending DB operations
         clearQueries();
@@ -264,8 +270,12 @@ function seshPrintCheckoutPageData() {
         return;
     }
     global $speedy_sites_table, $speedy_offices_table, $econt_sites_table, $econt_offices_table;
-    seshGenerateJsVar($econt_sites_table, $econt_offices_table, 'econtData');
-    seshGenerateJsVar($speedy_sites_table, $speedy_offices_table, 'speedyData');
+    if (isSpeedyEnabled()) {
+        seshGenerateJsVar($speedy_sites_table, $speedy_offices_table, 'speedyData', __('Speedy office', 'speedy_econt_shipping'));
+    }
+    if (isEcontEnabled()) {
+        seshGenerateJsVar($econt_sites_table, $econt_offices_table, 'econtData', __('Econt office', 'speedy_econt_shipping'));
+    }
 }
 add_action( 'woocommerce_before_checkout_form', 'seshPrintCheckoutPageData', 10 );
 
@@ -281,11 +291,9 @@ add_action( 'seshDailyDbHook', 'seshRefreshTableDataAll' );
 
 function seshFillInitialData() {
     seshCreateTables();
-    if (getStoredOption('enable_speedy_0', false) === true &&
-        getStoredOption('speedy_username_0', '') !== '' &&
-        getStoredOption('speedy_password_1', '') !== '') {
+    if (isSpeedyEnabled() && !empty(getSpeedyUser()) && !empty(getSpeedyPass())) {
         wp_schedule_single_event( time(), 'seshSpeedyEcontUpdateDbHook' );  // try to populate all tables
-    } else {
+    } else if (isEcontEnabled()) {
         wp_schedule_single_event( time(), 'seshEcontUpdateDbHook' );  // try to populate Econt tables only
     }
     seshSetupDailyRun();  // do the table re-population every day
@@ -310,12 +318,12 @@ function seshGetRegions($table): array
     return $regions;
 }
 
-function sesh_custom_override_checkout_fields($fields ): array
+function sesh_custom_override_checkout_fields($fields): array
 {
     global $speedy_sites_table, $speedy_region_id, $speedy_city_id, $speedy_office_id,
            $econt_sites_table, $econt_region_id, $econt_city_id, $econt_office_id, $shipping_to_id;
 
-    $fields['billing']['billing_email']['required'] = false;
+    $fields['billing']['billing_email']['required'] = isEmailRequired();
     $fields['billing']['billing_email']['priority'] = '22';
     $fields['billing']['billing_postcode']['required'] = false;
     $fields['billing']['billing_phone']['priority'] = '25';
@@ -434,26 +442,114 @@ function sesh_hide_shipping_fields($needs_address, $hide, $order ): bool
 }
 add_filter( 'woocommerce_order_needs_shipping_address', 'sesh_hide_shipping_fields', 10, 3 );
 
-/* remove shipping column from emails */
-function sesh_customize_email_order_line_totals($total_rows, $order, $tax_display ){
-    if( ! is_wc_endpoint_url() || ! is_admin() ) {
-        unset($total_rows['shipping']);
-    }
-    return $total_rows;
-}
-add_filter( 'woocommerce_get_order_item_totals', 'sesh_customize_email_order_line_totals', 1000, 3 );
-
-//add_filter( 'woocommerce_package_rates', 'override_shipping_costs' );
-//function override_shipping_costs( $rates ) {
-//    foreach( $rates as $rate_key => $rate ){
-//        // Check if the shipping method ID is UPS
-//        if( ($rate->method_id == 'flexible_shipping_ups') ) {
-//            // Set cost to zero
-//            $rates[$rate_key]->cost = 0;
-//        }
+///* remove shipping column from emails */
+//function sesh_customize_email_order_line_totals($total_rows, $order, $tax_display ){
+//    if( ! is_wc_endpoint_url() || ! is_admin() ) {
+//        unset($total_rows['shipping']);
 //    }
-//    return $rates;
+//    return $total_rows;
 //}
+//add_filter( 'woocommerce_get_order_item_totals', 'sesh_customize_email_order_line_totals', 1000, 3 );
+
+function get_shipping_rate($is_free=FALSE) : string {
+    $country_code      = WC()->customer->get_shipping_country();
+    $defined_zones     = WC_Shipping_Zones::get_zones();
+    $shipping_rate_ids = array();
+    $country_found     = false;
+
+    // Loop through defined shipping zones
+    foreach ($defined_zones as $zone) {
+        foreach ($zone['zone_locations'] as $location ) {
+            if ( 'country' === $location->type && $country_code === $location->code ) {
+                foreach ($zone['shipping_methods'] as $shipping_method ) {
+                    $method_id   = $shipping_method->id;
+                    $instance_id = $shipping_method->instance_id;
+                    $rate_id     = $method_id . ':' . $instance_id;
+                    write_log("method_id=$method_id, instance_id=$instance_id, rate_id=$rate_id");
+                    $shipping_rate_ids[$instance_id] = array('rate_id' => $rate_id, 'method_id' => $method_id);
+                }
+                $country_found = true;
+                break; // Country found stop "locations" loop
+            }
+        }
+    }
+
+// Rest of the word (shipping zone)
+    if( ! $country_found ) {
+        $zone = new \WC_Shipping_Zone(0); // Rest of the word (zone)
+
+        foreach ($zone->get_shipping_methods(true, 'values') as $shipping_method) {
+            $method_id = $shipping_method->id;
+            $instance_id = $shipping_method->instance_id;
+            $rate_id = $method_id . ':' . $instance_id;
+            write_log("method_id=$method_id, instance_id=$instance_id, rate_id=$rate_id");
+            $shipping_rate_ids[$instance_id] = array('rate_id' => $rate_id, 'method_id' => $method_id);
+        }
+    }
+    $desired_shipping = $is_free ? 'free_shipping' : 'flat_rate';
+    write_log("desired_shipping=$desired_shipping");
+    foreach ($shipping_rate_ids as $key => $values) {
+        if ($values['method_id'] === $desired_shipping) {
+            write_log("found delivery method: ".$values['method_id']);
+            return $values['rate_id'];
+        }
+    }
+    write_log("falling back to default (any) delivery method");
+    return count($shipping_rate_ids) > 0 ? array_key_first($shipping_rate_ids)['rate_id'] : '';  // not found
+}
+
+add_action( 'woocommerce_checkout_order_processed', 'customise_shipping_charges',  1, 3  );
+
+function customise_shipping_charges($order_id, $posted_data, $order ){
+    if( is_wc_endpoint_url() || is_admin() ) {
+        return $posted_data;
+    }
+    $shipping_address = $order->get_shipping_address_1();
+    $speedy_office_loc = __('Speedy office', 'speedy_econt_shipping');
+    $to_speedy = str_contains($shipping_address, $speedy_office_loc);
+    $econt_office_loc = __('Econt office', 'speedy_econt_shipping');
+    $to_econt = str_contains($shipping_address, $econt_office_loc);
+    $order_total = $order->get_total();
+    write_log("speedy label: $speedy_office_loc, econt label: $econt_office_loc");
+    write_log("shipping address: $shipping_address; to speedy=$to_speedy; to econt=$to_econt; order total=$order_total");
+    $delivery_price = 0;
+    if ($to_speedy) {
+        if ($order_total < getSpeedyFreeFrom()) {
+            $delivery_price = getSpeedyShipping();
+        }
+        $label = $speedy_office_loc;
+    } else if ($to_econt) {
+        if ($order_total < getEcontFreeFrom()) {
+            $delivery_price = getEcontShipping();
+        }
+        $label = $econt_office_loc;
+    } else {
+        if ($order_total < getAddressFreeFrom()) {
+            $delivery_price = getAddressShipping();
+        }
+        $label = getAddressLabel();
+    }
+    write_log("delivery_price: $delivery_price");
+    $is_free = $delivery_price === 0;
+    $shipping_method_id = get_shipping_rate(false);
+    write_log("shipping_method_id: $shipping_method_id");
+    $new_shipping = new WC_Order_Item_Shipping();
+    $add = $is_free ? __('for free', 'speedy_econt_shipping') : "";
+    $new_shipping->set_method_title( "$add (". __('to', 'speedy_econt_shipping') . " $label)" );
+    $new_shipping->set_method_id( $shipping_method_id );
+    $new_shipping->set_total( $delivery_price );
+    $items = (array) $order->get_items('shipping');
+    if ( sizeof( $items ) > 0 ) {
+        foreach ( $items as $item_id => $item ) {
+            $order->remove_item( $item_id );
+            write_log("found and removed existing shipping method");
+        }
+    }
+    $order->add_item( $new_shipping );
+    $order->calculate_totals();
+    $order->save();
+    return $posted_data;
+}
 
 /* Add a link to the settings page on the plugins.php page. */
 function sesh_add_plugin_page_settings_link( $links ): array
