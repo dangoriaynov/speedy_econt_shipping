@@ -57,6 +57,14 @@ function seshDefaultDelivOpt() {
     return $deliv_opts[array_key_first($deliv_opts)]['name'];
 }
 
+function getSpeedyLabel() {
+    return __('Speedy office', 'speedy_econt_shipping');
+}
+
+function getEcontLabel() {
+    return __('Econt office', 'speedy_econt_shipping');
+}
+
 function seshDelivOptions(): array
 {
     global $shipping_to_speedy_key, $shipping_to_econt_key, $shipping_to_address_key, $speedy_opt_key, $econt_opt_key;
@@ -65,7 +73,7 @@ function seshDelivOptions(): array
         $delivOpts[$speedy_opt_key] =
             array('id' => $shipping_to_speedy_key,
                 'name' => $speedy_opt_key,
-                'label' => __('Speedy office', 'speedy_econt_shipping'),
+                'label' => getSpeedyLabel(),
                 'shipping' => number_format(getSpeedyShipping(), 2),
                 'free_from' => number_format(getSpeedyFreeFrom(), 2),
                 'data' => 'speedyData');
@@ -74,7 +82,7 @@ function seshDelivOptions(): array
         $delivOpts[$econt_opt_key] =
             array('id' => $shipping_to_econt_key,
                 'name' => $econt_opt_key,
-                'label' => __('Econt office', 'speedy_econt_shipping'),
+                'label' => getEcontLabel(),
                 'shipping' => number_format(getEcontShipping(), 2),
                 'free_from' => number_format(getEcontFreeFrom(), 2),
                 'data' => 'econtData');

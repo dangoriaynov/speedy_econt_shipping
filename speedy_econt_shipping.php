@@ -6,7 +6,7 @@
  * Author:            Dan Goriaynov
  * Author URI:        https://github.com/dangoriaynov
  * Plugin URI:        https://github.com/dangoriaynov/speedy_econt_shipping
- * Version:           1.9.1
+ * Version:           1.9.2
  * WC tested up to:   6.1
  * License:           GNU General Public License, version 2
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.en.html
@@ -271,10 +271,10 @@ function seshPrintCheckoutPageData() {
     }
     global $speedy_sites_table, $speedy_offices_table, $econt_sites_table, $econt_offices_table;
     if (isSpeedyEnabled()) {
-        seshGenerateJsVar($speedy_sites_table, $speedy_offices_table, 'speedyData', __('Speedy office', 'speedy_econt_shipping'));
+        seshGenerateJsVar($speedy_sites_table, $speedy_offices_table, 'speedyData', getSpeedyLabel());
     }
     if (isEcontEnabled()) {
-        seshGenerateJsVar($econt_sites_table, $econt_offices_table, 'econtData', __('Econt office', 'speedy_econt_shipping'));
+        seshGenerateJsVar($econt_sites_table, $econt_offices_table, 'econtData', getEcontLabel());
     }
 }
 add_action( 'woocommerce_before_checkout_form', 'seshPrintCheckoutPageData', 10 );
@@ -452,24 +452,22 @@ function customise_shipping_charges($order_id, $posted_data, $order ){
         return $posted_data;
     }
     $shipping_address = $order->get_shipping_address_1();
-    $speedy_office_loc = __('Speedy office', 'speedy_econt_shipping');
-    $to_speedy = str_contains($shipping_address, $speedy_office_loc);
-    $econt_office_loc = __('Econt office', 'speedy_econt_shipping');
-    $to_econt = str_contains($shipping_address, $econt_office_loc);
+    $to_speedy = str_contains($shipping_address, getSpeedyLabel());
+    $to_econt = str_contains($shipping_address, getEcontLabel());
     $order_total = $order->get_total();
-    write_log("speedy label: $speedy_office_loc, econt label: $econt_office_loc");
+    write_log("speedy label: ".getSpeedyLabel().", econt label: ".getEcontLabel());
     write_log("shipping address: $shipping_address; to speedy=$to_speedy; to econt=$to_econt; order total=$order_total");
     $delivery_price = 0;
     if ($to_speedy) {
         if ($order_total < getSpeedyFreeFrom()) {
             $delivery_price = getSpeedyShipping();
         }
-        $label = $speedy_office_loc;
+        $label = getSpeedyLabel();
     } else if ($to_econt) {
         if ($order_total < getEcontFreeFrom()) {
             $delivery_price = getEcontShipping();
         }
-        $label = $econt_office_loc;
+        $label = getEcontLabel();
     } else {
         if ($order_total < getAddressFreeFrom()) {
             $delivery_price = getAddressShipping();
