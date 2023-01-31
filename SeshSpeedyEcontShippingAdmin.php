@@ -214,6 +214,14 @@ class SeshSpeedyEcontShippingAdmin {
         );
 
         add_settings_field(
+            'delivery_price_selector_14', // id
+            __('Delivery price selector', 'speedy_econt_shipping'), // title
+            array( $this, 'delivery_price_selector_14_callback' ), // callback
+            'speedy-econt-shipping-admin', // page
+            'speedy_econt_shipping_setting_section' // section
+        );
+
+        add_settings_field(
             'email_required_9', // id
             __('Is email field required?', 'speedy_econt_shipping'), // title
             array( $this, 'email_required_9_callback' ), // callback
@@ -235,7 +243,8 @@ class SeshSpeedyEcontShippingAdmin {
         $keys = array('speedy_username_0', 'speedy_password_1', 'speedy_free_from_6', 'speedy_shipping_7',
             'econt_free_from_8', 'econt_shipping_9',
             'address_label_12', 'address_free_from_10', 'address_shipping_11',
-            'address_fields_3', 'additionally_hidden_fields_03', 'emergency_contact_13', 'shipping_opts_order_14');
+            'address_fields_3', 'additionally_hidden_fields_03', 'emergency_contact_13', 'shipping_opts_order_14',
+            'delivery_price_selector_14');
         $checkboxes = array('enable_speedy_0', 'enable_econt_1', 'enable_address_2', 'email_required_9',
             'show_store_messages_6', 'show_deliv_opts_6', 'repopulate_tables_7', 'calculate_final_price_8');
         foreach($keys as &$value) {
@@ -366,7 +375,7 @@ class SeshSpeedyEcontShippingAdmin {
     }
 
     public function calculate_final_price_8_callback() {
-        $this->checkbox_callback('calculate_final_price_8', array(), false);
+        $this->checkbox_callback('calculate_final_price_8', array('delivery_price_selector_14'), false);
     }
 
     public function email_required_9_callback() {
@@ -380,6 +389,11 @@ class SeshSpeedyEcontShippingAdmin {
     public function shipping_opts_order_14_callback() {
         global $shipping_opts_order_default;
         $this->generic_callback('shipping_opts_order_14', 'text', __('shipping options order', 'speedy_econt_shipping'), $shipping_opts_order_default);
+    }
+
+    public function delivery_price_selector_14_callback() {
+        global $delivery_price_selector_default;
+        $this->generic_callback('delivery_price_selector_14', 'text', __('delivery price selector', 'speedy_econt_shipping'), $delivery_price_selector_default);
     }
 }
 
@@ -505,5 +519,10 @@ function getShippingOptionsOrder() : array
         }
     }
     return $result;
+}
+
+function getDeliveryPriceSelector() {
+    global $delivery_price_selector_default;
+    return getStoredOption('delivery_price_selector_14', $delivery_price_selector_default);
 }
 

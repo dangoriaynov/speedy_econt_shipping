@@ -10,7 +10,7 @@ global $speedy_region_sel, $speedy_city_sel, $speedy_office_sel, $econt_region_s
        $speedy_region_field, $speedy_city_field, $speedy_office_field, $econt_region_field, $econt_city_field, $econt_office_field,
        $shipping_to_sel, $speedy_region_id, $speedy_city_id, $speedy_office_id, $econt_region_id,
        $econt_city_id, $econt_office_id, $shipping_to_id, $address_region_sel, $address_city_sel, $address_address_sel,
-       $shipping_to_speedy_key, $shipping_opts_order_default;
+       $shipping_to_speedy_key, $shipping_opts_order_default, $delivery_price_selector_default;
 
 $speedy_region_id = "speedy_region_sel";
 $speedy_city_id = "speedy_city_sel";
@@ -51,6 +51,7 @@ $econt_opt_key = 'econt';
 $insert_edge = 0.9;
 $address_label = 'address';
 $shipping_opts_order_default = implode(',', array($speedy_opt_key, $econt_opt_key, $address_label));
+$delivery_price_selector_default = '.cart-subtotal .woocommerce-Price-amount.amount';
 
 // default delivery option
 function seshDefaultDelivOpt() {
