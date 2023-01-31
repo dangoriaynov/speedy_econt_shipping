@@ -6,7 +6,7 @@
  * Author:            Dan Goriaynov
  * Author URI:        https://github.com/dangoriaynov
  * Plugin URI:        https://github.com/dangoriaynov/speedy_econt_shipping
- * Version:           1.9.3
+ * Version:           1.9.4
  * WC tested up to:   6.1
  * License:           GNU General Public License, version 2
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.en.html
@@ -15,7 +15,6 @@
 */
 
 // TODO add links to https://www.speedy.bg/bg/speedy-offices and https://www.econt.com/find-office
-// TODO show delivery price in the checkout' right column
 
 
 if ( ! defined( 'ABSPATH' ) ) {
