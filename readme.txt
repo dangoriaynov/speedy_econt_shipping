@@ -208,3 +208,7 @@ Fixed shipping method calculation issue
 ### 1.9.2 - 2023-01-28
 #### Fixes
 Small improvement on the way labels are stored
+### 1.9.3 - 2023-01-31
+#### Fixes
+Made correct delivery price shown in the rightmost column on checkout
+Made possible setting the order of delivery options as they appear at checkout page

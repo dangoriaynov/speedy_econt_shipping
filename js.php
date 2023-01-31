@@ -63,18 +63,7 @@ add_action( 'wp_head', function () {
         const defaultShippingMethod = '<?php echo seshDefaultDelivOpt(); ?>';
         const currencySymbol = '<?php echo html_entity_decode(get_woocommerce_currency_symbol()); ?>';
         const shopUrl = '<?php echo get_permalink( wc_get_page_id( 'shop' ) ); ?>';
-        <?php
-        $enabledOptions = array();
-        if (isSpeedyEnabled()) {
-            global $speedy_opt_key;
-            $enabledOptions[] = $speedy_opt_key;
-        }
-        if (isEcontEnabled()) {
-            global $econt_opt_key;
-            $enabledOptions[] = $econt_opt_key;
-        }
-        ?>
-        const enabledOptions = <?php echo json_encode($enabledOptions) ?>;
+        const enabledOptions = <?php echo json_encode(getShippingOptionsOrder()) ?>;
         let originalOrderPrice = orderPrice().toFixed(2);
         let pricesCopy = {};
         let isFree = false;
@@ -137,7 +126,7 @@ add_action( 'wp_head', function () {
 
         function populateDeliveryOptions() {
             doShippingPricesCopy();
-            Object.keys(delivOptions).forEach(function(key) {
+            enabledOptions.forEach(function(key) {
                 populateDeliveryOption(key);
             });
         }
@@ -179,6 +168,9 @@ add_action( 'wp_head', function () {
             const deliveryPrice = pricesCopy[delivOptionChosen.id];
             let elemText;
             <?php if (isCalculateFinalPrice()) { ?>
+                jQuery(".cart-subtotal th").last().text('<?php _e('delivery', 'speedy_econt_shipping') ?>');
+                const delivPrice = deliveryPrice + ' ' + currencySymbol;
+                jQuery(".cart-subtotal .woocommerce-Price-amount.amount").last().text(delivPrice);
                 elemText = (parseFloat(originalOrderPrice) + parseFloat(deliveryPrice)).toFixed(2) + ' ' + currencySymbol;
             <?php } else { ?>
                 const addText = deliveryPrice > 0 ? " + <?php _e('delivery', 'speedy_econt_shipping') ?>" : "";
@@ -206,6 +198,9 @@ add_action( 'wp_head', function () {
             const officeDom = jQuery(officeSel);
             officeDom.empty().trigger('change.select2');
 
+            if (key === '<?php global $address_label; echo $address_label; ?>') {
+                return;
+            }
             Object.entries(data).forEach(([regionName, cities]) => {
                 // regions are not filled in here since they are pre-populated when fields are created
                 cities.forEach(city => {

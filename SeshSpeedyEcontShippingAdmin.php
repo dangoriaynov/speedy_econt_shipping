@@ -174,6 +174,14 @@ class SeshSpeedyEcontShippingAdmin {
         );
 
         add_settings_field(
+            'shipping_opts_order_14', // id
+            __('Order of delivery options', 'speedy_econt_shipping'), // title
+            array( $this, 'shipping_opts_order_14_callback' ), // callback
+            'speedy-econt-shipping-admin', // page
+            'speedy_econt_shipping_setting_section' // section
+        );
+
+        add_settings_field(
             'emergency_contact_13', // id
             __('Shop emergency contact', 'speedy_econt_shipping'), // title
             array( $this, 'emergency_contact_13_callback' ), // callback
@@ -227,7 +235,7 @@ class SeshSpeedyEcontShippingAdmin {
         $keys = array('speedy_username_0', 'speedy_password_1', 'speedy_free_from_6', 'speedy_shipping_7',
             'econt_free_from_8', 'econt_shipping_9',
             'address_label_12', 'address_free_from_10', 'address_shipping_11',
-            'address_fields_3', 'additionally_hidden_fields_3', 'emergency_contact_13');
+            'address_fields_3', 'additionally_hidden_fields_03', 'emergency_contact_13', 'shipping_opts_order_14');
         $checkboxes = array('enable_speedy_0', 'enable_econt_1', 'enable_address_2', 'email_required_9',
             'show_store_messages_6', 'show_deliv_opts_6', 'repopulate_tables_7', 'calculate_final_price_8');
         foreach($keys as &$value) {
@@ -368,6 +376,11 @@ class SeshSpeedyEcontShippingAdmin {
     public function emergency_contact_13_callback() {
         $this->generic_callback('emergency_contact_13', 'text', __('emergency contact to show in case of error', 'speedy_econt_shipping'), '');
     }
+
+    public function shipping_opts_order_14_callback() {
+        global $shipping_opts_order_default;
+        $this->generic_callback('shipping_opts_order_14', 'text', __('shipping options order', 'speedy_econt_shipping'), $shipping_opts_order_default);
+    }
 }
 
 add_action( 'seshForceUpdateHook', 'seshRefreshTableDataAll');
@@ -460,5 +473,37 @@ function isEmailRequired() {
 
 function getEmergencyContactData() {
     return getStoredOption('emergency_contact_13', '');
+}
+
+function getShippingOptionsOrder() : array
+{
+    global $shipping_opts_order_default, $speedy_opt_key, $econt_opt_key, $address_label;
+    $enabledOptionsStr = getStoredOption('shipping_opts_order_14', $shipping_opts_order_default);
+    $enabledOptions = explode(",", $enabledOptionsStr);
+    $result = array();
+    foreach ($enabledOptions as $enabledOption) {
+        switch (trim($enabledOption)) {
+            case $speedy_opt_key:
+            {
+                if (isSpeedyEnabled()) {
+                    $result[] = $speedy_opt_key;
+                }
+                break;
+            }
+            case $econt_opt_key:
+            {
+                if (isEcontEnabled()) {
+                    $result[] = $econt_opt_key;
+                }
+                break;
+            }
+            case $address_label:
+            {
+                $result[] = $address_label;
+                break;
+            }
+        }
+    }
+    return $result;
 }
 
