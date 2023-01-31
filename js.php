@@ -64,6 +64,16 @@ add_action( 'wp_head', function () {
         const currencySymbol = '<?php echo html_entity_decode(get_woocommerce_currency_symbol()); ?>';
         const shopUrl = '<?php echo get_permalink( wc_get_page_id( 'shop' ) ); ?>';
         const enabledOptions = <?php echo json_encode(getShippingOptionsOrder()) ?>;
+        let enabledOptionsNoAddress = [];
+        let idx = 0;
+        for (let i = 0; i < enabledOptions.length; i++) {
+            const val = enabledOptions[i];
+            if (val === '<?php global $address_label; echo $address_label; ?>') {
+                continue;
+            }
+            enabledOptionsNoAddress[idx] = val;
+            idx++;
+        }
         let originalOrderPrice = orderPrice().toFixed(2);
         let pricesCopy = {};
         let isFree = false;
@@ -170,7 +180,7 @@ add_action( 'wp_head', function () {
             <?php if (isCalculateFinalPrice()) { ?>
                 jQuery(".cart-subtotal th").last().text('<?php _e('delivery', 'speedy_econt_shipping') ?>');
                 const delivPrice = deliveryPrice + ' ' + currencySymbol;
-                jQuery(".cart-subtotal .woocommerce-Price-amount.amount").last().text(delivPrice);
+                jQuery("<?php echo getDeliveryPriceSelector(); ?>").last().text(delivPrice);
                 elemText = (parseFloat(originalOrderPrice) + parseFloat(deliveryPrice)).toFixed(2) + ' ' + currencySymbol;
             <?php } else { ?>
                 const addText = deliveryPrice > 0 ? " + <?php _e('delivery', 'speedy_econt_shipping') ?>" : "";
@@ -378,7 +388,7 @@ add_action( 'wp_head', function () {
 
             showTillFreeDeliveryMsg();
             jQuery('<?php echo $shipping_to_sel; ?>').change(onDeliveryOptionChange);
-            enabledOptions.forEach(function(key) {
+            enabledOptionsNoAddress.forEach(function(key) {
                 processPopulatedData(key);
                 jQuery(locs[key].inner.region).val("").trigger('change.select2');
             });
