@@ -6,7 +6,7 @@
  * Author:            Dan Goriaynov
  * Author URI:        https://github.com/dangoriaynov
  * Plugin URI:        https://github.com/dangoriaynov/speedy_econt_shipping
- * Version:           1.9.4
+ * Version:           1.9.5
  * WC tested up to:   6.1
  * License:           GNU General Public License, version 2
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.en.html
@@ -448,52 +448,66 @@ function sesh_hide_shipping_fields($needs_address, $hide, $order ): bool
 }
 add_filter( 'woocommerce_order_needs_shipping_address', 'sesh_hide_shipping_fields', 10, 3 );
 
-add_action( 'woocommerce_checkout_order_processed', 'customise_shipping_charges',  1, 3  );
-function customise_shipping_charges($order_id, $posted_data, $order ){
-    if( is_wc_endpoint_url() || is_admin() ) {
+if (! isCalculateFinalPrice()) {
+    /* remove shipping column from emails since we do not care about the shipping costs and do not want ot see them in the order totals */
+    function sesh_customize_email_order_line_totals($total_rows, $order, $tax_display ){
+        if( ! is_wc_endpoint_url() || ! is_admin() ) {
+            unset($total_rows['shipping']);
+        }
+        return $total_rows;
+    }
+    add_filter( 'woocommerce_get_order_item_totals', 'sesh_customize_email_order_line_totals', 1000, 3 );
+}
+
+if (isCalculateFinalPrice()) {
+    // add virtual delivery method with the shipping price included in the final order price
+    function customise_shipping_charges($order_id, $posted_data, $order ){
+        if( is_wc_endpoint_url() || is_admin() ) {
+            return $posted_data;
+        }
+        $shipping_address = $order->get_shipping_address_1();
+        $to_speedy = str_contains($shipping_address, getSpeedyLabel());
+        $to_econt = str_contains($shipping_address, getEcontLabel());
+        $order_total = $order->get_total();
+        write_log("speedy label: ".getSpeedyLabel().", econt label: ".getEcontLabel());
+        write_log("shipping address: $shipping_address; to speedy=$to_speedy; to econt=$to_econt; order total=$order_total");
+        $delivery_price = 0;
+        if ($to_speedy) {
+            if ($order_total < getSpeedyFreeFrom()) {
+                $delivery_price = getSpeedyShipping();
+            }
+            $label = getSpeedyLabel();
+        } else if ($to_econt) {
+            if ($order_total < getEcontFreeFrom()) {
+                $delivery_price = getEcontShipping();
+            }
+            $label = getEcontLabel();
+        } else {
+            if ($order_total < getAddressFreeFrom()) {
+                $delivery_price = getAddressShipping();
+            }
+            $label = getAddressLabel();
+        }
+        write_log("delivery_price: $delivery_price");
+        $is_free = $delivery_price === 0;
+        $new_shipping = new WC_Order_Item_Shipping();
+        $add = $is_free ? __('for free', 'speedy_econt_shipping') : "";
+        $new_shipping->set_method_title( "$add (". __('to', 'speedy_econt_shipping') . " $label)" );
+        $new_shipping->set_method_id( '' );
+        $new_shipping->set_total( $delivery_price );
+        $items = (array) $order->get_items('shipping');
+        if ( sizeof( $items ) > 0 ) {
+            foreach ( $items as $item_id => $item ) {
+                $order->remove_item( $item_id );
+                write_log("found and removed existing shipping method");
+            }
+        }
+        $order->add_item( $new_shipping );
+        $order->calculate_totals();
+        $order->save();
         return $posted_data;
     }
-    $shipping_address = $order->get_shipping_address_1();
-    $to_speedy = str_contains($shipping_address, getSpeedyLabel());
-    $to_econt = str_contains($shipping_address, getEcontLabel());
-    $order_total = $order->get_total();
-    write_log("speedy label: ".getSpeedyLabel().", econt label: ".getEcontLabel());
-    write_log("shipping address: $shipping_address; to speedy=$to_speedy; to econt=$to_econt; order total=$order_total");
-    $delivery_price = 0;
-    if ($to_speedy) {
-        if ($order_total < getSpeedyFreeFrom()) {
-            $delivery_price = getSpeedyShipping();
-        }
-        $label = getSpeedyLabel();
-    } else if ($to_econt) {
-        if ($order_total < getEcontFreeFrom()) {
-            $delivery_price = getEcontShipping();
-        }
-        $label = getEcontLabel();
-    } else {
-        if ($order_total < getAddressFreeFrom()) {
-            $delivery_price = getAddressShipping();
-        }
-        $label = getAddressLabel();
-    }
-    write_log("delivery_price: $delivery_price");
-    $is_free = $delivery_price === 0;
-    $new_shipping = new WC_Order_Item_Shipping();
-    $add = $is_free ? __('for free', 'speedy_econt_shipping') : "";
-    $new_shipping->set_method_title( "$add (". __('to', 'speedy_econt_shipping') . " $label)" );
-    $new_shipping->set_method_id( '' );
-    $new_shipping->set_total( $delivery_price );
-    $items = (array) $order->get_items('shipping');
-    if ( sizeof( $items ) > 0 ) {
-        foreach ( $items as $item_id => $item ) {
-            $order->remove_item( $item_id );
-            write_log("found and removed existing shipping method");
-        }
-    }
-    $order->add_item( $new_shipping );
-    $order->calculate_totals();
-    $order->save();
-    return $posted_data;
+    add_action( 'woocommerce_checkout_order_processed', 'customise_shipping_charges',  1, 3  );
 }
 
 /* Add a link to the settings page on the plugins.php page. */

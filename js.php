@@ -183,8 +183,8 @@ add_action( 'wp_head', function () {
                 jQuery("<?php echo getDeliveryPriceSelector(); ?>").last().text(delivPrice);
                 elemText = (parseFloat(originalOrderPrice) + parseFloat(deliveryPrice)).toFixed(2) + ' ' + currencySymbol;
             <?php } else { ?>
-                const addText = deliveryPrice > 0 ? " + <?php _e('delivery', 'speedy_econt_shipping') ?>" : "";
-                elemText = originalOrderPrice + ' ' + currencySymbol + addText;
+                const suffix = deliveryPrice > 0 ? " + <?php _e('delivery', 'speedy_econt_shipping') ?>" : "";
+                elemText = originalOrderPrice + ' ' + currencySymbol + suffix;
             <?php } ?>
             jQuery(".order-total  .woocommerce-Price-amount.amount").last().text(elemText);
         }
