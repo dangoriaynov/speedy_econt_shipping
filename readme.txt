@@ -4,7 +4,7 @@ Tags: econt, еконт, speedy, спиди, shipping, bulgaria, bulgaria courie
 Requires at least: 4.4
 Requires PHP: 7.0
 Tested up to: 6.1
-Stable tag: 1.9.4
+Stable tag: 1.9.5
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Donate link: http://revolut.me/danq6lus
@@ -216,3 +216,7 @@ Made possible setting the order of delivery options as they appear at checkout p
 #### Fixes
 Fixed to address delivery method
 Fixed translation part
+### 1.9.5 - 2023-02-01
+#### Fixes
+Made delivery price included in emails and order total only when option is chosen
+Fixed absent free delivery label from the orders placed
