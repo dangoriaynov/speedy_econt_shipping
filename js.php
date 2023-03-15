@@ -328,6 +328,9 @@ add_action( 'wp_head', function () {
                 isFocused = true;
                 jQuery("#billing_first_name").focus();
             }
+            <?php if (!isCalculateFinalPrice()) { ?>
+            originalOrderPrice = orderPrice().toFixed(2);
+            <?php } ?>
             showTillFreeDeliveryMsg();
             populateDeliveryOptions();
             changeFinalPriceElem();
