@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: Speedy and Econt Shipping\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-02 07:12+0000\n"
-"PO-Revision-Date: 2023-01-31 21:53+0000\n"
+"PO-Revision-Date: 2023-03-15 20:38+0000\n"
 "Last-Translator: \n"
 "Language-Team: Български\n"
 "Language: bg_BG\n"
@@ -14,6 +14,11 @@ msgstr ""
 "X-Generator: Loco https://localise.biz/\n"
 "X-Loco-Version: 2.6.3; wp-6.1.1\n"
 "X-Domain: speedy_econt_shipping"
+
+#: SeshSpeedyEcontShippingAdmin.php:314 SeshSpeedyEcontShippingAdmin.php:326
+#: SeshSpeedyEcontShippingAdmin.php:342
+msgid "0 - always free shipping, empty - no free shipping"
+msgstr "0 - винаги безплатна доставка, празно - няма безплатна доставка"
 
 #: SeshSpeedyEcontShippingAdmin.php:33
 msgid ""
@@ -142,7 +147,7 @@ msgstr "Честито, спечелихте безплатна доставка
 msgid "Dan Goriaynov"
 msgstr "Дан Горяйнов"
 
-#: js.php:181 js.php:186
+#: js.php:194 js.php:199
 msgid "delivery"
 msgstr "доставка"
 
@@ -160,7 +165,7 @@ msgstr "Моля изберете метод за доставка."
 msgid "Delivery price selector"
 msgstr "Селектор за избор на цената на доставка"
 
-#: SeshSpeedyEcontShippingAdmin.php:396
+#: SeshSpeedyEcontShippingAdmin.php:397
 msgid "delivery price selector"
 msgstr "jQuery селектор за избор на цената на доставка"
 
@@ -172,11 +177,11 @@ msgstr "Доставка до"
 msgid "digit value like: 123456"
 msgstr "цифрово значение, като: 123456"
 
-#: utils.php:67
+#: utils.php:68
 msgid "Econt office"
 msgstr "офис на Еконт"
 
-#: SeshSpeedyEcontShippingAdmin.php:386
+#: SeshSpeedyEcontShippingAdmin.php:387
 msgid "emergency contact to show in case of error"
 msgstr "контакт който да са показва при грешките"
 
@@ -199,7 +204,7 @@ msgstr "Включване на доставка `До адрес`"
 msgid "Following delivery method is not working: "
 msgstr "Следващ метод за доставка не работи:"
 
-#: js.php:132 js.php:237 speedy_econt_shipping.php:482
+#: js.php:145 js.php:250 speedy_econt_shipping.php:494
 msgid "for free"
 msgstr "безплатно"
 
@@ -230,6 +235,10 @@ msgstr "Имейла да е задължителен?"
 #: SeshSpeedyEcontShippingAdmin.php:162
 msgid "List of `To address` shipping fields"
 msgstr "Поленца за доставка `до адрес`"
+
+#: SeshSpeedyEcontShippingAdmin.php:359
+msgid "list of delivery options to show the message for"
+msgstr "за кои опции да се показва съобщение за безплатна доставка"
 
 #: speedy_econt_shipping.php:360 speedy_econt_shipping.php:388
 msgid "Make your choice"
@@ -276,7 +285,7 @@ msgstr "Област"
 msgid "Settings"
 msgstr "Настройки"
 
-#: SeshSpeedyEcontShippingAdmin.php:391
+#: SeshSpeedyEcontShippingAdmin.php:392
 msgid "shipping options order"
 msgstr "списък с опциите за доставка"
 
@@ -287,8 +296,13 @@ msgstr "Екстрен контакт"
 
 #. id
 #: SeshSpeedyEcontShippingAdmin.php:194
-msgid "Show store messages"
-msgstr "Показване на съобщения за доставка"
+#| msgid "Show store messages"
+msgid "Show store messages for"
+msgstr "Показване на съобщения за доставка за"
+
+#: js.php:125
+msgid "Sorry, these is no free shipping available for the option chosen: "
+msgstr "Извинете, няма безплатна опция за доставка за избрания от вас метод:"
 
 #. page_title
 #: SeshSpeedyEcontShippingAdmin.php:17 SeshSpeedyEcontShippingAdmin.php:18
@@ -296,7 +310,7 @@ msgstr "Показване на съобщения за доставка"
 msgid "Speedy & Econt shipping"
 msgstr "Доставка със Speedy и Еконт"
 
-#: SeshSpeedyEcontShippingAdmin.php:404
+#: SeshSpeedyEcontShippingAdmin.php:405
 msgid "Speedy and Econt data refresh was started."
 msgstr "Обновяване на дани за офиси Спиди и Еконт се започна."
 
@@ -304,22 +318,22 @@ msgstr "Обновяване на дани за офиси Спиди и Еко�
 msgid "Speedy and Econt Shipping"
 msgstr "Speedy and Econt Shipping"
 
-#: utils.php:63
+#: utils.php:64
 msgid "Speedy office"
 msgstr "офис на Speedy"
 
-#: js.php:120
+#: js.php:121
 msgid "Still left"
 msgstr "Остава Ви още"
 
-#: speedy_econt_shipping.php:483
+#: speedy_econt_shipping.php:495
 msgid "to"
 msgstr "до"
 
-#: js.php:120
+#: js.php:121
 msgid "to get a free shipping to"
 msgstr "за да спечелите безплатна доставка до"
 
-#: js.php:120
+#: js.php:121
 msgid "To shop"
 msgstr "Към магазина"
