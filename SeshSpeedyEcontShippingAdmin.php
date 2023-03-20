@@ -191,7 +191,7 @@ class SeshSpeedyEcontShippingAdmin {
 
         add_settings_field(
             'show_store_messages_6', // id
-            __('Show store messages', 'speedy_econt_shipping'), // title
+            __('Show store messages for', 'speedy_econt_shipping'), // title
             array( $this, 'show_store_messages_6_callback' ), // callback
             'speedy-econt-shipping-admin', // page
             'speedy_econt_shipping_setting_section' // section
@@ -244,9 +244,9 @@ class SeshSpeedyEcontShippingAdmin {
             'econt_free_from_8', 'econt_shipping_9',
             'address_label_12', 'address_free_from_10', 'address_shipping_11',
             'address_fields_3', 'additionally_hidden_fields_03', 'emergency_contact_13', 'shipping_opts_order_14',
-            'delivery_price_selector_14');
+            'delivery_price_selector_14', 'show_store_messages_6');
         $checkboxes = array('enable_speedy_0', 'enable_econt_1', 'enable_address_2', 'email_required_9',
-            'show_store_messages_6', 'show_deliv_opts_6', 'repopulate_tables_7', 'calculate_final_price_8');
+            'show_deliv_opts_6', 'repopulate_tables_7', 'calculate_final_price_8');
         foreach($keys as &$value) {
             if ( isset( $input[$value] ) ) {
                 $sanitary_values[$value] = sanitize_text_field( $input[$value] );
@@ -266,7 +266,7 @@ class SeshSpeedyEcontShippingAdmin {
             $add = 'step="0.1" min="0"';
         }
         $placeholderHtml = $placeholder ? 'placeholder="'.$placeholder.'"' : '';
-        if (! isset( $this->speedy_econt_shipping_options[$name] )) {
+        if (!isset( $this->speedy_econt_shipping_options[$name] )) {
             $this->speedy_econt_shipping_options[$name] = $value;
         }
         printf(
@@ -311,7 +311,7 @@ class SeshSpeedyEcontShippingAdmin {
     }
 
     public function speedy_free_from_6_callback() {
-        $this->generic_callback('speedy_free_from_6', 'number');
+        $this->generic_callback('speedy_free_from_6', 'number', __('0 - always free shipping, empty - no free shipping', 'speedy_econt_shipping'));
     }
 
     public function speedy_shipping_7_callback() {
@@ -323,7 +323,7 @@ class SeshSpeedyEcontShippingAdmin {
     }
 
     public function econt_free_from_8_callback() {
-        $this->generic_callback('econt_free_from_8', 'number');
+        $this->generic_callback('econt_free_from_8', 'number', __('0 - always free shipping, empty - no free shipping', 'speedy_econt_shipping'));
     }
 
     public function econt_shipping_9_callback() {
@@ -339,7 +339,7 @@ class SeshSpeedyEcontShippingAdmin {
     }
 
     public function address_free_from_10_callback() {
-        $this->generic_callback('address_free_from_10', 'number');
+        $this->generic_callback('address_free_from_10', 'number', __('0 - always free shipping, empty - no free shipping', 'speedy_econt_shipping'));
     }
 
     public function address_shipping_11_callback() {
@@ -355,7 +355,8 @@ class SeshSpeedyEcontShippingAdmin {
     }
 
     public function show_store_messages_6_callback() {
-        $this->checkbox_callback('show_store_messages_6');
+        global $shipping_opts_order_default;
+        $this->generic_callback('show_store_messages_6', 'text', __('list of delivery options to show the message for', 'speedy_econt_shipping'), $shipping_opts_order_default);
     }
 
     public function show_deliv_opts_6_callback() {
@@ -363,9 +364,9 @@ class SeshSpeedyEcontShippingAdmin {
     }
 
     public function repopulate_tables_7_callback() {
-        global $wpdb;
         $name = 'repopulate_tables_7';
         if (getStoredOption($name, false) === true) {
+            global $wpdb;
             write_log("tables re-population was forced!");
             $wpdb->query("UPDATE ".$wpdb->prefix."OPTIONS SET OPTION_VALUE = REPLACE(OPTION_VALUE, '\"".$name."\";b:1', '\"".$name."\";b:0') WHERE OPTION_NAME = 'speedy_econt_shipping_option_name';");
             wp_schedule_single_event( time(), 'seshForceUpdateHook' );  // force populate tables now
@@ -424,8 +425,14 @@ function getSpeedyPass() {
     return getStoredOption('speedy_password_1');
 }
 
+function calcFreeFromVal($key) {
+    global $free_from_not_set;
+    $val = getStoredOption($key, $free_from_not_set);
+    return $val === '' ? -1 : (float) $val;
+}
+
 function getSpeedyFreeFrom() {
-    return (float) getStoredOption('speedy_free_from_6');
+    return calcFreeFromVal('speedy_free_from_6');
 }
 
 function getSpeedyShipping() {
@@ -437,7 +444,7 @@ function isEcontEnabled() {
 }
 
 function getEcontFreeFrom() {
-    return (float) getStoredOption('econt_free_from_8');
+    return calcFreeFromVal('econt_free_from_8');
 }
 
 function getEcontShipping() {
@@ -454,7 +461,7 @@ function getAddressLabel() {
 }
 
 function getAddressFreeFrom() {
-    return (float) getStoredOption('address_free_from_10');
+    return calcFreeFromVal('address_free_from_10');
 }
 
 function getAddressShipping() {
@@ -469,8 +476,14 @@ function getAdditionallyHiddenFields() {
     return array_map('trim', explode(',', getStoredOption('additionally_hidden_fields_03', '#billing_address_2_field, #billing_company_field, #billing_country_field, #billing_postcode_field, #ship-to-different-address, .cart-subtotal, .checkout-wrap, .woocommerce-shipping-totals.shipping')));
 }
 
-function isShowStoreMessages() {
-    return getStoredOption('show_store_messages_6', true);
+function showStoreMessages() {
+    global $shipping_opts_order_default;
+    $val = getStoredOption('show_store_messages_6', $shipping_opts_order_default);
+    // this covers the case with update from checkbox-like field to the text value
+    if ($val === '1') {
+        return $shipping_opts_order_default;
+    }
+    return $val;
 }
 
 function isShowDelivOpts() {

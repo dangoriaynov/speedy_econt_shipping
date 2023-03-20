@@ -93,12 +93,13 @@ add_action( 'wp_head', function () {
         }
 
         function showTillFreeDeliveryMsg() {
-            if (<?php echo isShowStoreMessages() ? 'false' : 'true'; ?> || Math.abs(originalOrderPrice) < 1e-10) {
+            if (! '<?php echo showStoreMessages(); ?>'.includes(delivOptionChosen.name) || Math.abs(originalOrderPrice) < 1e-10) {
+                jQuery("#deliv_msg").remove();
                 return;
             }
-            const leftTillFree = parseFloat(delivOptionChosen.free_from) - parseFloat(originalOrderPrice);
             // don't do anything if unable to calculate the amount left till free shipping
-            if (isNaN(leftTillFree)) {
+            if (isNaN(originalOrderPrice)) {
+                jQuery("#deliv_msg").remove();
                 return;
             }
             const msgContainer = jQuery('div#deliv_msg');
@@ -111,21 +112,33 @@ add_action( 'wp_head', function () {
             msgDiv.removeClass();
             msgDiv.hide();
             let msg;
-            isFree = leftTillFree <= 0;
-            if (isFree) {
+            if (isFreeDelivery(delivOptionChosen)) {
                 msgDiv.addClass("woocommerce-message");
                 msg = '<?php _e('Congrats, you won free delivery using', 'speedy_econt_shipping'); ?> '+labelBold+'!';
+            } else if (parseFloat(delivOptionChosen.free_from) !== -1) {
+                msgDiv.addClass("woocommerce-error");
+                const leftTillFree = parseFloat(delivOptionChosen.free_from) - parseFloat(originalOrderPrice);
+                msg = '<?php _e('Still left', 'speedy_econt_shipping'); ?> <span class="woocommerce-Price-amount amount">'+leftTillFree.toFixed(2)+'&nbsp;<span class="woocommerce-Price-currencySymbol">'+currencySymbol+'</span></span> <?php _e('to get a free shipping to', 'speedy_econt_shipping')?> '+labelBold+'! <a class="button" href="'+shopUrl+'"><?php _e('To shop', 'speedy_econt_shipping') ?></a>';
             } else {
                 msgDiv.addClass("woocommerce-error");
-                msg = '<?php _e('Still left', 'speedy_econt_shipping'); ?> <span class="woocommerce-Price-amount amount">'+leftTillFree.toFixed(2)+'&nbsp;<span class="woocommerce-Price-currencySymbol">'+currencySymbol+'</span></span> <?php _e('to get a free shipping to', 'speedy_econt_shipping')?> '+labelBold+'! <a class="button" href="'+shopUrl+'"><?php _e('To shop', 'speedy_econt_shipping') ?></a>';
+                msgDiv.css("background-color","darkgray");
+                msg = '<?php _e('Sorry, these is no free shipping available for the option chosen: ', 'speedy_econt_shipping'); ?> '+labelBold+'!';
             }
             msgDiv.html(msg);
             msgDiv.show();
         }
 
+        function isFreeDelivery(option) {
+            return parseFloat(option.free_from) !== -1 && parseFloat(originalOrderPrice) >= parseFloat(option.free_from);
+        }
+
+        function calculateDeliveryPrice(option) {
+            return isFreeDelivery(option) ? 0 : parseFloat(option.shipping);
+        }
+
         function populateDeliveryOption(key){
             const chosenOption = delivOptions[key];
-            const delivPrice = parseFloat(originalOrderPrice) >= parseFloat(chosenOption.free_from) ? 0 : parseFloat(chosenOption.shipping);
+            const delivPrice = calculateDeliveryPrice(chosenOption);
             // convert to id here since we do care about real DOM elements here
             const delivPriceNormal = delivPrice.toFixed(2);
             pricesCopy[delivOptions[key].id] = delivPriceNormal;
@@ -287,8 +300,18 @@ add_action( 'wp_head', function () {
             });
         }
 
+        function runTillFreeMsgTimer() {
+            // doing this since msg div is not populated on 1 run - we need to control this
+            let tillFreeMsgShown = setInterval(function () {
+                if (jQuery('div#deliv_msg').first().text()) {
+                    clearInterval(tillFreeMsgShown);
+                }
+                showTillFreeDeliveryMsg();
+            }, 500); // run every 500ms
+        }
+
         function onDeliveryOptionChange() {
-            showTillFreeDeliveryMsg();
+            runTillFreeMsgTimer();
             const option = jQuery('<?php echo $shipping_to_sel ?>:checked').val();
             // hide all the selectors till we know what is chosen
             Object.keys(locs).forEach(function(key) {
@@ -331,22 +354,16 @@ add_action( 'wp_head', function () {
             <?php if (!isCalculateFinalPrice()) { ?>
             originalOrderPrice = orderPrice().toFixed(2);
             <?php } ?>
-            showTillFreeDeliveryMsg();
             populateDeliveryOptions();
             changeFinalPriceElem();
+            runTillFreeMsgTimer();
         });
 
         jQuery( document ).ready(function() {
             originalOrderPrice = orderPrice().toFixed(2);
-            // doing this since msg div is not populated on 1 run - we need to control this
-            let tillFreeMsgShown = setInterval(function () {
-                if (jQuery('div#deliv_msg').first().text()) {
-                    clearInterval(tillFreeMsgShown);
-                }
-                showTillFreeDeliveryMsg();
-            }, 500); // run every 500ms
             populateDeliveryOptions();
             changeFinalPriceElem();
+            runTillFreeMsgTimer();
 
             // populate the offices data once DOM is loaded - it is happening later that onReady() is fired
             let regionExists = setInterval(function() {
