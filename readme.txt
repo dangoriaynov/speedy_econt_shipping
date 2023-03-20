@@ -4,7 +4,7 @@ Tags: econt, еконт, speedy, спиди, shipping, bulgaria, bulgaria courie
 Requires at least: 4.4
 Requires PHP: 7.0
 Tested up to: 6.1
-Stable tag: 1.9.8
+Stable tag: 1.9.9
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Donate link: http://revolut.me/danq6lus
@@ -231,3 +231,6 @@ This might cause issues with other plugins which do the ajax refresh. Not sure h
 #### Fixes
 Added ability to specify shipping methods which will have store message `left till free delivery` shown
 Now possible to have shipping methods w/o free delivery option
+### 1.9.9 - 2023-03-20
+#### Fixes
+Fixed 'till free delivery' message and price calcualtion (again)

@@ -111,6 +111,7 @@ add_action( 'wp_head', function () {
             const msgDiv = msgContainer.first();
             msgDiv.removeClass();
             msgDiv.hide();
+            msgDiv.css("background-color", "");
             let msg;
             if (isFreeDelivery(delivOptionChosen)) {
                 msgDiv.addClass("woocommerce-message");
@@ -345,24 +346,47 @@ add_action( 'wp_head', function () {
             return alphabet.indexOf(a[position]) - alphabet.indexOf(b[position]);
         }
 
-        jQuery( document ).ajaxComplete(function() {
-            // do the focusing only once
-            if (! isFocused) {
+        function setFocusedTimer() {
+            let fieldFocused = setInterval(function () {
+                if (isFocused) {
+                    clearInterval(fieldFocused);
+                }
                 isFocused = true;
                 jQuery("#billing_first_name").focus();
-            }
+            }, 500); // run every 500ms
+        }
+
+        function priceManipulationsTimer() {
+            let priceManipulated = setInterval(function () {
+                if (originalOrderPrice == orderPrice().toFixed(2)) {
+                    clearInterval(priceManipulated);
+                }
+                originalOrderPrice = orderPrice().toFixed(2);
+                changeFinalPriceElem();
+                populateDeliveryOptions();
+                runTillFreeMsgTimer();
+            }, 500); // run every 500ms
+        }
+
+        jQuery( document ).ajaxComplete(function() {
+            // do the focusing only once
+            setFocusedTimer();
+            // this way we avoid addition of shipping pricxe over and over again
+            // but it also prevents addons plugins from adding their part of the price
+            // Ok for now, might be fixed if I start getting complains
             <?php if (!isCalculateFinalPrice()) { ?>
-            originalOrderPrice = orderPrice().toFixed(2);
-            <?php } ?>
-            populateDeliveryOptions();
+            priceManipulationsTimer();
+            <?php } else { ?>
             changeFinalPriceElem();
+            populateDeliveryOptions();
             runTillFreeMsgTimer();
+            <?php } ?>
         });
 
         jQuery( document ).ready(function() {
             originalOrderPrice = orderPrice().toFixed(2);
-            populateDeliveryOptions();
             changeFinalPriceElem();
+            populateDeliveryOptions();
             runTillFreeMsgTimer();
 
             // populate the offices data once DOM is loaded - it is happening later that onReady() is fired
