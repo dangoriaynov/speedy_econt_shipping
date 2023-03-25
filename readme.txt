@@ -4,7 +4,7 @@ Tags: econt, еконт, speedy, спиди, shipping, bulgaria, bulgaria courie
 Requires at least: 4.4
 Requires PHP: 7.0
 Tested up to: 6.1
-Stable tag: 1.10.1
+Stable tag: 1.10.2
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Donate link: http://revolut.me/danq6lus
@@ -242,3 +242,7 @@ Made delivery fields mandatory (in UI)
 #### Fixes
 Fixed 'left till free delivery' message
 Fixed unnecessary execution of functions which were invoked by timer
+### 1.10.2 - 2023-03-25
+#### Fixes
+Fixed the refresh logic not working in some cases
+Fixed first name focusing logic
