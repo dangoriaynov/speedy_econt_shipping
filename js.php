@@ -220,20 +220,26 @@ add_action( 'wp_head', function () {
         function changeFinalPrice() {
             const deliveryPrice = pricesCopy[delivOptionChosen.id];
             let price = orderPrice();
-            if (isNaN(price)) {
+            if (isNaN(price) || isNaN(deliveryPrice)) {
                 return;
             }
             let customPrice;
+            const deliveryMsg = '<?php _e('delivery', 'speedy_econt_shipping') ?>';
             <?php if (isCalculateFinalPrice()) { ?>
-                jQuery(".cart-subtotal th").last().text('<?php _e('delivery', 'speedy_econt_shipping') ?>');
+                jQuery(".cart-subtotal th").last().text(deliveryMsg);
                 const delivPrice = deliveryPrice + ' ' + currencySymbol;
                 jQuery("<?php echo getDeliveryPriceSelector(); ?>").last().text(delivPrice);
                 customPrice = (price + parseFloat(deliveryPrice)).toFixed(2) + ' ' + currencySymbol;
             <?php } else { ?>
-                const suffix = deliveryPrice > 0 ? " + <?php _e('delivery', 'speedy_econt_shipping') ?>" : "";
-                customPrice = price + ' ' + currencySymbol + suffix;
+                const suffix = deliveryPrice > 0 ? " + " + deliveryMsg : "";
+                customPrice = price.toFixed(2) + ' ' + currencySymbol + suffix;
             <?php } ?>
-            setTimeout(function(){  setCustomShippingPrice(customPrice); }, 1000);
+            setTimeout(function(){
+                setCustomShippingPrice(customPrice);
+                runTillFreeMsgTimer();
+                // do the focusing only once
+                setFocusedTimer();
+            }, 500);
         }
 
         function onChangePhoneNumber(){
@@ -339,6 +345,7 @@ add_action( 'wp_head', function () {
             let tillFreeMsgShown = setInterval(function () {
                 if (jQuery('div#deliv_msg').first().text()) {
                     clearInterval(tillFreeMsgShown);
+                    return;
                 }
                 showTillFreeDeliveryMsg();
             }, 500); // run every 500ms
@@ -383,6 +390,7 @@ add_action( 'wp_head', function () {
             let fieldFocused = setInterval(function () {
                 if (isFocused) {
                     clearInterval(fieldFocused);
+                    return;
                 }
                 isFocused = true;
                 jQuery("#billing_first_name").focus();
@@ -393,6 +401,7 @@ add_action( 'wp_head', function () {
             let priceManipulated = setInterval(function () {
                 if (originalOrderPrice === orderPrice()) {
                     clearInterval(priceManipulated);
+                    return;
                 }
                 originalOrderPrice = orderPrice();
                 changeFinalPriceElem();
@@ -402,24 +411,17 @@ add_action( 'wp_head', function () {
         }
 
         jQuery( document ).ajaxComplete(function() {
-            // do the focusing only once
-            setFocusedTimer();
-            // this way we avoid addition of shipping pricxe over and over again
-            // but it also prevents addons plugins from adding their part of the price
-            // Ok for now, might be fixed if I start getting complains
             <?php if (!isCalculateFinalPrice()) { ?>
             priceManipulationsTimer();
             <?php } else { ?>
-            changeFinalPriceElem();
             populateDeliveryOptions();
-            runTillFreeMsgTimer();
+            changeFinalPriceElem();
             <?php } ?>
         });
 
         jQuery( document ).ready(function() {
             changeFinalPriceElem();
             populateDeliveryOptions();
-            runTillFreeMsgTimer();
 
             // populate the offices data once DOM is loaded - it is happening later that onReady() is fired
             let regionExists = setInterval(function() {
@@ -462,7 +464,6 @@ add_action( 'wp_head', function () {
                 changeFinalPriceElem();
             });
 
-            showTillFreeDeliveryMsg();
             jQuery('<?php echo $shipping_to_sel; ?>').change(onDeliveryOptionChange);
             enabledOptionsNoAddress.forEach(function(key) {
                 processPopulatedData(key);
