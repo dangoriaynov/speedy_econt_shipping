@@ -79,6 +79,7 @@ add_action( 'wp_head', function () {
         let isFree = false;
         let isFocused = false;
         let delivOptionChosen;
+        let isTillFreeMsgUpdated = false;
 
         function isCartPage() {
             return jQuery(".cart-contents .woocommerce-Price-amount.amount").length > 0;
@@ -124,11 +125,13 @@ add_action( 'wp_head', function () {
         function showTillFreeDeliveryMsg() {
             if (! '<?php echo showStoreMessages(); ?>'.includes(delivOptionChosen.name) || Math.abs(orderPrice()) < 1e-10) {
                 jQuery("#deliv_msg").remove();
+                isTillFreeMsgUpdated = true;
                 return;
             }
             // don't do anything if unable to calculate the amount left till free shipping
             if (isNaN(orderPrice())) {
                 jQuery("#deliv_msg").remove();
+                isTillFreeMsgUpdated = true;
                 return;
             }
             const msgContainer = jQuery('div#deliv_msg');
@@ -156,6 +159,7 @@ add_action( 'wp_head', function () {
             }
             msgDiv.html(msg);
             msgDiv.show();
+            isTillFreeMsgUpdated = msgDiv.length > 0;
         }
 
         function isFreeDelivery(option) {
@@ -342,8 +346,9 @@ add_action( 'wp_head', function () {
 
         function runTillFreeMsgTimer() {
             // doing this since msg div is not populated on 1 run - we need to control this
+            isTillFreeMsgUpdated = false;
             let tillFreeMsgShown = setInterval(function () {
-                if (jQuery('div#deliv_msg').first().text()) {
+                if (isTillFreeMsgUpdated) {
                     clearInterval(tillFreeMsgShown);
                     return;
                 }
@@ -392,8 +397,9 @@ add_action( 'wp_head', function () {
                     clearInterval(fieldFocused);
                     return;
                 }
-                isFocused = true;
-                jQuery("#billing_first_name").focus();
+                const first_name = jQuery("#billing_first_name");
+                first_name.focus();
+                isFocused = first_name.is(":focus");
             }, 500); // run every 500ms
         }
 
