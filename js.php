@@ -74,15 +74,44 @@ add_action( 'wp_head', function () {
             enabledOptionsNoAddress[idx] = val;
             idx++;
         }
-        let originalOrderPrice = orderPrice().toFixed(2);
+        let originalOrderPrice = 0;
         let pricesCopy = {};
         let isFree = false;
         let isFocused = false;
         let delivOptionChosen;
 
+        function isCartPage() {
+            return jQuery(".cart-contents .woocommerce-Price-amount.amount").length > 0;
+        }
+
+        function isOrderPage() {
+            return jQuery(".order-total .woocommerce-Price-amount.amount").length > 0;
+        }
+
+        function getPriceClass() {
+            if (isCartPage()) {
+                return ".cart-contents";
+            }
+            if (isOrderPage()) {
+                return ".order-total";
+            }
+            console.log("Unable to get final order price from the page");
+            return NaN;
+        }
+
         function orderPrice() {
-            return parseFloat(jQuery(".cart-contents .woocommerce-Price-amount.amount").last().text().replace(",", ".")
-                || jQuery(".order-total .woocommerce-Price-amount.amount").last().text().replace(",", "."));
+            return parseFloat(jQuery(getPriceClass() + " .woocommerce-Price-amount.amount").last().text().replace(",", "."));
+        }
+
+        function setCustomShippingPrice(customPrice) {
+            let origPriceElem = jQuery(getPriceClass() + " .woocommerce-Price-amount.amount").last();
+            origPriceElem.hide();
+            let customPriceElem = jQuery("#custom_price");
+            if (customPriceElem.length === 0) {
+                origPriceElem.before('<span id="custom_price" class="woocommerce-Price-amount amount">'+customPrice+'</span>');
+            } else {
+                customPriceElem.text(customPrice);
+            }
         }
 
         function doShippingPricesCopy() {
@@ -93,12 +122,12 @@ add_action( 'wp_head', function () {
         }
 
         function showTillFreeDeliveryMsg() {
-            if (! '<?php echo showStoreMessages(); ?>'.includes(delivOptionChosen.name) || Math.abs(originalOrderPrice) < 1e-10) {
+            if (! '<?php echo showStoreMessages(); ?>'.includes(delivOptionChosen.name) || Math.abs(orderPrice()) < 1e-10) {
                 jQuery("#deliv_msg").remove();
                 return;
             }
             // don't do anything if unable to calculate the amount left till free shipping
-            if (isNaN(originalOrderPrice)) {
+            if (isNaN(orderPrice())) {
                 jQuery("#deliv_msg").remove();
                 return;
             }
@@ -118,7 +147,7 @@ add_action( 'wp_head', function () {
                 msg = '<?php _e('Congrats, you won free delivery using', 'speedy_econt_shipping'); ?> '+labelBold+'!';
             } else if (parseFloat(delivOptionChosen.free_from) !== -1) {
                 msgDiv.addClass("woocommerce-error");
-                const leftTillFree = parseFloat(delivOptionChosen.free_from) - parseFloat(originalOrderPrice);
+                const leftTillFree = parseFloat(delivOptionChosen.free_from) - orderPrice();
                 msg = '<?php _e('Still left', 'speedy_econt_shipping'); ?> <span class="woocommerce-Price-amount amount">'+leftTillFree.toFixed(2)+'&nbsp;<span class="woocommerce-Price-currencySymbol">'+currencySymbol+'</span></span> <?php _e('to get a free shipping to', 'speedy_econt_shipping')?> '+labelBold+'! <a class="button" href="'+shopUrl+'"><?php _e('To shop', 'speedy_econt_shipping') ?></a>';
             } else {
                 msgDiv.addClass("woocommerce-error");
@@ -130,7 +159,7 @@ add_action( 'wp_head', function () {
         }
 
         function isFreeDelivery(option) {
-            return parseFloat(option.free_from) !== -1 && parseFloat(originalOrderPrice) >= parseFloat(option.free_from);
+            return parseFloat(option.free_from) !== -1 && orderPrice() >= parseFloat(option.free_from);
         }
 
         function calculateDeliveryPrice(option) {
@@ -190,17 +219,21 @@ add_action( 'wp_head', function () {
 
         function changeFinalPrice() {
             const deliveryPrice = pricesCopy[delivOptionChosen.id];
-            let elemText;
+            let price = orderPrice();
+            if (isNaN(price)) {
+                return;
+            }
+            let customPrice;
             <?php if (isCalculateFinalPrice()) { ?>
                 jQuery(".cart-subtotal th").last().text('<?php _e('delivery', 'speedy_econt_shipping') ?>');
                 const delivPrice = deliveryPrice + ' ' + currencySymbol;
                 jQuery("<?php echo getDeliveryPriceSelector(); ?>").last().text(delivPrice);
-                elemText = (parseFloat(originalOrderPrice) + parseFloat(deliveryPrice)).toFixed(2) + ' ' + currencySymbol;
+                customPrice = (price + parseFloat(deliveryPrice)).toFixed(2) + ' ' + currencySymbol;
             <?php } else { ?>
                 const suffix = deliveryPrice > 0 ? " + <?php _e('delivery', 'speedy_econt_shipping') ?>" : "";
-                elemText = originalOrderPrice + ' ' + currencySymbol + suffix;
+                customPrice = price + ' ' + currencySymbol + suffix;
             <?php } ?>
-            jQuery(".order-total  .woocommerce-Price-amount.amount").last().text(elemText);
+            setTimeout(function(){  setCustomShippingPrice(customPrice); }, 1000);
         }
 
         function onChangePhoneNumber(){
@@ -358,10 +391,10 @@ add_action( 'wp_head', function () {
 
         function priceManipulationsTimer() {
             let priceManipulated = setInterval(function () {
-                if (originalOrderPrice == orderPrice().toFixed(2)) {
+                if (originalOrderPrice === orderPrice()) {
                     clearInterval(priceManipulated);
                 }
-                originalOrderPrice = orderPrice().toFixed(2);
+                originalOrderPrice = orderPrice();
                 changeFinalPriceElem();
                 populateDeliveryOptions();
                 runTillFreeMsgTimer();
@@ -384,7 +417,6 @@ add_action( 'wp_head', function () {
         });
 
         jQuery( document ).ready(function() {
-            originalOrderPrice = orderPrice().toFixed(2);
             changeFinalPriceElem();
             populateDeliveryOptions();
             runTillFreeMsgTimer();
