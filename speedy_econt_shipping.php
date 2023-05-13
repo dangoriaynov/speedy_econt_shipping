@@ -6,8 +6,8 @@
  * Author:            Dan Goriaynov
  * Author URI:        https://github.com/dangoriaynov
  * Plugin URI:        https://github.com/dangoriaynov/speedy_econt_shipping
- * Version:           1.10.2
- * WC tested up to:   6.1
+ * Version:           1.11.1
+ * WC tested up to:   6.2
  * License:           GNU General Public License, version 2
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.en.html
  * Domain Path:       /languages/
@@ -420,7 +420,8 @@ function sesh_custom_override_address_fields($fields): array
 add_filter( 'woocommerce_default_address_fields', 'sesh_custom_override_address_fields' );
 
 function sesh_custom_checkout_field_process() {
-    global $shipping_to_id, $econt_region_id, $econt_city_id, $econt_office_id, $speedy_region_id, $speedy_city_id, $speedy_office_id;
+    global $shipping_to_id, $econt_region_id, $econt_city_id, $econt_office_id, $speedy_region_id, $speedy_city_id,
+           $speedy_office_id;
     $shippingMethod = sanitize_text_field($_POST[$shipping_to_id]);
     if (! $shippingMethod) {
         wc_add_notice( __( 'Delivery method was not chosen. Please choose one.', 'speedy_econt_shipping' ), 'error' );

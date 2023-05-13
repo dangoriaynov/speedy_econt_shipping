@@ -3,8 +3,8 @@ Contributors: winter2007d
 Tags: econt, еконт, speedy, спиди, shipping, bulgaria, bulgaria couriers
 Requires at least: 4.4
 Requires PHP: 7.0
-Tested up to: 6.1
-Stable tag: 1.10.2
+Tested up to: 6.2
+Stable tag: 1.11.1
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Donate link: http://revolut.me/danq6lus
@@ -246,3 +246,19 @@ Fixed unnecessary execution of functions which were invoked by timer
 #### Fixes
 Fixed the refresh logic not working in some cases
 Fixed first name focusing logic
+### 1.10.3 - 2023-03-25
+#### Fixes
+Fixed appearance of 'left till free delivery' message when has just opened the checkout page
+### 1.10.4 - 2023-03-29
+#### Fixes
+Fixed first name field focus on first time checkout page is opened
+Fixed 'free delivery' label not added to the office name (admin only)
+### 1.11.0 - 2023-04-18
+#### Fixes
+Improved handing of the ajax price refresh on the checkout page
+Compatible with WP version 6.2
+### 1.11.1 - 2023-05-14
+#### Fixes
+Made no focusing on the first name field if it already has a value
+Hidden delivery details from the cart page
+Preventing scroll to top on cart contents update (left till free delivery re-calculation)

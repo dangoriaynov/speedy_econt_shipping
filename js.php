@@ -8,7 +8,15 @@ require 'utils.php';
 require_once 'SeshSpeedyEcontShippingAdmin.php';
 
 add_action( 'wp_head', function () {
-    // works only on 'checkout' page
+    global $delivery_details_default;
+    # works on 'cart' page only
+    if (is_page( 'cart' ) || is_cart()) { ?>
+        <script>
+            jQuery( document ).ready(function() {
+                jQuery(".woocommerce-shipping-totals.shipping").html('<?php echo getDeliveryDetailsCartHtml(); ?>');
+            });
+        </script>
+    <?php } // works only on 'checkout' page
     if (! (is_page( 'checkout' ) || is_checkout())) {
         return;
     }
@@ -76,10 +84,9 @@ add_action( 'wp_head', function () {
         }
         let originalOrderPrice = 0;
         let pricesCopy = {};
-        let isFree = false;
-        let isFocused = false;
         let delivOptionChosen;
         let isTillFreeMsgUpdated = false;
+        let priceVarManipulatedTimes = 0;
 
         function isCartPage() {
             return jQuery(".cart-contents .woocommerce-Price-amount.amount").length > 0;
@@ -149,11 +156,12 @@ add_action( 'wp_head', function () {
                 msgDiv.addClass("woocommerce-message");
                 msg = '<?php _e('Congrats, you won free delivery using', 'speedy_econt_shipping'); ?> '+labelBold+'!';
             } else if (parseFloat(delivOptionChosen.free_from) !== -1) {
-                msgDiv.addClass("woocommerce-error");
+                msgDiv.addClass("woocommerce-message");
+                msgDiv.css("background-color","#e2401c");
                 const leftTillFree = parseFloat(delivOptionChosen.free_from) - orderPrice();
                 msg = '<?php _e('Still left', 'speedy_econt_shipping'); ?> <span class="woocommerce-Price-amount amount">'+leftTillFree.toFixed(2)+'&nbsp;<span class="woocommerce-Price-currencySymbol">'+currencySymbol+'</span></span> <?php _e('to get a free shipping to', 'speedy_econt_shipping')?> '+labelBold+'! <a class="button" href="'+shopUrl+'"><?php _e('To shop', 'speedy_econt_shipping') ?></a>';
             } else {
-                msgDiv.addClass("woocommerce-error");
+                msgDiv.addClass("woocommerce-message");
                 msgDiv.css("background-color","darkgray");
                 msg = '<?php _e('Sorry, these is no free shipping available for the option chosen: ', 'speedy_econt_shipping'); ?> '+labelBold+'!';
             }
@@ -241,8 +249,6 @@ add_action( 'wp_head', function () {
             setTimeout(function(){
                 setCustomShippingPrice(customPrice);
                 runTillFreeMsgTimer();
-                // do the focusing only once
-                setFocusedTimer();
             }, 500);
         }
 
@@ -290,13 +296,14 @@ add_action( 'wp_head', function () {
             });
         }
 
-        function getFreeLabel() {
-            return isFree ? " - <?php _e('for free', 'speedy_econt_shipping') ?>" : "";
+        function getFreeLabel(delivOpt) {
+            return isFreeDelivery(delivOpt) ? " - <?php _e('for free', 'speedy_econt_shipping') ?>" : "";
         }
 
         function officeValueChange(key, value) {
             if (value) {
-                value = delivOptions[key].label + getFreeLabel() + ": " + value;
+                const delivOpt = delivOptions[key];
+                value = delivOpt.label + getFreeLabel(delivOpt) + ": " + value;
             }
             jQuery(locs.address.inner.office).val(value);
         }
@@ -393,21 +400,24 @@ add_action( 'wp_head', function () {
 
         function setFocusedTimer() {
             let fieldFocused = setInterval(function () {
-                if (isFocused) {
+                const first_name = jQuery("#billing_first_name");
+                if (first_name.is(":focus") || first_name.val()) {
                     clearInterval(fieldFocused);
                     return;
                 }
-                const first_name = jQuery("#billing_first_name");
                 first_name.focus();
-                isFocused = first_name.is(":focus");
             }, 500); // run every 500ms
         }
 
         function priceManipulationsTimer() {
+            priceVarManipulatedTimes = 0;
             let priceManipulated = setInterval(function () {
                 if (originalOrderPrice === orderPrice()) {
-                    clearInterval(priceManipulated);
-                    return;
+                    if (priceVarManipulatedTimes > 6) {  // since sometimes dom update is delayed
+                        clearInterval(priceManipulated);
+                        return;
+                    }
+                    priceVarManipulatedTimes++;
                 }
                 originalOrderPrice = orderPrice();
                 changeFinalPriceElem();
@@ -417,17 +427,15 @@ add_action( 'wp_head', function () {
         }
 
         jQuery( document ).ajaxComplete(function() {
-            <?php if (!isCalculateFinalPrice()) { ?>
             priceManipulationsTimer();
-            <?php } else { ?>
-            populateDeliveryOptions();
-            changeFinalPriceElem();
-            <?php } ?>
+            // do the focusing only once
+            setFocusedTimer();
         });
 
         jQuery( document ).ready(function() {
-            changeFinalPriceElem();
-            populateDeliveryOptions();
+            priceManipulationsTimer();
+            // do the focusing only once
+            setFocusedTimer();
 
             // populate the offices data once DOM is loaded - it is happening later that onReady() is fired
             let regionExists = setInterval(function() {

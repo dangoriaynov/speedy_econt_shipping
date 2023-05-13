@@ -230,6 +230,14 @@ class SeshSpeedyEcontShippingAdmin {
         );
 
         add_settings_field(
+            'delivery_details_cart_15', // id
+            __('Is email field required?', 'speedy_econt_shipping'), // title
+            array( $this, 'delivery_details_cart_15_callback' ), // callback
+            'speedy-econt-shipping-admin', // page
+            'speedy_econt_shipping_setting_section' // section
+        );
+
+        add_settings_field(
             'repopulate_tables_7', // id
             __('Force re-populate tables', 'speedy_econt_shipping'), // title
             array( $this, 'repopulate_tables_7_callback' ), // callback
@@ -244,7 +252,7 @@ class SeshSpeedyEcontShippingAdmin {
             'econt_free_from_8', 'econt_shipping_9',
             'address_label_12', 'address_free_from_10', 'address_shipping_11',
             'address_fields_3', 'additionally_hidden_fields_03', 'emergency_contact_13', 'shipping_opts_order_14',
-            'delivery_price_selector_14', 'show_store_messages_6');
+            'delivery_price_selector_14', 'show_store_messages_6', 'delivery_details_cart_15');
         $checkboxes = array('enable_speedy_0', 'enable_econt_1', 'enable_address_2', 'email_required_9',
             'show_deliv_opts_6', 'repopulate_tables_7', 'calculate_final_price_8');
         foreach($keys as &$value) {
@@ -396,6 +404,11 @@ class SeshSpeedyEcontShippingAdmin {
         global $delivery_price_selector_default;
         $this->generic_callback('delivery_price_selector_14', 'text', __('delivery price selector', 'speedy_econt_shipping'), $delivery_price_selector_default);
     }
+
+    public function delivery_details_cart_15_callback() {
+        global $delivery_details_default;
+        $this->generic_callback('delivery_details_cart_15', 'text', __('cart\'s delivery details html', 'speedy_econt_shipping'), $delivery_details_default);
+    }
 }
 
 add_action( 'seshForceUpdateHook', 'seshRefreshTableDataAll');
@@ -500,6 +513,11 @@ function isEmailRequired() {
 
 function getEmergencyContactData() {
     return getStoredOption('emergency_contact_13', '');
+}
+
+function getDeliveryDetailsCartHtml() {
+    global $delivery_details_default;
+    return getStoredOption('delivery_details_cart_15_callback', $delivery_details_default);
 }
 
 function getShippingOptionsOrder() : array
