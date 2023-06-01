@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Speedy and Econt Shipping\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-03-15 20:36+0000\n"
+"POT-Creation-Date: 2023-06-01 19:36+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: \n"
@@ -16,8 +16,8 @@ msgstr ""
 "X-Loco-Version: 2.5.5; wp-5.8.2\n"
 "X-Domain: speedy_econt_shipping"
 
-#: SeshSpeedyEcontShippingAdmin.php:314 SeshSpeedyEcontShippingAdmin.php:326
-#: SeshSpeedyEcontShippingAdmin.php:342
+#: SeshSpeedyEcontShippingAdmin.php:330 SeshSpeedyEcontShippingAdmin.php:342
+#: SeshSpeedyEcontShippingAdmin.php:358
 msgid "0 - always free shipping, empty - no free shipping"
 msgstr ""
 
@@ -90,7 +90,7 @@ msgstr ""
 msgid "Additionally hidden checkout fields"
 msgstr ""
 
-#: SeshSpeedyEcontShippingAdmin.php:338
+#: SeshSpeedyEcontShippingAdmin.php:354
 msgid "address"
 msgstr ""
 
@@ -111,15 +111,19 @@ msgstr ""
 msgid "Calculate final price on checkout"
 msgstr ""
 
-#: speedy_econt_shipping.php:369 speedy_econt_shipping.php:397
+#: SeshSpeedyEcontShippingAdmin.php:419
+msgid "cart's delivery details html"
+msgstr ""
+
+#: speedy_econt_shipping.php:386 speedy_econt_shipping.php:414
 msgid "Choose region first"
 msgstr ""
 
-#: speedy_econt_shipping.php:366 speedy_econt_shipping.php:394
+#: speedy_econt_shipping.php:383 speedy_econt_shipping.php:411
 msgid "City"
 msgstr ""
 
-#: js.php:117
+#: js.php:166
 msgid "Congrats, you won free delivery using"
 msgstr ""
 
@@ -127,15 +131,20 @@ msgstr ""
 msgid "Dan Goriaynov"
 msgstr ""
 
-#: js.php:194 js.php:199
+#: js.php:248
 msgid "delivery"
 msgstr ""
 
-#: speedy_econt_shipping.php:430 speedy_econt_shipping.php:434
+#. id
+#: SeshSpeedyEcontShippingAdmin.php:234
+msgid "Delivery details cart text"
+msgstr ""
+
+#: speedy_econt_shipping.php:448 speedy_econt_shipping.php:452
 msgid "Delivery details were not populated. Please fill them in."
 msgstr ""
 
-#: speedy_econt_shipping.php:426
+#: speedy_econt_shipping.php:444
 msgid "Delivery method was not chosen. Please choose one."
 msgstr ""
 
@@ -144,23 +153,23 @@ msgstr ""
 msgid "Delivery price selector"
 msgstr ""
 
-#: SeshSpeedyEcontShippingAdmin.php:397
+#: SeshSpeedyEcontShippingAdmin.php:414
 msgid "delivery price selector"
 msgstr ""
 
-#: speedy_econt_shipping.php:345
+#: speedy_econt_shipping.php:362
 msgid "Delivery to"
 msgstr ""
 
-#: SeshSpeedyEcontShippingAdmin.php:306 SeshSpeedyEcontShippingAdmin.php:310
+#: SeshSpeedyEcontShippingAdmin.php:322 SeshSpeedyEcontShippingAdmin.php:326
 msgid "digit value like: 123456"
 msgstr ""
 
-#: utils.php:68
+#: utils.php:69
 msgid "Econt office"
 msgstr ""
 
-#: SeshSpeedyEcontShippingAdmin.php:387
+#: SeshSpeedyEcontShippingAdmin.php:404
 msgid "emergency contact to show in case of error"
 msgstr ""
 
@@ -179,16 +188,16 @@ msgstr ""
 msgid "Enable `To Address` shipping method"
 msgstr ""
 
-#: speedy_econt_shipping.php:42
+#: speedy_econt_shipping.php:45
 msgid "Following delivery method is not working: "
 msgstr ""
 
-#: js.php:145 js.php:250 speedy_econt_shipping.php:494
+#: js.php:196 js.php:309 speedy_econt_shipping.php:512
 msgid "for free"
 msgstr ""
 
 #. id
-#: SeshSpeedyEcontShippingAdmin.php:234
+#: SeshSpeedyEcontShippingAdmin.php:242
 msgid "Force re-populate tables"
 msgstr ""
 
@@ -215,21 +224,21 @@ msgstr ""
 msgid "List of `To address` shipping fields"
 msgstr ""
 
-#: SeshSpeedyEcontShippingAdmin.php:359
+#: SeshSpeedyEcontShippingAdmin.php:375
 msgid "list of delivery options to show the message for"
 msgstr ""
 
-#: speedy_econt_shipping.php:360 speedy_econt_shipping.php:388
+#: speedy_econt_shipping.php:377 speedy_econt_shipping.php:405
 msgid "Make your choice"
 msgstr ""
 
-#: speedy_econt_shipping.php:359 speedy_econt_shipping.php:368
-#: speedy_econt_shipping.php:377 speedy_econt_shipping.php:387
-#: speedy_econt_shipping.php:396 speedy_econt_shipping.php:405
+#: speedy_econt_shipping.php:376 speedy_econt_shipping.php:385
+#: speedy_econt_shipping.php:394 speedy_econt_shipping.php:404
+#: speedy_econt_shipping.php:413 speedy_econt_shipping.php:422
 msgid "nothing loaded"
 msgstr ""
 
-#: speedy_econt_shipping.php:375 speedy_econt_shipping.php:403
+#: speedy_econt_shipping.php:392 speedy_econt_shipping.php:420
 msgid "Office"
 msgstr ""
 
@@ -244,11 +253,11 @@ msgstr ""
 msgid "Order of delivery options"
 msgstr ""
 
-#: speedy_econt_shipping.php:43
+#: speedy_econt_shipping.php:46
 msgid "Please contact us to place your order and get it fixed"
 msgstr ""
 
-#: speedy_econt_shipping.php:357 speedy_econt_shipping.php:385
+#: speedy_econt_shipping.php:374 speedy_econt_shipping.php:402
 msgid "Region"
 msgstr ""
 
@@ -257,7 +266,7 @@ msgstr ""
 msgid "Settings"
 msgstr ""
 
-#: SeshSpeedyEcontShippingAdmin.php:392
+#: SeshSpeedyEcontShippingAdmin.php:409
 msgid "shipping options order"
 msgstr ""
 
@@ -271,7 +280,7 @@ msgstr ""
 msgid "Show store messages for"
 msgstr ""
 
-#: js.php:125
+#: js.php:175
 msgid "Sorry, these is no free shipping available for the option chosen: "
 msgstr ""
 
@@ -281,7 +290,7 @@ msgstr ""
 msgid "Speedy & Econt shipping"
 msgstr ""
 
-#: SeshSpeedyEcontShippingAdmin.php:405
+#: SeshSpeedyEcontShippingAdmin.php:427
 msgid "Speedy and Econt data refresh was started."
 msgstr ""
 
@@ -289,22 +298,22 @@ msgstr ""
 msgid "Speedy and Econt Shipping"
 msgstr ""
 
-#: utils.php:64
+#: utils.php:65
 msgid "Speedy office"
 msgstr ""
 
-#: js.php:121
+#: js.php:171
 msgid "Still left"
 msgstr ""
 
-#: speedy_econt_shipping.php:495
+#: speedy_econt_shipping.php:513
 msgid "to"
 msgstr ""
 
-#: js.php:121
+#: js.php:171
 msgid "to get a free shipping to"
 msgstr ""
 
-#: js.php:121
+#: js.php:171
 msgid "To shop"
 msgstr ""

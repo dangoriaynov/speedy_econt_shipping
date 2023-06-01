@@ -11,7 +11,7 @@ $speedy_offices_table = 'speedy_offices';
 $econt_offices_table = 'econt_offices';
 $speedy_sites_table = 'speedy_sites';
 $econt_sites_table = 'econt_sites';
-$sesh_db_version = '1.2';
+$sesh_db_version = '1.3';
 $queries = array();
 $econt_offices_inserted = array();
 $econt_sites_inserted = array();
@@ -28,8 +28,7 @@ function seshCreateTables() {
       name text NOT NULL,
       region text NOT NULL,
       municipality text NOT NULL,
-      is_prod BOOLEAN default FALSE,
-      PRIMARY KEY  (id)
+      is_prod BOOLEAN default FALSE
     ) $charset_collate;";
     dbDelta( $sql );
 
@@ -38,8 +37,7 @@ function seshCreateTables() {
       name text NOT NULL,
       city text NOT NULL,
       address text NOT NULL,
-      is_prod BOOLEAN default FALSE,
-      PRIMARY KEY  (id)
+      is_prod BOOLEAN default FALSE
     ) $charset_collate;";
     dbDelta( $sql );
 
@@ -48,8 +46,7 @@ function seshCreateTables() {
       name text NOT NULL,
       region text NOT NULL,
       municipality text NOT NULL,
-      is_prod BOOLEAN default FALSE,
-      PRIMARY KEY  (id)
+      is_prod BOOLEAN default FALSE
     ) $charset_collate;";
     dbDelta( $sql );
 
@@ -58,22 +55,12 @@ function seshCreateTables() {
       name text NOT NULL,
       city text NOT NULL,
       address text NOT NULL,
-      is_prod BOOLEAN default FALSE,
-      PRIMARY KEY  (id)
+      is_prod BOOLEAN default FALSE
     ) $charset_collate;";
     dbDelta( $sql );
 
     add_option( 'sesh_db_version', $sesh_db_version );
 }
-
-function seshUpdateCheck() {
-    global $sesh_db_version;
-    if (get_site_option( 'sesh_db_version' ) != $sesh_db_version) {
-        seshDropTables();
-        seshFillInitialData();
-    }
-}
-add_action( 'plugins_loaded', 'seshUpdateCheck' );
 
 function clearQueries() {
     global $queries, $econt_offices_inserted, $econt_sites_inserted, $speedy_offices_inserted, $speedy_sites_inserted;
@@ -100,9 +87,14 @@ function executeQueries() {
     try {
         // do the whole run as 1 transaction
         $queries_str = "BEGIN; ".implode('; ', $queries)."; COMMIT;";
-//        write_log("Will run: ".$queries_str);
+        // write_log("Will run: ".$queries_str);
         mysqli_multi_query($connect, $queries_str);
     } finally {
+        // Check for errors
+        if ($wpdb->last_error !== '') {
+            // Log the error message
+            write_log("Database error: " . $wpdb->last_error);
+        }
         while(mysqli_more_results($connect)){mysqli_next_result($connect);}
         clearQueries();
     }
@@ -113,7 +105,7 @@ function seshDropTables() {
     foreach (array($speedy_sites_table, $speedy_offices_table, $econt_sites_table, $econt_offices_table) as $table_name) {
         $wpdb->query("DROP TABLE IF EXISTS " . $wpdb->prefix . $table_name);
     }
-    delete_option("jal_db_version");
+    delete_option("sesh_db_version");
 }
 
 function for_sql($value) : string {

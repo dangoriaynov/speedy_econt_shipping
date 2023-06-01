@@ -231,7 +231,7 @@ class SeshSpeedyEcontShippingAdmin {
 
         add_settings_field(
             'delivery_details_cart_15', // id
-            __('Is email field required?', 'speedy_econt_shipping'), // title
+            __('Delivery details cart text', 'speedy_econt_shipping'), // title
             array( $this, 'delivery_details_cart_15_callback' ), // callback
             'speedy-econt-shipping-admin', // page
             'speedy_econt_shipping_setting_section' // section
@@ -252,13 +252,21 @@ class SeshSpeedyEcontShippingAdmin {
             'econt_free_from_8', 'econt_shipping_9',
             'address_label_12', 'address_free_from_10', 'address_shipping_11',
             'address_fields_3', 'additionally_hidden_fields_03', 'emergency_contact_13', 'shipping_opts_order_14',
-            'delivery_price_selector_14', 'show_store_messages_6', 'delivery_details_cart_15');
+            'delivery_price_selector_14', 'show_store_messages_6');
         $checkboxes = array('enable_speedy_0', 'enable_econt_1', 'enable_address_2', 'email_required_9',
             'show_deliv_opts_6', 'repopulate_tables_7', 'calculate_final_price_8');
         foreach($keys as &$value) {
             if ( isset( $input[$value] ) ) {
                 $sanitary_values[$value] = sanitize_text_field( $input[$value] );
             }
+        }
+        $allowed_html = array(
+            'th' => array(),
+            'td' => array(),
+        );
+        $html_value = 'delivery_details_cart_15';
+        if ( isset( $input[$html_value] ) ) {
+            $sanitary_values[$html_value] = wp_kses($input[$html_value], $allowed_html);
         }
         foreach($checkboxes as &$value) {
             $sanitary_values[$value] = isset( $input[$value] );  # set true or false
@@ -378,6 +386,7 @@ class SeshSpeedyEcontShippingAdmin {
             write_log("tables re-population was forced!");
             $wpdb->query("UPDATE ".$wpdb->prefix."OPTIONS SET OPTION_VALUE = REPLACE(OPTION_VALUE, '\"".$name."\";b:1', '\"".$name."\";b:0') WHERE OPTION_NAME = 'speedy_econt_shipping_option_name';");
             wp_schedule_single_event( time(), 'seshForceUpdateHook' );  // force populate tables now
+            write_log("seshForceUpdateHook scheduled");
             add_action( 'admin_notices', 'seshWarnDataRefresh' );
         }
         echo '<input type="checkbox" id="'.$name.'" name="speedy_econt_shipping_option_name['.$name.']" value="1" />';
