@@ -49,7 +49,6 @@ $shipping_to_address_key = 'shipping_to_address';
 
 $speedy_opt_key = 'speedy';
 $econt_opt_key = 'econt';
-$insert_edge = 0.9;
 $address_label = 'address';
 $shipping_opts_order_default = implode(',', array($speedy_opt_key, $econt_opt_key, $address_label));
 $delivery_price_selector_default = '.cart-subtotal .woocommerce-Price-amount.amount';

@@ -6,7 +6,7 @@
  * Author:            Dan Goriaynov
  * Author URI:        https://github.com/dangoriaynov
  * Plugin URI:        https://github.com/dangoriaynov/speedy_econt_shipping
- * Version:           1.11.1
+ * Version:           1.12.0
  * WC tested up to:   6.2
  * License:           GNU General Public License, version 2
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.en.html
@@ -28,13 +28,16 @@ require 'css.php';
 
 global $keepCase;
 $keepCase = ['Столица' => 'столица', 'Ул.' => 'ул.', 'Ту ' => 'ТУ '];
-
-class UpgradeRunner {
-    public static $isUpgradeInProgress = false;
-}
+global $globalVarsGenerated;
+$globalVarsGenerated = [];
 
 
 function seshGenerateJsVar($sitesTable, $officesTable, $varName, $key) {
+    global $globalVarsGenerated;
+    if (in_array($varName, $globalVarsGenerated)) {
+        // already loaded these values in the page
+        return;
+    }
     $sitesDB = seshReadTableData($sitesTable, "name");
     $officesDB = seshReadTableData($officesTable, "name");
     if (empty($sitesDB) || empty($officesDB)) {
@@ -79,6 +82,7 @@ function seshGenerateJsVar($sitesTable, $officesTable, $varName, $key) {
     }
     setlocale(LC_COLLATE, 'bg_BG.utf8');
     uksort($data,'strcoll');
+    $globalVarsGenerated[] = $varName;
     ?><script>
         const <?php echo $varName.'='.json_encode($data); ?>;
     </script><?php
@@ -86,7 +90,7 @@ function seshGenerateJsVar($sitesTable, $officesTable, $varName, $key) {
 
 function seshInsertSpeedyTableData(): bool
 {
-    global $keepCase, $speedy_sites_table, $speedy_offices_table, $insert_edge;
+    global $keepCase, $speedy_sites_table, $speedy_offices_table;
     $officesAddedAmt = 0;
     $speedy_sites_added = array();
     $offices = seshApiSpeedyOfficesList();
@@ -121,7 +125,7 @@ function seshInsertSpeedyTableData(): bool
         $offices_to_insert[] = array('id' => $id, 'name' => $name, 'site' => $site_name, 'address' => $address);
     }
 
-    $permit_upgrade = seshIsPermitUpgrade($speedy_sites_table, $speedy_offices_table, $speedy_sites_added, $officesAddedAmt, $insert_edge);
+    $permit_upgrade = seshIsPermitUpgrade($speedy_sites_table, $speedy_offices_table, sizeof($speedy_sites_added), $officesAddedAmt);
     if ($permit_upgrade) {
         // insert only if we plan to proceed with the upgrade
         foreach ($offices_to_insert as $office) {
@@ -136,7 +140,7 @@ function seshInsertSpeedyTableData(): bool
 
 function seshInsertEcontTableData(): bool
 {
-    global $keepCase, $econt_sites_table, $econt_offices_table, $insert_edge;
+    global $keepCase, $econt_sites_table, $econt_offices_table;
     $officesAddedAmt = 0;
     $econt_sites_added = array();
     $sites_with_offices = array();
@@ -171,7 +175,7 @@ function seshInsertEcontTableData(): bool
         seshInsertEcontSite($city_id, $city_name, $region_name);
         $sites_to_insert[] = array('id' =>$city_id, 'name' => $city_name, 'region' => $region_name);
     }
-    $permit_upgrade = seshIsPermitUpgrade($econt_sites_table, $econt_offices_table, $econt_sites_added, $officesAddedAmt, $insert_edge);
+    $permit_upgrade = seshIsPermitUpgrade($econt_sites_table, $econt_offices_table, sizeof($econt_sites_added), $officesAddedAmt);
     if ($permit_upgrade) {
         // insert only if we plan to proceed with the upgrade
         foreach ($offices_to_insert as $office) {
@@ -184,15 +188,12 @@ function seshInsertEcontTableData(): bool
     return $permit_upgrade;
 }
 
-function seshIsPermitUpgrade(string $sites_table, string $offices_table, array $sites_added, int $offices_added_amt, float $insert_edge): bool
+function seshIsPermitUpgrade(string $sites_table, string $offices_table, int $sites_added_amt, int $offices_added_amt): bool
 {
-    $sitesDB = seshReadTableData($sites_table);
-    $officesDB = seshReadTableData($offices_table);
-    $sitesSize = sizeof($sitesDB) > 0 ? sizeof($sitesDB) : 1;
-    $officesSize = sizeof($officesDB) > 0 ? sizeof($officesDB) : 1;
-    // this way we prevent cleaning up the tables if smth goes wrong
-    $result = sizeof($sites_added) / $sitesSize >= $insert_edge && $offices_added_amt / $officesSize >= $insert_edge;
-    write_log("seshIsPermitUpgrade: sites_table=$sites_table, sites_added=".sizeof($sites_added).", DB size=".$sitesSize.", offices_added=$offices_added_amt, DB size=$officesSize, result=$result");
+    $sitesInDB = sizeof(seshReadTableData($sites_table));
+    $officesInDB = sizeof(seshReadTableData($offices_table));
+    $result = $sites_added_amt > 0 && $offices_added_amt > 0;
+    write_log("seshIsPermitUpgrade: table=$sites_table, sites_added=$sites_added_amt, sitesInDB=$sitesInDB, offices_added=$offices_added_amt, officesInDB=$officesInDB, will proceed=$result");
     return $result;
 }
 
@@ -244,14 +245,18 @@ function seshRefreshEcontData() {
 }
 
 function seshRefreshTableData($keys) {
-    if (UpgradeRunner::$isUpgradeInProgress || count($keys) === 0) {
+    if (count($keys) === 0) {
+        return;
+    }
+    if (get_transient('sesh_upgrade_running')) {
+        write_log("seshRefreshTableData: cancelling new upgrade since it it already running");
         return;
     }
     try {
-        UpgradeRunner::$isUpgradeInProgress = true;
+        set_transient('sesh_upgrade_running', true, 10 * MINUTE_IN_SECONDS);
         foreach ($keys as $key) {
             if (! seshInsertOfficesData($key) ) {
-                write_log("Didn't insert any data for $key");
+                write_log("seshRefreshTableData: Didn't insert any data for $key");
                 continue;
             }
             seshTruncateTables($key, true);
@@ -262,7 +267,7 @@ function seshRefreshTableData($keys) {
     } finally {
         // rollback all the pending DB operations
         clearQueries();
-        UpgradeRunner::$isUpgradeInProgress = false;
+        set_transient('sesh_upgrade_running', true, MINUTE_IN_SECONDS);
     }
 }
 
@@ -283,6 +288,7 @@ add_action( 'woocommerce_before_checkout_form', 'seshPrintCheckoutPageData', 10 
 
 function seshSetupDailyRun() {
     if (! wp_next_scheduled( 'seshDailyDbHook' ) ) {
+        write_log("seshDailyDbHook scheduled");
         wp_schedule_event( strtotime('03:05:00'), 'daily', 'seshDailyDbHook');
     }
 }
@@ -292,17 +298,27 @@ add_action( 'seshSpeedyEcontUpdateDbHook', 'seshRefreshTableDataAll' );
 add_action( 'seshDailyDbHook', 'seshRefreshTableDataAll' );
 
 function seshScheduleImmediateDataRefresh() {
+    $hookName = '';
     if (isSpeedyEnabled() && !empty(getSpeedyUser()) && !empty(getSpeedyPass())) {
-        wp_schedule_single_event( time(), 'seshSpeedyEcontUpdateDbHook' );  // try to populate all tables
+        $hookName = 'seshSpeedyEcontUpdateDbHook';
     } else if (isEcontEnabled()) {
-        wp_schedule_single_event( time(), 'seshEcontUpdateDbHook' );  // try to populate Econt tables only
+        $hookName = 'seshEcontUpdateDbHook';
+    }
+    if ($hookName != '' && ! wp_next_scheduled( $hookName ) ) {
+        write_log($hookName." scheduled");
+        wp_schedule_single_event(time(), $hookName);
     }
 }
 
 function seshFillInitialData() {
+    write_log("seshFillInitialData started");
+    global $sesh_db_version;
+    if (get_site_option( 'sesh_db_version' ) != $sesh_db_version) {
+        seshDropTables();
+    }
     seshCreateTables();
     seshScheduleImmediateDataRefresh();
-    seshSetupDailyRun();  // do the table re-population every day
+    seshSetupDailyRun();  // do the tables re-population every day
 }
 register_activation_hook( __FILE__, 'seshFillInitialData' );
 
@@ -311,6 +327,7 @@ function seshDeactivateDailyDataRefresh() {
     wp_clear_scheduled_hook( 'seshSpeedyEcontUpdateDbHook' );
     wp_clear_scheduled_hook( 'seshDailyDbHook' );
     seshDropTables();
+    write_log("hooks deactivated");
 }
 register_deactivation_hook( __FILE__, 'seshDeactivateDailyDataRefresh' );
 

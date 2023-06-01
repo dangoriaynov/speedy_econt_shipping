@@ -262,3 +262,9 @@ Compatible with WP version 6.2
 Made no focusing on the first name field if it already has a value
 Hidden delivery details from the cart page
 Preventing scroll to top on cart contents update (left till free delivery re-calculation)
+### 1.12.0 - 2023-06-01
+#### Fixes
+Fixed name of delivery html option
+Fixed escaping for the delivery html option
+Fixed offices update logic
+Fixed jQuery loading in case site uses some custom version
