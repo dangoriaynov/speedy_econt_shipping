@@ -230,6 +230,14 @@ class SeshSpeedyEcontShippingAdmin {
         );
 
         add_settings_field(
+            'load_custom_jquery_15', // id
+            __('Load custom jquery (needed in case of js errors on the page)?', 'speedy_econt_shipping'), // title
+            array( $this, 'load_custom_jquery_15_callback' ), // callback
+            'speedy-econt-shipping-admin', // page
+            'speedy_econt_shipping_setting_section' // section
+        );
+
+        add_settings_field(
             'delivery_details_cart_15', // id
             __('Delivery details cart text', 'speedy_econt_shipping'), // title
             array( $this, 'delivery_details_cart_15_callback' ), // callback
@@ -254,7 +262,7 @@ class SeshSpeedyEcontShippingAdmin {
             'address_fields_3', 'additionally_hidden_fields_03', 'emergency_contact_13', 'shipping_opts_order_14',
             'delivery_price_selector_14', 'show_store_messages_6');
         $checkboxes = array('enable_speedy_0', 'enable_econt_1', 'enable_address_2', 'email_required_9',
-            'show_deliv_opts_6', 'repopulate_tables_7', 'calculate_final_price_8');
+            'show_deliv_opts_6', 'repopulate_tables_7', 'calculate_final_price_8', 'load_custom_jquery_15');
         foreach($keys as &$value) {
             if ( isset( $input[$value] ) ) {
                 $sanitary_values[$value] = sanitize_text_field( $input[$value] );
@@ -377,6 +385,10 @@ class SeshSpeedyEcontShippingAdmin {
 
     public function show_deliv_opts_6_callback() {
         $this->checkbox_callback('show_deliv_opts_6', array(), false);
+    }
+
+    public function load_custom_jquery_15_callback() {
+        $this->checkbox_callback('load_custom_jquery_15', array(), false);
     }
 
     public function repopulate_tables_7_callback() {
@@ -518,6 +530,10 @@ function isCalculateFinalPrice() {
 
 function isEmailRequired() {
     return getStoredOption('email_required_9', false);
+}
+
+function isLoadCustomJQuery() {
+    return getStoredOption('load_custom_jquery_15', false);
 }
 
 function getEmergencyContactData() {
