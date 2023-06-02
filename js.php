@@ -11,17 +11,16 @@ add_action( 'wp_head', function () {
     if (is_page( 'cart' ) || is_cart() || is_page( 'checkout' ) || is_checkout()) {
         if (isLoadCustomJQuery()) { ?>
         <script>
-            var script = document.createElement('script');
+            let script = document.createElement('script');
             script.src = 'https://code.jquery.com/jquery-3.6.0.min.js';
             script.onload = function() {
                 let newJQuery = jQuery.noConflict(true);
                 newJQuery(document).ajaxComplete(function() {
-                    priceManipulationsTimer();
+                    if (typeof priceManipulationsTimer === 'function') {priceManipulationsTimer();}
                     // do the focusing only once
-                    setFocusedTimer();
+                    if (typeof setFocusedTimer === 'function') {setFocusedTimer();}
                 });
             };
-
             document.head.appendChild(script);
             (function($) {$.ajaxComplete = function(){};})(jQuery);
         </script>

@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Speedy and Econt Shipping\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-02 18:51+0000\n"
+"POT-Creation-Date: 2023-06-02 19:22+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: \n"
@@ -16,8 +16,8 @@ msgstr ""
 "X-Loco-Version: 2.5.5; wp-5.8.2\n"
 "X-Domain: speedy_econt_shipping"
 
-#: SeshSpeedyEcontShippingAdmin.php:338 SeshSpeedyEcontShippingAdmin.php:350
-#: SeshSpeedyEcontShippingAdmin.php:366
+#: SeshSpeedyEcontShippingAdmin.php:347 SeshSpeedyEcontShippingAdmin.php:359
+#: SeshSpeedyEcontShippingAdmin.php:375
 msgid "0 - always free shipping, empty - no free shipping"
 msgstr ""
 
@@ -90,7 +90,7 @@ msgstr ""
 msgid "Additionally hidden checkout fields"
 msgstr ""
 
-#: SeshSpeedyEcontShippingAdmin.php:362
+#: SeshSpeedyEcontShippingAdmin.php:371
 msgid "address"
 msgstr ""
 
@@ -111,7 +111,7 @@ msgstr ""
 msgid "Calculate final price on checkout"
 msgstr ""
 
-#: SeshSpeedyEcontShippingAdmin.php:431
+#: SeshSpeedyEcontShippingAdmin.php:444
 msgid "cart's delivery details html"
 msgstr ""
 
@@ -123,7 +123,7 @@ msgstr ""
 msgid "City"
 msgstr ""
 
-#: js.php:175
+#: js.php:174
 msgid "Congrats, you won free delivery using"
 msgstr ""
 
@@ -131,16 +131,16 @@ msgstr ""
 msgid "Dan Goriaynov"
 msgstr ""
 
-#: js.php:257
+#: js.php:256
 msgid "delivery"
 msgstr ""
 
 #. id
-#: SeshSpeedyEcontShippingAdmin.php:242
+#: SeshSpeedyEcontShippingAdmin.php:250
 msgid "Delivery details cart text"
 msgstr ""
 
-#: speedy_econt_shipping.php:448 speedy_econt_shipping.php:452
+#: speedy_econt_shipping.php:449 speedy_econt_shipping.php:453
 msgid "Delivery details were not populated. Please fill them in."
 msgstr ""
 
@@ -153,7 +153,7 @@ msgstr ""
 msgid "Delivery price selector"
 msgstr ""
 
-#: SeshSpeedyEcontShippingAdmin.php:426
+#: SeshSpeedyEcontShippingAdmin.php:439
 msgid "delivery price selector"
 msgstr ""
 
@@ -161,15 +161,20 @@ msgstr ""
 msgid "Delivery to"
 msgstr ""
 
-#: SeshSpeedyEcontShippingAdmin.php:330 SeshSpeedyEcontShippingAdmin.php:334
+#: SeshSpeedyEcontShippingAdmin.php:339 SeshSpeedyEcontShippingAdmin.php:343
 msgid "digit value like: 123456"
+msgstr ""
+
+#. id
+#: SeshSpeedyEcontShippingAdmin.php:242
+msgid "Do the region/city/address validation on input"
 msgstr ""
 
 #: utils.php:69
 msgid "Econt office"
 msgstr ""
 
-#: SeshSpeedyEcontShippingAdmin.php:416
+#: SeshSpeedyEcontShippingAdmin.php:429
 msgid "emergency contact to show in case of error"
 msgstr ""
 
@@ -192,12 +197,12 @@ msgstr ""
 msgid "Following delivery method is not working: "
 msgstr ""
 
-#: js.php:205 js.php:318 speedy_econt_shipping.php:512
+#: js.php:204 js.php:317 speedy_econt_shipping.php:514
 msgid "for free"
 msgstr ""
 
 #. id
-#: SeshSpeedyEcontShippingAdmin.php:250
+#: SeshSpeedyEcontShippingAdmin.php:258
 msgid "Force re-populate tables"
 msgstr ""
 
@@ -224,7 +229,7 @@ msgstr ""
 msgid "List of `To address` shipping fields"
 msgstr ""
 
-#: SeshSpeedyEcontShippingAdmin.php:383
+#: SeshSpeedyEcontShippingAdmin.php:392
 msgid "list of delivery options to show the message for"
 msgstr ""
 
@@ -271,7 +276,7 @@ msgstr ""
 msgid "Settings"
 msgstr ""
 
-#: SeshSpeedyEcontShippingAdmin.php:421
+#: SeshSpeedyEcontShippingAdmin.php:434
 msgid "shipping options order"
 msgstr ""
 
@@ -285,7 +290,7 @@ msgstr ""
 msgid "Show store messages for"
 msgstr ""
 
-#: js.php:184
+#: js.php:183
 msgid "Sorry, these is no free shipping available for the option chosen: "
 msgstr ""
 
@@ -295,7 +300,7 @@ msgstr ""
 msgid "Speedy & Econt shipping"
 msgstr ""
 
-#: SeshSpeedyEcontShippingAdmin.php:439
+#: SeshSpeedyEcontShippingAdmin.php:452
 msgid "Speedy and Econt data refresh was started."
 msgstr ""
 
@@ -307,18 +312,18 @@ msgstr ""
 msgid "Speedy office"
 msgstr ""
 
-#: js.php:180
+#: js.php:179
 msgid "Still left"
 msgstr ""
 
-#: speedy_econt_shipping.php:513
+#: speedy_econt_shipping.php:515
 msgid "to"
 msgstr ""
 
-#: js.php:180
+#: js.php:179
 msgid "to get a free shipping to"
 msgstr ""
 
-#: js.php:180
+#: js.php:179
 msgid "To shop"
 msgstr ""
