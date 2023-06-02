@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Speedy and Econt Shipping\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-01 19:36+0000\n"
+"POT-Creation-Date: 2023-06-02 18:51+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: \n"
@@ -16,8 +16,8 @@ msgstr ""
 "X-Loco-Version: 2.5.5; wp-5.8.2\n"
 "X-Domain: speedy_econt_shipping"
 
-#: SeshSpeedyEcontShippingAdmin.php:330 SeshSpeedyEcontShippingAdmin.php:342
-#: SeshSpeedyEcontShippingAdmin.php:358
+#: SeshSpeedyEcontShippingAdmin.php:338 SeshSpeedyEcontShippingAdmin.php:350
+#: SeshSpeedyEcontShippingAdmin.php:366
 msgid "0 - always free shipping, empty - no free shipping"
 msgstr ""
 
@@ -90,7 +90,7 @@ msgstr ""
 msgid "Additionally hidden checkout fields"
 msgstr ""
 
-#: SeshSpeedyEcontShippingAdmin.php:354
+#: SeshSpeedyEcontShippingAdmin.php:362
 msgid "address"
 msgstr ""
 
@@ -111,7 +111,7 @@ msgstr ""
 msgid "Calculate final price on checkout"
 msgstr ""
 
-#: SeshSpeedyEcontShippingAdmin.php:419
+#: SeshSpeedyEcontShippingAdmin.php:431
 msgid "cart's delivery details html"
 msgstr ""
 
@@ -123,7 +123,7 @@ msgstr ""
 msgid "City"
 msgstr ""
 
-#: js.php:166
+#: js.php:175
 msgid "Congrats, you won free delivery using"
 msgstr ""
 
@@ -131,12 +131,12 @@ msgstr ""
 msgid "Dan Goriaynov"
 msgstr ""
 
-#: js.php:248
+#: js.php:257
 msgid "delivery"
 msgstr ""
 
 #. id
-#: SeshSpeedyEcontShippingAdmin.php:234
+#: SeshSpeedyEcontShippingAdmin.php:242
 msgid "Delivery details cart text"
 msgstr ""
 
@@ -153,7 +153,7 @@ msgstr ""
 msgid "Delivery price selector"
 msgstr ""
 
-#: SeshSpeedyEcontShippingAdmin.php:414
+#: SeshSpeedyEcontShippingAdmin.php:426
 msgid "delivery price selector"
 msgstr ""
 
@@ -161,7 +161,7 @@ msgstr ""
 msgid "Delivery to"
 msgstr ""
 
-#: SeshSpeedyEcontShippingAdmin.php:322 SeshSpeedyEcontShippingAdmin.php:326
+#: SeshSpeedyEcontShippingAdmin.php:330 SeshSpeedyEcontShippingAdmin.php:334
 msgid "digit value like: 123456"
 msgstr ""
 
@@ -169,7 +169,7 @@ msgstr ""
 msgid "Econt office"
 msgstr ""
 
-#: SeshSpeedyEcontShippingAdmin.php:404
+#: SeshSpeedyEcontShippingAdmin.php:416
 msgid "emergency contact to show in case of error"
 msgstr ""
 
@@ -192,12 +192,12 @@ msgstr ""
 msgid "Following delivery method is not working: "
 msgstr ""
 
-#: js.php:196 js.php:309 speedy_econt_shipping.php:512
+#: js.php:205 js.php:318 speedy_econt_shipping.php:512
 msgid "for free"
 msgstr ""
 
 #. id
-#: SeshSpeedyEcontShippingAdmin.php:242
+#: SeshSpeedyEcontShippingAdmin.php:250
 msgid "Force re-populate tables"
 msgstr ""
 
@@ -224,8 +224,13 @@ msgstr ""
 msgid "List of `To address` shipping fields"
 msgstr ""
 
-#: SeshSpeedyEcontShippingAdmin.php:375
+#: SeshSpeedyEcontShippingAdmin.php:383
 msgid "list of delivery options to show the message for"
+msgstr ""
+
+#. id
+#: SeshSpeedyEcontShippingAdmin.php:234
+msgid "Load custom jquery (needed in case of js errors on the page)?"
 msgstr ""
 
 #: speedy_econt_shipping.php:377 speedy_econt_shipping.php:405
@@ -266,7 +271,7 @@ msgstr ""
 msgid "Settings"
 msgstr ""
 
-#: SeshSpeedyEcontShippingAdmin.php:409
+#: SeshSpeedyEcontShippingAdmin.php:421
 msgid "shipping options order"
 msgstr ""
 
@@ -280,7 +285,7 @@ msgstr ""
 msgid "Show store messages for"
 msgstr ""
 
-#: js.php:175
+#: js.php:184
 msgid "Sorry, these is no free shipping available for the option chosen: "
 msgstr ""
 
@@ -290,7 +295,7 @@ msgstr ""
 msgid "Speedy & Econt shipping"
 msgstr ""
 
-#: SeshSpeedyEcontShippingAdmin.php:427
+#: SeshSpeedyEcontShippingAdmin.php:439
 msgid "Speedy and Econt data refresh was started."
 msgstr ""
 
@@ -302,7 +307,7 @@ msgstr ""
 msgid "Speedy office"
 msgstr ""
 
-#: js.php:171
+#: js.php:180
 msgid "Still left"
 msgstr ""
 
@@ -310,10 +315,10 @@ msgstr ""
 msgid "to"
 msgstr ""
 
-#: js.php:171
+#: js.php:180
 msgid "to get a free shipping to"
 msgstr ""
 
-#: js.php:171
+#: js.php:180
 msgid "To shop"
 msgstr ""

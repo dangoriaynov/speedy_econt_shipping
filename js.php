@@ -9,14 +9,23 @@ require_once 'SeshSpeedyEcontShippingAdmin.php';
 
 add_action( 'wp_head', function () {
     if (is_page( 'cart' ) || is_cart() || is_page( 'checkout' ) || is_checkout()) {
-        function sesh_load_jquery() {
-            wp_enqueue_script('jquery', 'https://code.jquery.com/jquery-3.6.0.min.js', array(), '3.6.0', true);
-        }
-        add_action('wp_enqueue_scripts', 'sesh_load_jquery'); ?>
+        if (isLoadCustomJQuery()) { ?>
         <script>
-            jQuery.noConflict();  // loads newly loaded jQuery in case client has other version
+            var script = document.createElement('script');
+            script.src = 'https://code.jquery.com/jquery-3.6.0.min.js';
+            script.onload = function() {
+                let newJQuery = jQuery.noConflict(true);
+                newJQuery(document).ajaxComplete(function() {
+                    priceManipulationsTimer();
+                    // do the focusing only once
+                    setFocusedTimer();
+                });
+            };
+
+            document.head.appendChild(script);
+            (function($) {$.ajaxComplete = function(){};})(jQuery);
         </script>
-        <?php
+        <?php }
     }
     # works on 'cart' page only
     if (is_page( 'cart' ) || is_cart()) { ?>
