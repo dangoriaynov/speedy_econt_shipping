@@ -238,6 +238,14 @@ class SeshSpeedyEcontShippingAdmin {
         );
 
         add_settings_field(
+            'address_validation_needed_16', // id
+            __('Do the region/city/address validation on input', 'speedy_econt_shipping'), // title
+            array( $this, 'address_validation_needed_16_callback' ), // callback
+            'speedy-econt-shipping-admin', // page
+            'speedy_econt_shipping_setting_section' // section
+        );
+
+        add_settings_field(
             'delivery_details_cart_15', // id
             __('Delivery details cart text', 'speedy_econt_shipping'), // title
             array( $this, 'delivery_details_cart_15_callback' ), // callback
@@ -262,7 +270,8 @@ class SeshSpeedyEcontShippingAdmin {
             'address_fields_3', 'additionally_hidden_fields_03', 'emergency_contact_13', 'shipping_opts_order_14',
             'delivery_price_selector_14', 'show_store_messages_6');
         $checkboxes = array('enable_speedy_0', 'enable_econt_1', 'enable_address_2', 'email_required_9',
-            'show_deliv_opts_6', 'repopulate_tables_7', 'calculate_final_price_8', 'load_custom_jquery_15');
+            'show_deliv_opts_6', 'repopulate_tables_7', 'calculate_final_price_8', 'load_custom_jquery_15',
+            'address_validation_needed_16');
         foreach($keys as &$value) {
             if ( isset( $input[$value] ) ) {
                 $sanitary_values[$value] = sanitize_text_field( $input[$value] );
@@ -389,6 +398,10 @@ class SeshSpeedyEcontShippingAdmin {
 
     public function load_custom_jquery_15_callback() {
         $this->checkbox_callback('load_custom_jquery_15', array(), false);
+    }
+
+    public function address_validation_needed_16_callback() {
+        $this->checkbox_callback('address_validation_needed_16', array(), true);
     }
 
     public function repopulate_tables_7_callback() {
@@ -534,6 +547,10 @@ function isEmailRequired() {
 
 function isLoadCustomJQuery() {
     return getStoredOption('load_custom_jquery_15', false);
+}
+
+function isAddressValidationNeeded() {
+    return getStoredOption('address_validation_needed_16', true);
 }
 
 function getEmergencyContactData() {
