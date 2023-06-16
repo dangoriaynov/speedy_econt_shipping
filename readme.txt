@@ -4,7 +4,7 @@ Tags: econt, еконт, speedy, спиди, shipping, bulgaria, bulgaria courie
 Requires at least: 4.4
 Requires PHP: 7.0
 Tested up to: 6.2
-Stable tag: 1.12.2
+Stable tag: 1.12.4
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Donate link: http://revolut.me/danq6lus
@@ -274,3 +274,9 @@ Fixed version issue
 ### 1.12.2 - 2023-06-02
 #### Fixes
 Added option to use custom jQuery version
+### 1.12.3 - 2023-06-02
+#### Fixes
+Added new option to not validate the region/city/address
+### 1.12.4 - 2023-06-16
+#### Improvements
+Declared compatibility with WooCommerce HPOS
