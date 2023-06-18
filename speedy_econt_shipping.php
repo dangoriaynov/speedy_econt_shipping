@@ -6,7 +6,7 @@
  * Author:            Dan Goriaynov
  * Author URI:        https://github.com/dangoriaynov
  * Plugin URI:        https://github.com/dangoriaynov/speedy_econt_shipping
- * Version:           1.12.4
+ * Version:           1.13.0
  * WC tested up to:   6.2
  * License:           GNU General Public License, version 2
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.en.html
@@ -95,7 +95,7 @@ function seshGenerateJsVar($sitesTable, $officesTable, $varName, $key) {
     </script><?php
 }
 
-function seshInsertSpeedyTableData(): bool
+function seshInsertSpeedyTableData($forceUpdate = false): bool
 {
     global $keepCase, $speedy_sites_table, $speedy_offices_table;
     $officesAddedAmt = 0;
@@ -132,7 +132,7 @@ function seshInsertSpeedyTableData(): bool
         $offices_to_insert[] = array('id' => $id, 'name' => $name, 'site' => $site_name, 'address' => $address);
     }
 
-    $permit_upgrade = seshIsPermitUpgrade($speedy_sites_table, $speedy_offices_table, sizeof($speedy_sites_added), $officesAddedAmt);
+    $permit_upgrade = $forceUpdate || seshIsPermitUpgrade($speedy_sites_table, $speedy_offices_table, sizeof($speedy_sites_added), $officesAddedAmt);
     if ($permit_upgrade) {
         // insert only if we plan to proceed with the upgrade
         foreach ($offices_to_insert as $office) {
@@ -145,7 +145,7 @@ function seshInsertSpeedyTableData(): bool
     return $permit_upgrade;
 }
 
-function seshInsertEcontTableData(): bool
+function seshInsertEcontTableData($forceUpdate = false): bool
 {
     global $keepCase, $econt_sites_table, $econt_offices_table;
     $officesAddedAmt = 0;
@@ -182,7 +182,7 @@ function seshInsertEcontTableData(): bool
         seshInsertEcontSite($city_id, $city_name, $region_name);
         $sites_to_insert[] = array('id' =>$city_id, 'name' => $city_name, 'region' => $region_name);
     }
-    $permit_upgrade = seshIsPermitUpgrade($econt_sites_table, $econt_offices_table, sizeof($econt_sites_added), $officesAddedAmt);
+    $permit_upgrade = $forceUpdate || seshIsPermitUpgrade($econt_sites_table, $econt_offices_table, sizeof($econt_sites_added), $officesAddedAmt);
     if ($permit_upgrade) {
         // insert only if we plan to proceed with the upgrade
         foreach ($offices_to_insert as $office) {
@@ -204,7 +204,7 @@ function seshIsPermitUpgrade(string $sites_table, string $offices_table, int $si
     return $result;
 }
 
-function seshInsertOfficesData($key) : bool {
+function seshInsertOfficesData($key, $forceUpdate = false) : bool {
     global $speedy_opt_key, $econt_opt_key;
     if ($key === $speedy_opt_key) {
         if (! isSpeedyEnabled()) {
@@ -213,7 +213,7 @@ function seshInsertOfficesData($key) : bool {
         try {
             // preliminary table clean-up
             seshTruncateTables($key);
-            return seshInsertSpeedyTableData();
+            return seshInsertSpeedyTableData($forceUpdate);
         } catch (Exception $e) {
             write_log('Caught exception: '.$e->getMessage()."\n");
         }
@@ -225,7 +225,7 @@ function seshInsertOfficesData($key) : bool {
         try {
             // preliminary table clean-up
             seshTruncateTables($key);
-            return seshInsertEcontTableData();
+            return seshInsertEcontTableData($forceUpdate);
         } catch (Exception $e) {
             write_log('Caught exception: '.$e->getMessage()."\n");
         }
@@ -233,10 +233,10 @@ function seshInsertOfficesData($key) : bool {
     return false;
 }
 
-function seshRefreshTableDataAll() {
+function seshRefreshTableDataAll($forceUpdate = false) {
     global $speedy_opt_key, $econt_opt_key;
     write_log('Scheduled Speedy and Econt data refresh');
-    seshRefreshTableData(array($speedy_opt_key, $econt_opt_key));
+    seshRefreshTableData(array($speedy_opt_key, $econt_opt_key), $forceUpdate);
 }
 
 function seshRefreshSpeedyData() {
@@ -251,7 +251,7 @@ function seshRefreshEcontData() {
     seshRefreshTableData(array($econt_opt_key));
 }
 
-function seshRefreshTableData($keys) {
+function seshRefreshTableData($keys, $forceUpdate = false) {
     if (count($keys) === 0) {
         return;
     }
@@ -262,7 +262,7 @@ function seshRefreshTableData($keys) {
     try {
         set_transient('sesh_upgrade_running', true, 10 * MINUTE_IN_SECONDS);
         foreach ($keys as $key) {
-            if (! seshInsertOfficesData($key) ) {
+            if (! seshInsertOfficesData($key, $forceUpdate) ) {
                 write_log("seshRefreshTableData: Didn't insert any data for $key");
                 continue;
             }
