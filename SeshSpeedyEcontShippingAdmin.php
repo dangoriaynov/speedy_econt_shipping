@@ -445,7 +445,7 @@ class SeshSpeedyEcontShippingAdmin {
     }
 }
 
-add_action( 'seshForceUpdateHook', 'seshRefreshTableDataAll');
+add_action( 'seshForceUpdateHook', 'seshRefreshTableDataAll', 10, true);
 function seshWarnDataRefresh() {
     global $pagenow;
     if ('options-general.php' === $pagenow && 'speedy-econt-shipping' === $_GET['page']) {
