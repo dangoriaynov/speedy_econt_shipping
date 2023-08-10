@@ -1,10 +1,10 @@
 === Speedy And Econt Shipping ===
 Contributors: winter2007d
 Tags: econt, еконт, speedy, спиди, shipping, bulgaria, bulgaria couriers
-Requires at least: 4.4
+Requires at least: 7.0
 Requires PHP: 7.0
-Tested up to: 6.2
-Stable tag: 1.13.0
+Tested up to: 6.3
+Stable tag: 1.13.1
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Donate link: http://revolut.me/danq6lus
@@ -283,3 +283,6 @@ Declared compatibility with WooCommerce HPOS
 ### 1.13.0 - 2023-06-19
 #### Fixes
 Fixed the force table refresh issue
+### 1.13.1 - 2023-08-10
+#### Fixes
+Compatible with WP 6.3
