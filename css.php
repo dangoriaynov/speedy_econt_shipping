@@ -45,6 +45,12 @@ add_action( 'wp_head', function () {
             transform: scale(1.4);
         }
 
+        #select2-speedy_office_sel-container, #select2-econt_office_sel-container {
+            word-wrap: break-word !important;
+            text-overflow: inherit !important;
+            white-space: normal !important;
+        }
+
         <?php global $shipping_to_speedy_key, $shipping_to_econt_key, $shipping_to_address_key;
         if (! isSpeedyEnabled()) {
             echo '#'.$shipping_to_speedy_key.', label[for="'.$shipping_to_speedy_key.'"] {display: none!important;}', PHP_EOL;
