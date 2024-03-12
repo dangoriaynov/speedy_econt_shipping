@@ -6,8 +6,8 @@
  * Author:            Dan Goriaynov
  * Author URI:        https://github.com/dangoriaynov
  * Plugin URI:        https://github.com/dangoriaynov/speedy_econt_shipping
- * Version:           1.13.1
- * WC tested up to:   6.3
+ * Version:           1.13.2
+ * WC tested up to:   6.4
  * License:           GNU General Public License, version 2
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.en.html
  * Domain Path:       /languages/

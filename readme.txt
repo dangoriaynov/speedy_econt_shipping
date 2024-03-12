@@ -4,7 +4,7 @@ Tags: econt, еконт, speedy, спиди, shipping, bulgaria, bulgaria courie
 Requires at least: 7.0
 Requires PHP: 7.0
 Tested up to: 6.3
-Stable tag: 1.13.1
+Stable tag: 1.13.2
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Donate link: http://revolut.me/danq6lus
@@ -286,3 +286,7 @@ Fixed the force table refresh issue
 ### 1.13.1 - 2023-08-10
 #### Fixes
 Compatible with WP 6.3
+### 1.13.2 - 2024-03-12
+#### Fixes
+Made to office field value wrap
+Compatible with WP 6.4
