@@ -275,6 +275,18 @@ add_action( 'wp_head', function () {
             }
         }
 
+        function sortWithFirstValue(arr, firstValue) {
+            const firstIndex = arr.indexOf(firstValue);
+            if (firstIndex !== -1) {
+                arr.splice(firstIndex, 1);
+            }
+            arr.sort();
+            if (firstIndex !== -1) {
+                arr.unshift(firstValue);
+            }
+            return arr;
+        }
+
         function populateFields(key, selectedRegion=null, selectedCity=null) {
             if (! enabledOptions.includes(key)) {
                 return;
@@ -291,13 +303,17 @@ add_action( 'wp_head', function () {
             if (key === '<?php global $address_label; echo $address_label; ?>') {
                 return;
             }
+            let citiesIds = [];
+            let officesIds = [];
+
             Object.entries(data).forEach(([regionName, cities]) => {
                 // regions are not filled in here since they are pre-populated when fields are created
                 cities.forEach(city => {
                     if (!selectedRegion || selectedRegion !== regionName) {
                         return;
                     }
-                    cityDom.append(jQuery('<option id="'+city.id+'">'+city.name+'</option>'));
+                    citiesIds.push({ id: city.id, value: city.name });
+                    // cityDom.append(jQuery('<option id="'+city.id+'">'+city.name+'</option>'));
                     city.offices.forEach(office => {
                         if (selectedCity && selectedCity !== city.name) {
                             return;
@@ -307,9 +323,35 @@ add_action( 'wp_head', function () {
                         if (key === locs.speedy.name) {
                             officeName = '№' + office.id + ', ' + officeName;
                         }
-                        officeDom.append(jQuery('<option id="' + office.id + '">'+officeName+'</option>'));
+                        officesIds.push({ id: office.id, value: officeName });
+                        // officeDom.append(jQuery('<option id="' + office.id + '">'+officeName+'</option>'));
                     });
                 });
+            });
+            citiesIds.sort(function(a, b) {
+                return a.value.localeCompare(b.value);
+            });
+            const matchingCityIdx = citiesIds.findIndex(function(option) {
+                return option.value === selectedRegion;
+            });
+            if (matchingCityIdx !== -1) {
+                const matchingCIty = citiesIds.splice(matchingCityIdx, 1)[0];
+                citiesIds.unshift(matchingCIty);
+            }
+            jQuery.each(citiesIds, function(index, option) {
+                cityDom.append(jQuery('<option>', {
+                    value: option.id,
+                    text: option.value
+                }));
+            });
+            officesIds.sort(function(a, b) {
+                return a.value.localeCompare(b.value);
+            });
+            jQuery.each(officesIds, function(index, option) {
+                officeDom.append(jQuery('<option>', {
+                    value: option.id,
+                    text: option.value
+                }));
             });
         }
 

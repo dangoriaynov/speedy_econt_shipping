@@ -290,3 +290,6 @@ Compatible with WP 6.3
 #### Fixes
 Made to office field value wrap
 Compatible with WP 6.4
+### 1.13.3 - 2024-03-14
+#### Fixes
+Regional centers are set to be first in list of cities
