@@ -4,7 +4,7 @@ Tags: econt, еконт, speedy, спиди, shipping, bulgaria, bulgaria courie
 Requires at least: 7.0
 Requires PHP: 7.0
 Tested up to: 6.4
-Stable tag: 1.13.4
+Stable tag: 1.14.0
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Donate link: http://revolut.me/danq6lus
@@ -296,3 +296,6 @@ Regional centers are set to be first in list of cities
 ### 1.13.4 - 2024-03-14
 #### Fixes
 Fixed version tag
+### 1.14.0 - 2024-03-14
+#### Fixes
+Cities selection fixed
