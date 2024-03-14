@@ -3,8 +3,8 @@ Contributors: winter2007d
 Tags: econt, еконт, speedy, спиди, shipping, bulgaria, bulgaria couriers
 Requires at least: 7.0
 Requires PHP: 7.0
-Tested up to: 6.3
-Stable tag: 1.13.2
+Tested up to: 6.4
+Stable tag: 1.13.4
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Donate link: http://revolut.me/danq6lus
@@ -293,3 +293,6 @@ Compatible with WP 6.4
 ### 1.13.3 - 2024-03-14
 #### Fixes
 Regional centers are set to be first in list of cities
+### 1.13.4 - 2024-03-14
+#### Fixes
+Fixed version tag
