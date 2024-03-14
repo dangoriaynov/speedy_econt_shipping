@@ -49,6 +49,7 @@ add_action( 'wp_head', function () {
             word-wrap: break-word !important;
             text-overflow: inherit !important;
             white-space: normal !important;
+            height: 100% !important;
         }
 
         <?php global $shipping_to_speedy_key, $shipping_to_econt_key, $shipping_to_address_key;

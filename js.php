@@ -296,11 +296,11 @@ add_action( 'wp_head', function () {
             // since we store only json variable name, not its actual contents
             const data = eval(delivOptions[key].data);
             const cityDom = jQuery(citySel);
-            cityDom.empty().trigger('change.select2');
             const officeDom = jQuery(officeSel);
             officeDom.empty().trigger('change.select2');
 
             if (key === '<?php global $address_label; echo $address_label; ?>') {
+                cityDom.empty().trigger('change.select2');
                 return;
             }
             let citiesIds = [];
@@ -328,28 +328,31 @@ add_action( 'wp_head', function () {
                     });
                 });
             });
-            citiesIds.sort(function(a, b) {
-                return a.value.localeCompare(b.value);
-            });
-            const matchingCityIdx = citiesIds.findIndex(function(option) {
-                return option.value === selectedRegion;
-            });
-            if (matchingCityIdx !== -1) {
-                const matchingCIty = citiesIds.splice(matchingCityIdx, 1)[0];
-                citiesIds.unshift(matchingCIty);
+            if (selectedCity === null || cityDom.select2('data').length === 0) {
+                citiesIds.sort(function(a, b) {
+                    return a.value.localeCompare(b.value);
+                });
+                const matchingCityIdx = citiesIds.findIndex(function(option) {
+                    return option.value === selectedRegion;
+                });
+                if (matchingCityIdx !== -1) {
+                    const matchingCIty = citiesIds.splice(matchingCityIdx, 1)[0];
+                    citiesIds.unshift(matchingCIty);
+                }
+                cityDom.empty().trigger('change.select2');
+                jQuery.each(citiesIds, function(index, option) {
+                    cityDom.append(jQuery('<option>', {
+                        id: option.id,
+                        text: option.value
+                    }));
+                });
             }
-            jQuery.each(citiesIds, function(index, option) {
-                cityDom.append(jQuery('<option>', {
-                    value: option.id,
-                    text: option.value
-                }));
-            });
             officesIds.sort(function(a, b) {
                 return a.value.localeCompare(b.value);
             });
             jQuery.each(officesIds, function(index, option) {
                 officeDom.append(jQuery('<option>', {
-                    value: option.id,
+                    id: option.id,
                     text: option.value
                 }));
             });
@@ -384,7 +387,6 @@ add_action( 'wp_head', function () {
                 populateFields(key, region);
                 regionDom.val(region).trigger('change.select2');
                 cityDom.val("").trigger('change.select2');
-
                 cityDomOuter.show();
                 officeDomOuter.hide();
             });
@@ -544,9 +546,7 @@ add_action( 'wp_head', function () {
             });
             [locs.address.inner.region, locs.econt.inner.region, locs.econt.inner.city, locs.econt.inner.office,
                 locs.speedy.inner.region, locs.speedy.inner.city, locs.speedy.inner.office].forEach(function(key) {
-                jQuery(key).select2({
-                    sortResults: data => data.sort(alphabetically)
-                });
+                jQuery(key).select2();
             });
         });
     </script>
