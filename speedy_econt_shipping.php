@@ -6,7 +6,7 @@
  * Author:            Dan Goriaynov
  * Author URI:        https://github.com/dangoriaynov
  * Plugin URI:        https://github.com/dangoriaynov/speedy_econt_shipping
- * Version:           1.14.1
+ * Version:           1.14.2
  * WC tested up to:   6.4
  * License:           GNU General Public License, version 2
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.en.html
@@ -458,11 +458,11 @@ function sesh_custom_checkout_field_process() {
             return;
         }
         if ($shippingMethod === seshDelivOptions()['econt']['name']) {
-            if (! sanitize_text_field($_POST[$econt_region_id]) || ! sanitize_text_field($_POST[$econt_city_id]) || ! sanitize_text_field($_POST[$econt_office_id])) {
+            if (! isset($_POST[$econt_region_id]) || ! isset($_POST[$econt_city_id]) || ! isset($_POST[$econt_office_id])) {
                 wc_add_notice($deliveryDetailsMsg, 'error' );
             }
         } else if ($shippingMethod === seshDelivOptions()['speedy']['name']) {
-            if (! sanitize_text_field($_POST[$speedy_region_id]) || ! sanitize_text_field($_POST[$speedy_city_id]) || ! sanitize_text_field($_POST[$speedy_office_id])) {
+            if (! isset($_POST[$speedy_region_id]) || ! isset($_POST[$speedy_city_id]) || ! isset($_POST[$speedy_office_id])) {
                 wc_add_notice($deliveryDetailsMsg, 'error' );
             }
         }
