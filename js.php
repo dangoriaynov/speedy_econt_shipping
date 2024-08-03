@@ -201,8 +201,8 @@ add_action( 'wp_head', function () {
             // convert to id here since we do care about real DOM elements here
             const delivPriceNormal = delivPrice.toFixed(2);
             pricesCopy[delivOptions[key].id] = delivPriceNormal;
-            const priceAdd = delivPrice === 0 ? "<?php _e('for free', 'speedy_econt_shipping') ?>" : '+'+delivPriceNormal+' '+currencySymbol;
-            const delivText = ' '+chosenOption.label+' ('+priceAdd+')';
+            const priceAdd = delivPrice === 0 ? "<?php echo getFreeShippingLabelSuffix(); ?>" : '+'+delivPriceNormal+' '+currencySymbol;
+            const delivText = priceAdd === "" ? ' '+chosenOption.label : ' '+chosenOption.label+' ('+priceAdd+')';
             jQuery(".woocommerce-input-wrapper > label[for='"+chosenOption.id+"']").text(delivText);
         }
 
@@ -358,8 +358,9 @@ add_action( 'wp_head', function () {
             });
         }
 
-        function getFreeLabel(delivOpt) {
-            return isFreeDelivery(delivOpt) ? " - <?php _e('for free', 'speedy_econt_shipping') ?>" : "";
+        function getFreeShippingLabelSuffix(delivOpt) {
+            <?php $freeShippingSuffix = getFreeShippingLabelSuffix(); ?>
+            return isFreeDelivery(delivOpt) && "<?php echo $freeShippingSuffix; ?>" !== "" ? " - <?php echo $freeShippingSuffix; ?>" : "";
         }
 
         function officeValueChange(key, value) {
