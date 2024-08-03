@@ -230,6 +230,14 @@ class SeshSpeedyEcontShippingAdmin {
         );
 
         add_settings_field(
+            'free_shipping_label_suffix_17', // id
+            __('Free shipping label suffix', 'speedy_econt_shipping'), // title
+            array( $this, 'free_shipping_label_suffix_17_callback' ), // callback
+            'speedy-econt-shipping-admin', // page
+            'speedy_econt_shipping_setting_section' // section
+        );
+
+        add_settings_field(
             'load_custom_jquery_15', // id
             __('Load custom jquery (needed in case of js errors on the page)?', 'speedy_econt_shipping'), // title
             array( $this, 'load_custom_jquery_15_callback' ), // callback
@@ -268,7 +276,7 @@ class SeshSpeedyEcontShippingAdmin {
             'econt_free_from_8', 'econt_shipping_9',
             'address_label_12', 'address_free_from_10', 'address_shipping_11',
             'address_fields_3', 'additionally_hidden_fields_03', 'emergency_contact_13', 'shipping_opts_order_14',
-            'delivery_price_selector_14', 'show_store_messages_6');
+            'delivery_price_selector_14', 'show_store_messages_6', 'free_shipping_label_suffix_17');
         $checkboxes = array('enable_speedy_0', 'enable_econt_1', 'enable_address_2', 'email_required_9',
             'show_deliv_opts_6', 'repopulate_tables_7', 'calculate_final_price_8', 'load_custom_jquery_15',
             'address_validation_needed_16');
@@ -429,6 +437,10 @@ class SeshSpeedyEcontShippingAdmin {
         $this->generic_callback('emergency_contact_13', 'text', __('emergency contact to show in case of error', 'speedy_econt_shipping'), '');
     }
 
+    public function free_shipping_label_suffix_17_callback() {
+        $this->generic_callback('free_shipping_label_suffix_17', 'text', __('for free', 'speedy_econt_shipping'), '');
+    }
+
     public function shipping_opts_order_14_callback() {
         global $shipping_opts_order_default;
         $this->generic_callback('shipping_opts_order_14', 'text', __('shipping options order', 'speedy_econt_shipping'), $shipping_opts_order_default);
@@ -555,6 +567,17 @@ function isAddressValidationNeeded() {
 
 function getEmergencyContactData() {
     return getStoredOption('emergency_contact_13', '');
+}
+
+function getFreeShippingLabelSuffix() {
+    $freeSuffix = getStoredOption('free_shipping_label_suffix_17', '');
+    if ($freeSuffix == "") {
+        $freeSuffix = __("for free", "speedy_econt_shipping");
+    }
+    if ($freeSuffix == "-") {
+        $freeSuffix = "";
+    }
+    return  $freeSuffix;
 }
 
 function getDeliveryDetailsCartHtml() {
