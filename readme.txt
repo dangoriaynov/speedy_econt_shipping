@@ -4,7 +4,7 @@ Tags: econt, еконт, speedy, спиди, shipping, bulgaria, bulgaria courie
 Requires at least: 7.0
 Requires PHP: 7.0
 Tested up to: 6.4
-Stable tag: 1.15
+Stable tag: 1.15.1
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Donate link: http://revolut.me/danq6lus
@@ -308,3 +308,9 @@ Fixed indices errors in logs
 ### 1.15 - 2024-08-04
 #### Fixes
 Added the free label suffix setting
+### 1.15.1 - 2024-08-04
+#### Fixes
+Fixed free shipping label suffix
+### 1.16 - 2024-08-25
+#### Fixes
+Fixed to address fields display

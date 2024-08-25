@@ -44,7 +44,8 @@ add_action( 'wp_head', function () {
     global $speedy_region_sel, $speedy_city_sel, $speedy_office_sel, $econt_region_sel, $econt_city_sel, $econt_office_sel,
            $speedy_region_field, $speedy_city_field, $speedy_office_field, $econt_region_field, $econt_city_field,
            $econt_office_field, $shipping_to_sel, $address_region_sel, $address_city_sel, $address_address_sel,
-           $address_region_field, $address_city_field, $address_address_field, $shipping_to_field;
+           $address_address2_sel, $address_region_field, $address_city_field, $address_address_field, $shipping_to_field,
+           $address_address2_field;
     ?>
     <script>
         const locs = {
@@ -75,11 +76,13 @@ add_action( 'wp_head', function () {
                 'outer': {
                     'region': '<?php echo esc_js($address_region_field); ?>',
                     'city': '<?php echo esc_js($address_city_field); ?>',
-                    'office': '<?php echo esc_js($address_address_field); ?>'},
+                    'office': '<?php echo esc_js($address_address_field); ?>',
+                    'office2': '<?php echo esc_js($address_address2_field); ?>'},
                 'inner': {
                     'region': '<?php echo esc_js($address_region_sel); ?>',
                     'city': '<?php echo esc_js($address_city_sel); ?>',
-                    'office': '<?php echo esc_js($address_address_sel); ?>'}
+                    'office': '<?php echo esc_js($address_address_sel); ?>',
+                    'office2': '<?php echo esc_js($address_address2_sel); ?>'}
             }
         };
 
@@ -291,16 +294,15 @@ add_action( 'wp_head', function () {
             if (! enabledOptions.includes(key)) {
                 return;
             }
-            const citySel = locs[key].inner.city;
-            const officeSel = locs[key].inner.office;
             // since we store only json variable name, not its actual contents
             const data = eval(delivOptions[key].data);
+            const citySel = locs[key].inner.city;
+            const officeSel = locs[key].inner.office;
             const cityDom = jQuery(citySel);
             const officeDom = jQuery(officeSel);
             officeDom.empty().trigger('change.select2');
 
             if (key === '<?php global $address_label; echo $address_label; ?>') {
-                cityDom.empty().trigger('change.select2');
                 return;
             }
             let citiesIds = [];
@@ -366,7 +368,7 @@ add_action( 'wp_head', function () {
         function officeValueChange(key, value) {
             if (value) {
                 const delivOpt = delivOptions[key];
-                value = delivOpt.label + getFreeLabel(delivOpt) + ": " + value;
+                value = delivOpt.label + getFreeShippingLabelSuffix(delivOpt) + ": " + value;
             }
             jQuery(locs.address.inner.office).val(value);
         }
@@ -430,7 +432,10 @@ add_action( 'wp_head', function () {
             const option = jQuery('<?php echo $shipping_to_sel ?>:checked').val();
             // hide all the selectors till we know what is chosen
             Object.keys(locs).forEach(function(key) {
-                jQuery([locs[key].outer.region, locs[key].outer.city, locs[[key]].outer.office].join(',')).hide();
+                jQuery([locs[key].outer.region, locs[key].outer.city, locs[key].outer.office].join(',')).hide();
+                if (locs[key].outer.office2 !== undefined) {
+                    jQuery(locs[key].outer.office2).hide();
+                }
             });
             // set really saved address (office) to empty value
             jQuery(locs.address.inner.office).val("");
@@ -439,7 +444,7 @@ add_action( 'wp_head', function () {
                 jQuery(locs[option].inner.city).val("").trigger('change.select2');
                 jQuery(locs[option].outer.city).show("slow", function(){});
             } else if (option === locs.address.name) {
-                jQuery([locs.address.outer.region, locs.address.outer.city, locs.address.outer.office].join(',')).show("slow", function(){});
+                jQuery([locs.address.outer.region, locs.address.outer.city, locs.address.outer.office, locs.address.outer.office2].join(',')).show("slow", function(){});
             }
         }
 
@@ -484,6 +489,8 @@ add_action( 'wp_head', function () {
                 originalOrderPrice = orderPrice();
                 changeFinalPriceElem();
                 populateDeliveryOptions();
+                // hack to get around incorrect pre-defined fields ordering when we have custom ones
+                jQuery(locs.address.outer.office2).insertAfter(jQuery(locs.address.outer.office));
                 runTillFreeMsgTimer();
             }, 500); // run every 500ms
         }
