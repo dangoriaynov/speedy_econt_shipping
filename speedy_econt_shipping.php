@@ -6,7 +6,7 @@
  * Author:            Dan Goriaynov
  * Author URI:        https://github.com/dangoriaynov
  * Plugin URI:        https://github.com/dangoriaynov/speedy_econt_shipping
- * Version:           1.15
+ * Version:           1.16
  * WC tested up to:   6.4
  * License:           GNU General Public License, version 2
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.en.html
@@ -371,7 +371,6 @@ function sesh_custom_override_checkout_fields($fields): array
         'options' => $shippingOptions
     );
     unset($fields['billing']['billing_postcode']);
-    unset($fields['billing']['billing_address_2']);
 
     $regions = seshGetRegions($speedy_sites_table);
     $fields['billing'][$speedy_region_id] = array(
@@ -428,6 +427,13 @@ function sesh_custom_override_checkout_fields($fields): array
         'required'  => false,
         'options' => array(__('nothing loaded', 'speedy_econt_shipping'))
     );
+    # leave the address details #2 field in place if requested
+    if (! in_array("#billing_address_2", getAddressFields())) {
+        unset($fields['billing']['billing_address_2']);
+    } else {
+        $fields['billing']['billing_address_2']['priority'] = '170';
+//        $fields['billing']['billing_address_2']['class'] = array('form-row-first', 'address-field');
+    }
     return $fields;
 }
 add_filter( 'woocommerce_checkout_fields' , 'sesh_custom_override_checkout_fields' );

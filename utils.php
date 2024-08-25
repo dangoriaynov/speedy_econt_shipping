@@ -30,6 +30,7 @@ $econt_office_sel = "#".$econt_office_id;
 $address_region_sel = getAddressFields()[0];
 $address_city_sel = getAddressFields()[1];
 $address_address_sel = getAddressFields()[2];
+$address_address2_sel = "#billing_address_2";
 $shipping_to_sel = 'input[name="'.$shipping_to_id.'"]';
 
 $speedy_region_field = $speedy_region_sel."_field";
@@ -41,6 +42,7 @@ $econt_office_field = $econt_office_sel."_field";
 $address_region_field = $address_region_sel.'_field';
 $address_city_field = $address_city_sel.'_field';
 $address_address_field = $address_address_sel.'_field';
+$address_address2_field = $address_address2_sel.'_field';
 $shipping_to_field = "#".$shipping_to_id."_field";
 
 $shipping_to_speedy_key = 'shipping_to_speedy';

@@ -528,11 +528,11 @@ function getAddressShipping() {
 }
 
 function getAddressFields() {
-    return array_map('trim', explode(',', getStoredOption('address_fields_03', '#billing_state, #billing_city, #billing_address_1')));
+    return array_map('trim', explode(',', getStoredOption('address_fields_3', '#billing_state, #billing_city, #billing_address_1')));
 }
 
 function getAdditionallyHiddenFields() {
-    return array_map('trim', explode(',', getStoredOption('additionally_hidden_fields_03', '#billing_address_2_field, #billing_company_field, #billing_country_field, #billing_postcode_field, #ship-to-different-address, .cart-subtotal, .checkout-wrap, .woocommerce-shipping-totals.shipping')));
+    return array_map('trim', explode(',', getStoredOption('additionally_hidden_fields_03', '#billing_company_field, #billing_country_field, #billing_postcode_field, #ship-to-different-address, .cart-subtotal, .checkout-wrap, .woocommerce-shipping-totals.shipping')));
 }
 
 function showStoreMessages() {
