@@ -6,8 +6,10 @@
  * Author:            Dan Goriaynov
  * Author URI:        https://github.com/dangoriaynov
  * Plugin URI:        https://github.com/dangoriaynov/speedy_econt_shipping
- * Version:           1.15.1
- * WC tested up to:   6.4
+ * Version:           2.0.0
+ * WC tested up to:   9.0
+ * WC requires at least: 7.0
+ * Requires PHP:      7.4
  * License:           GNU General Public License, version 2
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.en.html
  * Domain Path:       /languages/
@@ -16,15 +18,30 @@
 
 // TODO add links to https://www.speedy.bg/bg/speedy-offices and https://www.econt.com/find-office
 
-
 if ( ! defined( 'ABSPATH' ) ) {
-    exit; // Exit if accessed directly....
+	exit; // Exit if accessed directly.
 }
 
-require 'api.php';
-require 'db.php';
-require 'js.php';
-require 'css.php';
+/**
+ * Initialize the new OOP architecture.
+ *
+ * The new SESH_Plugin class handles all modern plugin functionality.
+ * Legacy code below is maintained for backward compatibility until
+ * the migration is complete.
+ *
+ * @since 2.0.0
+ */
+require_once __DIR__ . '/includes/class-sesh-plugin.php';
+SESH_Plugin::instance( __FILE__ );
+
+/**
+ * Legacy code below - maintained for backward compatibility.
+ * Will be removed in future versions when migration is complete.
+ *
+ * Note: Legacy files (api.php, db.php, js.php, css.php) are now loaded
+ * conditionally by SESH_Plugin::load_legacy_files() based on
+ * is_new_system_ready() returning false.
+ */
 
 global $keepCase;
 $keepCase = ['Столица' => 'столица', 'Ул.' => 'ул.', 'Ту ' => 'ТУ '];
