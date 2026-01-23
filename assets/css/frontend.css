@@ -1,8 +1,156 @@
 /**
- * Frontend styles for Speedy & Econt Shipping plugin.
+ * Frontend base styles for Speedy & Econt Shipping plugin.
+ *
+ * Contains utility classes and legacy compatibility styles.
+ * Main checkout styles are in sesh-checkout.css.
  *
  * @package Speedy_Econt_Shipping
  * @since   2.0.0
  */
 
-/* Placeholder for future checkout customizations */
+/* ==========================================================================
+   Utility Classes (Used by JavaScript modules)
+   ========================================================================== */
+
+/**
+ * Hide element completely.
+ * Used by sesh-checkout.js for showing/hiding carrier-specific fields.
+ */
+.sesh-hidden {
+	display: none !important;
+}
+
+/**
+ * Show element as block.
+ * Used to reveal previously hidden elements.
+ */
+.sesh-visible {
+	display: block !important;
+}
+
+/**
+ * Disable interaction.
+ * Used during loading states.
+ */
+.sesh-disabled {
+	opacity: 0.6;
+	pointer-events: none;
+	cursor: not-allowed;
+}
+
+/**
+ * Legacy compatibility class.
+ * Mirrors behavior of old js.php hide functionality.
+ */
+.sesh-legacy-hidden {
+	display: none !important;
+	visibility: hidden !important;
+}
+
+/* ==========================================================================
+   Form Field Visibility (Checkout)
+   ========================================================================== */
+
+/**
+ * Speedy-specific fields - hidden by default.
+ * Shown via JavaScript when Speedy carrier is selected.
+ */
+#speedy_region_sel_field,
+#speedy_city_sel_field,
+#speedy_office_sel_field {
+	display: none;
+}
+
+#speedy_region_sel_field.sesh-visible,
+#speedy_city_sel_field.sesh-visible,
+#speedy_office_sel_field.sesh-visible {
+	display: block !important;
+}
+
+/**
+ * Econt-specific fields - hidden by default.
+ * Shown via JavaScript when Econt carrier is selected.
+ */
+#econt_region_sel_field,
+#econt_city_sel_field,
+#econt_office_sel_field {
+	display: none;
+}
+
+#econt_region_sel_field.sesh-visible,
+#econt_city_sel_field.sesh-visible,
+#econt_office_sel_field.sesh-visible {
+	display: block !important;
+}
+
+/**
+ * Address fields visibility handled by WooCommerce.
+ * We only need to ensure they work correctly with our carrier selection.
+ */
+
+/* ==========================================================================
+   Animation Helpers
+   ========================================================================== */
+
+/**
+ * Fade in animation class.
+ * Can be added via JavaScript for smooth reveals.
+ */
+.sesh-fade-in {
+	animation: seshFadeIn 0.3s ease-out;
+}
+
+@keyframes seshFadeIn {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+/**
+ * Slide down animation class.
+ * Used for dropdown reveals and messages.
+ */
+.sesh-slide-down {
+	animation: seshSlideDownBase 0.3s ease-out;
+}
+
+@keyframes seshSlideDownBase {
+	from {
+		opacity: 0;
+		transform: translateY(-10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+/* ==========================================================================
+   Legacy Field Compatibility
+   ========================================================================== */
+
+/**
+ * Ensure select fields have proper styling when Select2 is not loaded.
+ */
+#speedy_region_sel,
+#speedy_city_sel,
+#speedy_office_sel,
+#econt_region_sel,
+#econt_city_sel,
+#econt_office_sel {
+	width: 100%;
+	padding: 10px;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+}
+
+/**
+ * Required field indicator.
+ */
+.sesh-required::after {
+	content: ' *';
+	color: #e2401c;
+}
