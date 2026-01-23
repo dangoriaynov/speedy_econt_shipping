@@ -1,0 +1,7 @@
+{
+  "projectType": "wordpress-plugin",
+  "conventions": {
+    "codingStandard": "WordPress-Core",
+    "phpVersion": "7.4"
+  }
+}

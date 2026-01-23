@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:api.speedy.bg)",
+      "WebFetch(domain:www.econt.com)",
+      "mcp__plugin_github_github__issue_write",
+      "Bash(wc:*)",
+      "mcp__plugin_github_github__list_issues",
+      "Bash(gh issue list:*)",
+      "WebSearch",
+      "Bash(gh issue view:*)",
+      "Bash(gh issue create:*)",
+      "Bash(gh label list:*)",
+      "Bash(gh label create:*)",
+      "Bash(git checkout:*)",
+      "Bash(php -l:*)",
+      "Bash(php:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat: Add OOP architecture foundation \\(Issue #2\\)\n\nImplements Phase 1.1 - OOP Architecture Foundation with:\n\n**Core Classes:**\n- SESH_Plugin: Main singleton orchestrator with WooCommerce compatibility\n- SESH_Settings: Settings handler with legacy option mapping\n- SESH_Database: Enhanced database handler with API caching support\n- SESH_Autoloader: PSR-4 style class autoloader\n- SESH_Frontend: Checkout and AJAX handlers for office selection\n- SESH_Admin: Admin meta boxes and order management \\(HPOS compatible\\)\n\n**API Layer:**\n- SESH_API_Client_Interface: Contract for carrier API implementations\n- SESH_Speedy_API: Speedy REST API client \\(api.speedy.bg/v1\\)\n- SESH_Econt_API: Econt API client \\(ee.econt.com\\)\n- SESH_Shipping_Quote and SESH_Shipment_Response DTOs\n\n**Shipping Methods:**\n- Abstract SESH_Shipping_Method base extending WC_Shipping_Method\n- SESH_Shipping_Speedy: Speedy office delivery\n- SESH_Shipping_Econt: Econt office delivery\n- SESH_Shipping_Address: Address/home delivery\n\n**Key Features:**\n- Full backward compatibility with legacy code\n- WooCommerce HPOS compatibility declared\n- WC Blocks compatibility prepared \\(disabled until implementation\\)\n- Enhanced database schema with lat/lng, working hours, API cache\n- Structured asset directories \\(assets/css, assets/js\\)\n\nThe new system runs alongside legacy code \\(is_new_system_ready=false\\)\nto ensure zero disruption during migration.\n\nCloses #2\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git push:*)",
+      "mcp__plugin_github_github__create_pull_request",
+      "mcp__plugin_github_github__issue_read",
+      "Bash(for f in speedy_econt_shipping.php includes/class-sesh-plugin.php includes/shipping-methods/*.php)",
+      "Bash(do php -l \"$f\")",
+      "Bash(done)",
+      "Bash(git commit:*)",
+      "mcp__plugin_github_github__merge_pull_request",
+      "Bash(git pull:*)",
+      "Bash(git branch:*)",
+      "Bash(gh pr create:*)"
+    ]
+  }
+}
