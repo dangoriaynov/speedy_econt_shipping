@@ -34,6 +34,13 @@ class SESH_Frontend {
 	private $database;
 
 	/**
+	 * Cart calculator instance.
+	 *
+	 * @var SESH_Cart_Calculator
+	 */
+	private $cart_calculator;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param SESH_Settings $settings Settings instance.
@@ -43,6 +50,7 @@ class SESH_Frontend {
 		$this->settings = $settings;
 		$this->database = $database;
 		$this->init_hooks();
+		$this->init_cart_calculator();
 	}
 
 	/**
@@ -58,6 +66,14 @@ class SESH_Frontend {
 
 		add_action( 'wp_ajax_sesh_get_cities', array( $this, 'ajax_get_cities' ) );
 		add_action( 'wp_ajax_nopriv_sesh_get_cities', array( $this, 'ajax_get_cities' ) );
+	}
+
+	/**
+	 * Initialize cart calculator.
+	 */
+	private function init_cart_calculator() {
+		require_once SESH_PLUGIN_DIR . 'includes/class-sesh-cart-calculator.php';
+		$this->cart_calculator = new SESH_Cart_Calculator( $this->settings, $this->database );
 	}
 
 	/**
