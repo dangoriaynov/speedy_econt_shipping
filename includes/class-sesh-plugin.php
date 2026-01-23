@@ -155,6 +155,8 @@ final class SESH_Plugin {
 	private function includes() {
 		// Core classes.
 		require_once SESH_PLUGIN_DIR . 'includes/class-sesh-autoloader.php';
+		require_once SESH_PLUGIN_DIR . 'includes/class-sesh-encryption.php';
+		require_once SESH_PLUGIN_DIR . 'includes/class-sesh-settings-migrator.php';
 		require_once SESH_PLUGIN_DIR . 'includes/class-sesh-settings.php';
 		require_once SESH_PLUGIN_DIR . 'includes/database/class-sesh-database.php';
 
@@ -241,6 +243,9 @@ final class SESH_Plugin {
 
 		// Load text domain.
 		$this->load_textdomain();
+
+		// Run settings migration if needed.
+		SESH_Settings_Migrator::maybe_migrate();
 
 		// Initialize components.
 		$this->settings = new SESH_Settings();

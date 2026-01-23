@@ -11,8 +11,8 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Settings class.
  *
- * Handles all plugin settings with backward compatibility
- * for the legacy settings structure.
+ * Handles all plugin settings with support for both legacy
+ * and new settings structures.
  */
 class SESH_Settings {
 
@@ -24,76 +24,62 @@ class SESH_Settings {
 	const LEGACY_OPTION_NAME = 'speedy_econt_shipping_option_name';
 
 	/**
-	 * Cached settings.
-	 *
-	 * @var array|null
-	 */
-	private $settings = null;
-
-	/**
-	 * Default settings values.
+	 * New option names.
 	 *
 	 * @var array
 	 */
-	private $defaults = array(
-		'enable_speedy'              => true,
-		'speedy_username'            => '',
-		'speedy_password'            => '',
-		'speedy_free_from'           => '',
-		'speedy_shipping'            => '',
-		'enable_econt'               => true,
-		'econt_free_from'            => '',
-		'econt_shipping'             => '',
-		'enable_address'             => true,
-		'address_label'              => '',
-		'address_free_from'          => '',
-		'address_shipping'           => '',
-		'address_fields'             => '#billing_state, #billing_city, #billing_address_1',
-		'hidden_fields'              => '#billing_address_2_field, #billing_company_field, #billing_country_field, #billing_postcode_field, #ship-to-different-address, .cart-subtotal, .checkout-wrap, .woocommerce-shipping-totals.shipping',
-		'shipping_options_order'     => 'speedy,econt,address',
-		'emergency_contact'          => '',
-		'show_store_messages'        => 'speedy,econt,address',
-		'show_delivery_options'      => false,
-		'calculate_final_price'      => false,
-		'delivery_price_selector'    => '.cart-subtotal .woocommerce-Price-amount.amount',
-		'email_required'             => false,
-		'free_shipping_label_suffix' => '',
-		'load_custom_jquery'         => false,
-		'address_validation_needed'  => true,
-		'delivery_details_cart'      => '<th>Доставка</th><td data-title="Доставка">Преминете към следваща стъпка за опциите на доставка</td>',
+	const OPTION_NAMES = array(
+		'speedy'  => 'sesh_speedy_settings',
+		'econt'   => 'sesh_econt_settings',
+		'address' => 'sesh_address_settings',
+		'general' => 'sesh_general_settings',
 	);
 
 	/**
-	 * Legacy to new key mapping.
+	 * Cached settings by group.
+	 *
+	 * @var array
+	 */
+	private $settings = array();
+
+	/**
+	 * Whether using new settings structure.
+	 *
+	 * @var bool
+	 */
+	private $using_new_structure = false;
+
+	/**
+	 * Legacy key to new structure mapping.
 	 *
 	 * @var array
 	 */
 	private $legacy_key_map = array(
-		'enable_speedy_0'             => 'enable_speedy',
-		'speedy_username_0'           => 'speedy_username',
-		'speedy_password_1'           => 'speedy_password',
-		'speedy_free_from_6'          => 'speedy_free_from',
-		'speedy_shipping_7'           => 'speedy_shipping',
-		'enable_econt_1'              => 'enable_econt',
-		'econt_free_from_8'           => 'econt_free_from',
-		'econt_shipping_9'            => 'econt_shipping',
-		'enable_address_2'            => 'enable_address',
-		'address_label_12'            => 'address_label',
-		'address_free_from_10'        => 'address_free_from',
-		'address_shipping_11'         => 'address_shipping',
-		'address_fields_3'            => 'address_fields',
-		'additionally_hidden_fields_03' => 'hidden_fields',
-		'shipping_opts_order_14'      => 'shipping_options_order',
-		'emergency_contact_13'        => 'emergency_contact',
-		'show_store_messages_6'       => 'show_store_messages',
-		'show_deliv_opts_6'           => 'show_delivery_options',
-		'calculate_final_price_8'     => 'calculate_final_price',
-		'delivery_price_selector_14'  => 'delivery_price_selector',
-		'email_required_9'            => 'email_required',
-		'free_shipping_label_suffix_17' => 'free_shipping_label_suffix',
-		'load_custom_jquery_15'       => 'load_custom_jquery',
-		'address_validation_needed_16' => 'address_validation_needed',
-		'delivery_details_cart_15'    => 'delivery_details_cart',
+		'enable_speedy_0'               => array( 'speedy', 'enabled' ),
+		'speedy_username_0'             => array( 'speedy', 'api_username' ),
+		'speedy_password_1'             => array( 'speedy', 'api_password' ),
+		'speedy_free_from_6'            => array( 'speedy', 'free_shipping_threshold' ),
+		'speedy_shipping_7'             => array( 'speedy', 'fallback_rate' ),
+		'enable_econt_1'                => array( 'econt', 'enabled' ),
+		'econt_free_from_8'             => array( 'econt', 'free_shipping_threshold' ),
+		'econt_shipping_9'              => array( 'econt', 'fallback_rate' ),
+		'enable_address_2'              => array( 'address', 'enabled' ),
+		'address_label_12'              => array( 'address', 'label' ),
+		'address_free_from_10'          => array( 'address', 'free_shipping_threshold' ),
+		'address_shipping_11'           => array( 'address', 'fallback_rate' ),
+		'address_fields_3'              => array( 'address', 'fields' ),
+		'additionally_hidden_fields_03' => array( 'general', 'hidden_fields' ),
+		'shipping_opts_order_14'        => array( 'general', 'shipping_options_order' ),
+		'emergency_contact_13'          => array( 'general', 'emergency_contact' ),
+		'show_store_messages_6'         => array( 'general', 'show_store_messages' ),
+		'show_deliv_opts_6'             => array( 'general', 'show_delivery_options' ),
+		'calculate_final_price_8'       => array( 'general', 'calculate_final_price' ),
+		'delivery_price_selector_14'    => array( 'general', 'delivery_price_selector' ),
+		'email_required_9'              => array( 'general', 'email_required' ),
+		'free_shipping_label_suffix_17' => array( 'general', 'free_shipping_label_suffix' ),
+		'load_custom_jquery_15'         => array( 'general', 'load_custom_jquery' ),
+		'address_validation_needed_16'  => array( 'general', 'address_validation_needed' ),
+		'delivery_details_cart_15'      => array( 'general', 'delivery_details_cart' ),
 	);
 
 	/**
@@ -101,85 +87,143 @@ class SESH_Settings {
 	 */
 	public function __construct() {
 		$this->load_settings();
+
+		// Initialize settings page in admin.
+		if ( is_admin() ) {
+			add_action( 'admin_init', array( $this, 'register_settings' ) );
+		}
 	}
 
 	/**
 	 * Load settings from database.
 	 */
 	private function load_settings() {
-		// Try to load legacy settings first for backward compatibility.
-		$legacy_settings = get_option( self::LEGACY_OPTION_NAME, array() );
+		// Check if new settings structure exists.
+		$version = get_option( 'sesh_settings_version', '' );
 
-		if ( ! empty( $legacy_settings ) ) {
-			$this->settings = $this->map_legacy_settings( $legacy_settings );
+		if ( ! empty( $version ) ) {
+			$this->using_new_structure = true;
+			$this->load_new_settings();
 		} else {
-			$this->settings = $this->defaults;
+			$this->load_legacy_settings();
 		}
 	}
 
 	/**
-	 * Map legacy settings to new format.
-	 *
-	 * @param array $legacy_settings Legacy settings array.
-	 * @return array Mapped settings.
+	 * Load settings from new structure.
 	 */
-	private function map_legacy_settings( $legacy_settings ) {
-		$mapped = $this->defaults;
+	private function load_new_settings() {
+		$defaults = SESH_Settings_Migrator::get_defaults();
 
-		foreach ( $this->legacy_key_map as $legacy_key => $new_key ) {
-			if ( isset( $legacy_settings[ $legacy_key ] ) ) {
-				$mapped[ $new_key ] = $legacy_settings[ $legacy_key ];
+		foreach ( self::OPTION_NAMES as $group => $option_name ) {
+			$this->settings[ $group ] = wp_parse_args(
+				get_option( $option_name, array() ),
+				$defaults[ $group ] ?? array()
+			);
+		}
+	}
+
+	/**
+	 * Load settings from legacy structure.
+	 */
+	private function load_legacy_settings() {
+		$legacy_settings = get_option( self::LEGACY_OPTION_NAME, array() );
+		$defaults        = SESH_Settings_Migrator::get_defaults();
+
+		// Initialize with defaults.
+		$this->settings = $defaults;
+
+		// Map legacy values.
+		if ( ! empty( $legacy_settings ) ) {
+			foreach ( $this->legacy_key_map as $legacy_key => $new_location ) {
+				if ( isset( $legacy_settings[ $legacy_key ] ) ) {
+					list( $group, $key )                = $new_location;
+					$this->settings[ $group ][ $key ] = $legacy_settings[ $legacy_key ];
+				}
 			}
 		}
-
-		return $mapped;
 	}
 
 	/**
 	 * Get a setting value.
 	 *
+	 * @param string $group   Settings group (speedy, econt, address, general).
 	 * @param string $key     Setting key.
-	 * @param mixed  $default Default value if not found.
+	 * @param mixed  $default Default value.
 	 * @return mixed
 	 */
-	public function get( $key, $default = null ) {
-		if ( null === $this->settings ) {
-			$this->load_settings();
+	public function get( $group, $key, $default = null ) {
+		if ( isset( $this->settings[ $group ][ $key ] ) ) {
+			return $this->settings[ $group ][ $key ];
 		}
 
-		if ( isset( $this->settings[ $key ] ) ) {
-			return $this->settings[ $key ];
-		}
-
-		if ( null !== $default ) {
-			return $default;
-		}
-
-		return isset( $this->defaults[ $key ] ) ? $this->defaults[ $key ] : null;
+		return $default;
 	}
 
 	/**
 	 * Set a setting value.
 	 *
+	 * @param string $group Settings group.
 	 * @param string $key   Setting key.
 	 * @param mixed  $value Setting value.
 	 */
-	public function set( $key, $value ) {
-		$this->settings[ $key ] = $value;
+	public function set( $group, $key, $value ) {
+		if ( ! isset( $this->settings[ $group ] ) ) {
+			$this->settings[ $group ] = array();
+		}
+
+		$this->settings[ $group ][ $key ] = $value;
 	}
 
 	/**
 	 * Save settings to database.
 	 *
+	 * @param string $group Optional. Specific group to save.
 	 * @return bool
 	 */
-	public function save() {
-		// For backward compatibility, save to legacy option.
+	public function save( $group = '' ) {
+		if ( $this->using_new_structure ) {
+			return $this->save_new_settings( $group );
+		}
+
+		return $this->save_legacy_settings();
+	}
+
+	/**
+	 * Save settings to new structure.
+	 *
+	 * @param string $group Optional. Specific group to save.
+	 * @return bool
+	 */
+	private function save_new_settings( $group = '' ) {
+		if ( $group && isset( self::OPTION_NAMES[ $group ] ) ) {
+			return update_option( self::OPTION_NAMES[ $group ], $this->settings[ $group ] );
+		}
+
+		$success = true;
+		foreach ( self::OPTION_NAMES as $grp => $option_name ) {
+			if ( isset( $this->settings[ $grp ] ) ) {
+				if ( ! update_option( $option_name, $this->settings[ $grp ] ) ) {
+					$success = false;
+				}
+			}
+		}
+
+		return $success;
+	}
+
+	/**
+	 * Save settings to legacy structure.
+	 *
+	 * @return bool
+	 */
+	private function save_legacy_settings() {
 		$legacy_settings = array();
 
-		foreach ( $this->legacy_key_map as $legacy_key => $new_key ) {
-			if ( isset( $this->settings[ $new_key ] ) ) {
-				$legacy_settings[ $legacy_key ] = $this->settings[ $new_key ];
+		foreach ( $this->legacy_key_map as $legacy_key => $new_location ) {
+			list( $group, $key ) = $new_location;
+			if ( isset( $this->settings[ $group ][ $key ] ) ) {
+				$legacy_settings[ $legacy_key ] = $this->settings[ $group ][ $key ];
 			}
 		}
 
@@ -187,12 +231,222 @@ class SESH_Settings {
 	}
 
 	/**
+	 * Register settings with WordPress Settings API.
+	 */
+	public function register_settings() {
+		// Register setting groups.
+		foreach ( self::OPTION_NAMES as $group => $option_name ) {
+			register_setting(
+				'sesh_settings_group',
+				$option_name,
+				array(
+					'type'              => 'array',
+					'sanitize_callback' => array( $this, 'sanitize_' . $group . '_settings' ),
+				)
+			);
+		}
+	}
+
+	/**
+	 * Sanitize Speedy settings.
+	 *
+	 * @param array $input Raw input.
+	 * @return array Sanitized settings.
+	 */
+	public function sanitize_speedy_settings( $input ) {
+		$sanitized = array();
+
+		$sanitized['enabled'] = ! empty( $input['enabled'] );
+
+		$sanitized['api_username'] = isset( $input['api_username'] )
+			? sanitize_text_field( $input['api_username'] )
+			: '';
+
+		// Handle password - encrypt if changed.
+		if ( isset( $input['api_password'] ) && ! empty( $input['api_password'] ) ) {
+			// Only encrypt if it's a new/changed password (not already encrypted).
+			if ( ! SESH_Encryption::is_encrypted( $input['api_password'] ) ) {
+				$sanitized['api_password'] = SESH_Encryption::encrypt( $input['api_password'] );
+			} else {
+				$sanitized['api_password'] = $input['api_password'];
+			}
+		} else {
+			// Keep existing password.
+			$sanitized['api_password'] = $this->get( 'speedy', 'api_password', '' );
+		}
+
+		$sanitized['use_dynamic_pricing'] = ! empty( $input['use_dynamic_pricing'] );
+
+		$sanitized['fallback_rate'] = isset( $input['fallback_rate'] )
+			? $this->sanitize_price( $input['fallback_rate'] )
+			: 0;
+
+		$sanitized['free_shipping_threshold'] = isset( $input['free_shipping_threshold'] )
+			? $this->sanitize_price( $input['free_shipping_threshold'], true )
+			: '';
+
+		$sanitized['default_service_id'] = isset( $input['default_service_id'] )
+			? sanitize_text_field( $input['default_service_id'] )
+			: '';
+
+		return $sanitized;
+	}
+
+	/**
+	 * Sanitize Econt settings.
+	 *
+	 * @param array $input Raw input.
+	 * @return array Sanitized settings.
+	 */
+	public function sanitize_econt_settings( $input ) {
+		$sanitized = array();
+
+		$sanitized['enabled'] = ! empty( $input['enabled'] );
+
+		$sanitized['api_username'] = isset( $input['api_username'] )
+			? sanitize_text_field( $input['api_username'] )
+			: '';
+
+		// Handle password - encrypt if changed.
+		if ( isset( $input['api_password'] ) && ! empty( $input['api_password'] ) ) {
+			if ( ! SESH_Encryption::is_encrypted( $input['api_password'] ) ) {
+				$sanitized['api_password'] = SESH_Encryption::encrypt( $input['api_password'] );
+			} else {
+				$sanitized['api_password'] = $input['api_password'];
+			}
+		} else {
+			$sanitized['api_password'] = $this->get( 'econt', 'api_password', '' );
+		}
+
+		$sanitized['use_dynamic_pricing'] = ! empty( $input['use_dynamic_pricing'] );
+
+		$sanitized['fallback_rate'] = isset( $input['fallback_rate'] )
+			? $this->sanitize_price( $input['fallback_rate'] )
+			: 0;
+
+		$sanitized['free_shipping_threshold'] = isset( $input['free_shipping_threshold'] )
+			? $this->sanitize_price( $input['free_shipping_threshold'], true )
+			: '';
+
+		$sanitized['default_service_type'] = isset( $input['default_service_type'] )
+			? sanitize_text_field( $input['default_service_type'] )
+			: 'courier_standard';
+
+		return $sanitized;
+	}
+
+	/**
+	 * Sanitize Address settings.
+	 *
+	 * @param array $input Raw input.
+	 * @return array Sanitized settings.
+	 */
+	public function sanitize_address_settings( $input ) {
+		$sanitized = array();
+
+		$sanitized['enabled'] = ! empty( $input['enabled'] );
+
+		$sanitized['label'] = isset( $input['label'] )
+			? sanitize_text_field( $input['label'] )
+			: '';
+
+		$sanitized['fallback_rate'] = isset( $input['fallback_rate'] )
+			? $this->sanitize_price( $input['fallback_rate'] )
+			: 0;
+
+		$sanitized['free_shipping_threshold'] = isset( $input['free_shipping_threshold'] )
+			? $this->sanitize_price( $input['free_shipping_threshold'], true )
+			: '';
+
+		$sanitized['fields'] = isset( $input['fields'] )
+			? sanitize_text_field( $input['fields'] )
+			: '#billing_state, #billing_city, #billing_address_1';
+
+		return $sanitized;
+	}
+
+	/**
+	 * Sanitize General settings.
+	 *
+	 * @param array $input Raw input.
+	 * @return array Sanitized settings.
+	 */
+	public function sanitize_general_settings( $input ) {
+		$sanitized = array();
+
+		$sanitized['hidden_fields'] = isset( $input['hidden_fields'] )
+			? sanitize_text_field( $input['hidden_fields'] )
+			: '';
+
+		$sanitized['shipping_options_order'] = isset( $input['shipping_options_order'] )
+			? sanitize_text_field( $input['shipping_options_order'] )
+			: 'speedy,econt,address';
+
+		$sanitized['emergency_contact'] = isset( $input['emergency_contact'] )
+			? sanitize_text_field( $input['emergency_contact'] )
+			: '';
+
+		$sanitized['show_store_messages'] = isset( $input['show_store_messages'] )
+			? sanitize_text_field( $input['show_store_messages'] )
+			: 'speedy,econt,address';
+
+		$sanitized['show_delivery_options']     = ! empty( $input['show_delivery_options'] );
+		$sanitized['calculate_final_price']     = ! empty( $input['calculate_final_price'] );
+		$sanitized['email_required']            = ! empty( $input['email_required'] );
+		$sanitized['load_custom_jquery']        = ! empty( $input['load_custom_jquery'] );
+		$sanitized['address_validation_needed'] = ! empty( $input['address_validation_needed'] );
+		$sanitized['debug_mode']                = ! empty( $input['debug_mode'] );
+
+		$sanitized['delivery_price_selector'] = isset( $input['delivery_price_selector'] )
+			? sanitize_text_field( $input['delivery_price_selector'] )
+			: '.cart-subtotal .woocommerce-Price-amount.amount';
+
+		$sanitized['free_shipping_label_suffix'] = isset( $input['free_shipping_label_suffix'] )
+			? sanitize_text_field( $input['free_shipping_label_suffix'] )
+			: '';
+
+		// Allow limited HTML for delivery details cart.
+		$allowed_html = array(
+			'th' => array(),
+			'td' => array( 'data-title' => array() ),
+		);
+		$sanitized['delivery_details_cart'] = isset( $input['delivery_details_cart'] )
+			? wp_kses( $input['delivery_details_cart'], $allowed_html )
+			: '';
+
+		$sanitized['cache_ttl'] = isset( $input['cache_ttl'] )
+			? absint( $input['cache_ttl'] )
+			: 3600;
+
+		return $sanitized;
+	}
+
+	/**
+	 * Sanitize a price value.
+	 *
+	 * @param mixed $value        Value to sanitize.
+	 * @param bool  $allow_empty Whether to allow empty values.
+	 * @return float|string
+	 */
+	private function sanitize_price( $value, $allow_empty = false ) {
+		if ( '' === $value && $allow_empty ) {
+			return '';
+		}
+
+		return (float) $value;
+	}
+
+	// =========================================================================
+	// Convenience Getters
+	// =========================================================================
+
+	/**
 	 * Check if Speedy is enabled.
 	 *
 	 * @return bool
 	 */
 	public function is_speedy_enabled() {
-		return (bool) $this->get( 'enable_speedy', true );
+		return (bool) $this->get( 'speedy', 'enabled', true );
 	}
 
 	/**
@@ -201,16 +455,22 @@ class SESH_Settings {
 	 * @return string
 	 */
 	public function get_speedy_username() {
-		return (string) $this->get( 'speedy_username', '' );
+		return (string) $this->get( 'speedy', 'api_username', '' );
 	}
 
 	/**
-	 * Get Speedy password.
+	 * Get Speedy password (decrypted).
 	 *
 	 * @return string
 	 */
 	public function get_speedy_password() {
-		return (string) $this->get( 'speedy_password', '' );
+		$password = $this->get( 'speedy', 'api_password', '' );
+
+		if ( ! empty( $password ) && SESH_Encryption::is_encrypted( $password ) ) {
+			return SESH_Encryption::decrypt( $password );
+		}
+
+		return (string) $password;
 	}
 
 	/**
@@ -219,7 +479,7 @@ class SESH_Settings {
 	 * @return float Returns -1 if no free shipping.
 	 */
 	public function get_speedy_free_from() {
-		$value = $this->get( 'speedy_free_from', '' );
+		$value = $this->get( 'speedy', 'free_shipping_threshold', '' );
 		return '' === $value ? -1 : (float) $value;
 	}
 
@@ -229,7 +489,16 @@ class SESH_Settings {
 	 * @return float
 	 */
 	public function get_speedy_shipping() {
-		return (float) $this->get( 'speedy_shipping', 0 );
+		return (float) $this->get( 'speedy', 'fallback_rate', 0 );
+	}
+
+	/**
+	 * Check if Speedy dynamic pricing is enabled.
+	 *
+	 * @return bool
+	 */
+	public function is_speedy_dynamic_pricing() {
+		return (bool) $this->get( 'speedy', 'use_dynamic_pricing', false );
 	}
 
 	/**
@@ -238,7 +507,7 @@ class SESH_Settings {
 	 * @return bool
 	 */
 	public function is_econt_enabled() {
-		return (bool) $this->get( 'enable_econt', true );
+		return (bool) $this->get( 'econt', 'enabled', true );
 	}
 
 	/**
@@ -247,7 +516,7 @@ class SESH_Settings {
 	 * @return float Returns -1 if no free shipping.
 	 */
 	public function get_econt_free_from() {
-		$value = $this->get( 'econt_free_from', '' );
+		$value = $this->get( 'econt', 'free_shipping_threshold', '' );
 		return '' === $value ? -1 : (float) $value;
 	}
 
@@ -257,7 +526,7 @@ class SESH_Settings {
 	 * @return float
 	 */
 	public function get_econt_shipping() {
-		return (float) $this->get( 'econt_shipping', 0 );
+		return (float) $this->get( 'econt', 'fallback_rate', 0 );
 	}
 
 	/**
@@ -266,7 +535,7 @@ class SESH_Settings {
 	 * @return bool
 	 */
 	public function is_address_enabled() {
-		return (bool) $this->get( 'enable_address', true );
+		return (bool) $this->get( 'address', 'enabled', true );
 	}
 
 	/**
@@ -275,7 +544,7 @@ class SESH_Settings {
 	 * @return string
 	 */
 	public function get_address_label() {
-		$label = $this->get( 'address_label', '' );
+		$label = $this->get( 'address', 'label', '' );
 		return empty( $label ) ? __( 'address', 'speedy_econt_shipping' ) : $label;
 	}
 
@@ -285,7 +554,7 @@ class SESH_Settings {
 	 * @return float Returns -1 if no free shipping.
 	 */
 	public function get_address_free_from() {
-		$value = $this->get( 'address_free_from', '' );
+		$value = $this->get( 'address', 'free_shipping_threshold', '' );
 		return '' === $value ? -1 : (float) $value;
 	}
 
@@ -295,7 +564,7 @@ class SESH_Settings {
 	 * @return float
 	 */
 	public function get_address_shipping() {
-		return (float) $this->get( 'address_shipping', 0 );
+		return (float) $this->get( 'address', 'fallback_rate', 0 );
 	}
 
 	/**
@@ -304,7 +573,7 @@ class SESH_Settings {
 	 * @return array
 	 */
 	public function get_shipping_options_order() {
-		$order_string = $this->get( 'shipping_options_order', 'speedy,econt,address' );
+		$order_string = $this->get( 'general', 'shipping_options_order', 'speedy,econt,address' );
 		$options      = array_map( 'trim', explode( ',', $order_string ) );
 		$result       = array();
 
@@ -337,7 +606,7 @@ class SESH_Settings {
 	 * @return array
 	 */
 	public function get_address_fields() {
-		$fields = $this->get( 'address_fields', '#billing_state, #billing_city, #billing_address_1' );
+		$fields = $this->get( 'address', 'fields', '#billing_state, #billing_city, #billing_address_1' );
 		return array_map( 'trim', explode( ',', $fields ) );
 	}
 
@@ -347,8 +616,8 @@ class SESH_Settings {
 	 * @return array
 	 */
 	public function get_hidden_fields() {
-		$fields = $this->get( 'hidden_fields', '' );
-		return array_map( 'trim', explode( ',', $fields ) );
+		$fields = $this->get( 'general', 'hidden_fields', '' );
+		return array_filter( array_map( 'trim', explode( ',', $fields ) ) );
 	}
 
 	/**
@@ -357,7 +626,7 @@ class SESH_Settings {
 	 * @return bool
 	 */
 	public function is_email_required() {
-		return (bool) $this->get( 'email_required', false );
+		return (bool) $this->get( 'general', 'email_required', false );
 	}
 
 	/**
@@ -366,7 +635,7 @@ class SESH_Settings {
 	 * @return bool
 	 */
 	public function is_calculate_final_price() {
-		return (bool) $this->get( 'calculate_final_price', false );
+		return (bool) $this->get( 'general', 'calculate_final_price', false );
 	}
 
 	/**
@@ -375,7 +644,7 @@ class SESH_Settings {
 	 * @return bool
 	 */
 	public function is_address_validation_needed() {
-		return (bool) $this->get( 'address_validation_needed', true );
+		return (bool) $this->get( 'general', 'address_validation_needed', true );
 	}
 
 	/**
@@ -384,7 +653,7 @@ class SESH_Settings {
 	 * @return string
 	 */
 	public function get_emergency_contact() {
-		return (string) $this->get( 'emergency_contact', '' );
+		return (string) $this->get( 'general', 'emergency_contact', '' );
 	}
 
 	/**
@@ -393,7 +662,7 @@ class SESH_Settings {
 	 * @return string
 	 */
 	public function get_free_shipping_label_suffix() {
-		$suffix = $this->get( 'free_shipping_label_suffix', '' );
+		$suffix = $this->get( 'general', 'free_shipping_label_suffix', '' );
 		if ( empty( $suffix ) ) {
 			return __( 'for free', 'speedy_econt_shipping' );
 		}
@@ -409,7 +678,7 @@ class SESH_Settings {
 	 * @return string
 	 */
 	public function get_delivery_price_selector() {
-		return $this->get( 'delivery_price_selector', '.cart-subtotal .woocommerce-Price-amount.amount' );
+		return $this->get( 'general', 'delivery_price_selector', '.cart-subtotal .woocommerce-Price-amount.amount' );
 	}
 
 	/**
@@ -418,7 +687,7 @@ class SESH_Settings {
 	 * @return string
 	 */
 	public function get_show_store_messages() {
-		$value = $this->get( 'show_store_messages', 'speedy,econt,address' );
+		$value = $this->get( 'general', 'show_store_messages', 'speedy,econt,address' );
 		// Handle legacy value.
 		if ( '1' === $value ) {
 			return 'speedy,econt,address';
@@ -432,7 +701,7 @@ class SESH_Settings {
 	 * @return bool
 	 */
 	public function is_show_delivery_options() {
-		return (bool) $this->get( 'show_delivery_options', false );
+		return (bool) $this->get( 'general', 'show_delivery_options', false );
 	}
 
 	/**
@@ -441,7 +710,7 @@ class SESH_Settings {
 	 * @return bool
 	 */
 	public function is_load_custom_jquery() {
-		return (bool) $this->get( 'load_custom_jquery', false );
+		return (bool) $this->get( 'general', 'load_custom_jquery', false );
 	}
 
 	/**
@@ -451,8 +720,92 @@ class SESH_Settings {
 	 */
 	public function get_delivery_details_cart_html() {
 		return $this->get(
+			'general',
 			'delivery_details_cart',
 			'<th>Доставка</th><td data-title="Доставка">Преминете към следваща стъпка за опциите на доставка</td>'
 		);
+	}
+
+	/**
+	 * Check if debug mode is enabled.
+	 *
+	 * @return bool
+	 */
+	public function is_debug_mode() {
+		return (bool) $this->get( 'general', 'debug_mode', false );
+	}
+
+	/**
+	 * Get cache TTL in seconds.
+	 *
+	 * @return int
+	 */
+	public function get_cache_ttl() {
+		return (int) $this->get( 'general', 'cache_ttl', 3600 );
+	}
+
+	/**
+	 * Check if using new settings structure.
+	 *
+	 * @return bool
+	 */
+	public function is_using_new_structure() {
+		return $this->using_new_structure;
+	}
+
+	/**
+	 * Export settings for backup or multi-site deployment.
+	 *
+	 * @return array
+	 */
+	public function export() {
+		$export = array(
+			'version'  => SESH_Settings_Migrator::SETTINGS_VERSION,
+			'settings' => array(),
+		);
+
+		foreach ( self::OPTION_NAMES as $group => $option_name ) {
+			$settings = $this->settings[ $group ] ?? array();
+
+			// Remove encrypted passwords for security.
+			if ( isset( $settings['api_password'] ) ) {
+				$settings['api_password'] = '';
+			}
+
+			$export['settings'][ $group ] = $settings;
+		}
+
+		return $export;
+	}
+
+	/**
+	 * Import settings.
+	 *
+	 * @param array $data Import data.
+	 * @return bool|WP_Error
+	 */
+	public function import( $data ) {
+		if ( ! isset( $data['version'] ) || ! isset( $data['settings'] ) ) {
+			return new WP_Error( 'invalid_format', __( 'Invalid settings format.', 'speedy_econt_shipping' ) );
+		}
+
+		foreach ( $data['settings'] as $group => $settings ) {
+			if ( ! isset( self::OPTION_NAMES[ $group ] ) ) {
+				continue;
+			}
+
+			// Merge with existing (keeps passwords if not provided).
+			$current = $this->settings[ $group ] ?? array();
+			foreach ( $settings as $key => $value ) {
+				if ( 'api_password' === $key && empty( $value ) ) {
+					continue; // Don't overwrite password with empty.
+				}
+				$current[ $key ] = $value;
+			}
+
+			$this->settings[ $group ] = $current;
+		}
+
+		return $this->save();
 	}
 }
