@@ -207,9 +207,9 @@ final class SESH_Plugin {
 	 * @return bool
 	 */
 	private function is_new_system_ready() {
-		// For now, return false to maintain backward compatibility.
-		// Will be changed to true when all new components are implemented.
-		return false;
+		// Phase 3.1 complete: Modern JavaScript architecture is now active.
+		// The legacy js.php inline scripts are replaced by modular JS files.
+		return true;
 	}
 
 	/**
