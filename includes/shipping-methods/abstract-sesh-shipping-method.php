@@ -313,6 +313,14 @@ abstract class SESH_Shipping_Method extends WC_Shipping_Method {
 	abstract public function get_offices( $city_id );
 
 	/**
+	 * Generate shipping label for an order.
+	 *
+	 * @param int $order_id WooCommerce order ID.
+	 * @return array|WP_Error Label data or error.
+	 */
+	abstract public function generate_label( $order_id );
+
+	/**
 	 * Get free shipping suffix text.
 	 *
 	 * @return string

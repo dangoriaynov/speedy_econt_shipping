@@ -259,13 +259,16 @@ final class SESH_Plugin {
 			$this->econt_api = new SESH_Econt_API();
 		}
 
-		// Initialize admin or frontend.
-		if ( is_admin() ) {
-			new SESH_Admin( $this->settings );
-		}
+		// Initialize admin or frontend only when new system is ready.
+		// This prevents conflicts with legacy code during migration.
+		if ( $this->is_new_system_ready() ) {
+			if ( is_admin() ) {
+				new SESH_Admin( $this->settings );
+			}
 
-		if ( ! is_admin() || defined( 'DOING_AJAX' ) ) {
-			new SESH_Frontend( $this->settings, $this->database );
+			if ( ! is_admin() || defined( 'DOING_AJAX' ) ) {
+				new SESH_Frontend( $this->settings, $this->database );
+			}
 		}
 
 		/**
