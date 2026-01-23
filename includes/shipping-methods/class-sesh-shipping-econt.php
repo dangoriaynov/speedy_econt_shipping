@@ -199,4 +199,76 @@ class SESH_Shipping_Econt extends SESH_Shipping_Method {
 			'desc_tip'    => true,
 		);
 	}
+
+	/**
+	 * Format calculation parameters for Econt API.
+	 *
+	 * @param array $data Common calculation data.
+	 * @return array Econt-formatted parameters.
+	 */
+	protected function format_calculation_params( $data ) {
+		$package = isset( $data['package'] ) ? $data['package'] : array();
+
+		// Econt requires sender and receiver city info.
+		$params = array(
+			'senderCity'    => 'София', // Default sender city - should come from settings.
+			'receiverCity'  => $this->get_receiver_city_name( $data ),
+			'weight'        => $data['weight'],
+			'shipmentType'  => 'PACK', // Package type.
+			'deliveryType'  => 'office', // Office delivery.
+		);
+
+		// Add office code if available.
+		if ( ! empty( $data['office_id'] ) ) {
+			$params['officeCode'] = $data['office_id'];
+		}
+
+		// Add COD amount if payment method is COD.
+		if ( WC()->cart && WC()->cart->needs_payment() ) {
+			$payment_method = WC()->session ? WC()->session->get( 'chosen_payment_method' ) : '';
+			if ( 'cod' === $payment_method ) {
+				$params['cdAmount'] = WC()->cart->get_total( 'raw' );
+			}
+		}
+
+		return $params;
+	}
+
+	/**
+	 * Get receiver city name from data.
+	 *
+	 * @param array $data Calculation data.
+	 * @return string City name.
+	 */
+	private function get_receiver_city_name( $data ) {
+		// Try to get city name from session or package.
+		if ( WC()->session ) {
+			$city_name = WC()->session->get( 'econt_city_name' );
+			if ( ! empty( $city_name ) ) {
+				return sanitize_text_field( $city_name );
+			}
+		}
+
+		// Fallback to package destination city.
+		$package = isset( $data['package'] ) ? $data['package'] : array();
+		if ( isset( $package['destination']['city'] ) ) {
+			return sanitize_text_field( $package['destination']['city'] );
+		}
+
+		return '';
+	}
+
+	/**
+	 * Check if dynamic pricing is enabled for Econt.
+	 *
+	 * @return bool
+	 */
+	protected function is_dynamic_pricing_enabled() {
+		if ( $this->settings ) {
+			// Check if Econt has dynamic pricing setting.
+			$use_dynamic = $this->settings->get( 'econt', 'use_dynamic_pricing', false );
+			return (bool) $use_dynamic;
+		}
+		return false;
+	}
 }

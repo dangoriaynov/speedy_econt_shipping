@@ -266,14 +266,191 @@ abstract class SESH_Shipping_Method extends WC_Shipping_Method {
 	/**
 	 * Get API-based shipping cost.
 	 *
-	 * This will be implemented fully in Phase 2.
-	 *
 	 * @param array $package Shipping package.
 	 * @return float|false Cost or false if not available.
 	 */
 	protected function get_api_shipping_cost( $package ) {
-		// Placeholder - to be implemented in Phase 2.
-		return false;
+		// Check if API client is available.
+		if ( ! $this->api_client ) {
+			return false;
+		}
+
+		// Check if dynamic pricing is enabled.
+		if ( ! $this->is_dynamic_pricing_enabled() ) {
+			return false;
+		}
+
+		// Build calculation parameters.
+		$params = $this->build_calculation_params( $package );
+		if ( empty( $params ) ) {
+			return false;
+		}
+
+		// Try to get cached price first.
+		$cache_key = $this->get_price_cache_key( $params );
+		$cached    = get_transient( $cache_key );
+		if ( false !== $cached ) {
+			return (float) $cached;
+		}
+
+		try {
+			// Call API for price calculation.
+			$quote = $this->api_client->calculate_shipping( $params );
+
+			// Handle WP_Error response.
+			if ( is_wp_error( $quote ) ) {
+				$this->log_error( 'API calculation failed: ' . $quote->get_error_message() );
+				return false;
+			}
+
+			// Extract price from quote object.
+			if ( $quote instanceof SESH_Shipping_Quote ) {
+				$price = $quote->get_price();
+			} else {
+				// Handle unexpected response format.
+				$this->log_error( 'Invalid API response format' );
+				return false;
+			}
+
+			// Cache the result for 5 minutes.
+			set_transient( $cache_key, $price, 300 );
+
+			return (float) $price;
+
+		} catch ( Exception $e ) {
+			// Catch any exceptions from API client.
+			$this->log_error( 'API exception: ' . $e->getMessage() );
+			return false;
+		}
+	}
+
+	/**
+	 * Build calculation parameters for API request.
+	 *
+	 * @param array $package Shipping package.
+	 * @return array|false API parameters or false if unable to build.
+	 */
+	protected function build_calculation_params( $package ) {
+		// Get destination data from package.
+		$destination = isset( $package['destination'] ) ? $package['destination'] : array();
+
+		// Extract city/office information.
+		$city_id   = $this->get_destination_city_id( $destination );
+		$office_id = $this->get_destination_office_id( $package );
+
+		// Must have at least city or office.
+		if ( empty( $city_id ) && empty( $office_id ) ) {
+			return false;
+		}
+
+		// Get package details.
+		$weight = $this->get_package_weight( $package );
+
+		// Build parameters based on carrier requirements.
+		return $this->format_calculation_params(
+			array(
+				'weight'    => $weight,
+				'city_id'   => $city_id,
+				'office_id' => $office_id,
+				'package'   => $package,
+			)
+		);
+	}
+
+	/**
+	 * Format calculation parameters for specific carrier API.
+	 *
+	 * This should be overridden by child classes for carrier-specific formatting.
+	 *
+	 * @param array $data Common calculation data.
+	 * @return array Formatted parameters.
+	 */
+	protected function format_calculation_params( $data ) {
+		// Default implementation - override in child classes.
+		return $data;
+	}
+
+	/**
+	 * Get destination city ID from package.
+	 *
+	 * @param array $destination Destination data.
+	 * @return int|string City ID or empty string.
+	 */
+	protected function get_destination_city_id( $destination ) {
+		// Check if city ID is stored in session (from office selection).
+		if ( WC()->session ) {
+			$carrier_id = $this->get_carrier_id();
+			$city_id    = WC()->session->get( $carrier_id . '_city_id' );
+			if ( ! empty( $city_id ) ) {
+				return $city_id;
+			}
+		}
+
+		// Try to get from destination array.
+		if ( ! empty( $destination['city_id'] ) ) {
+			return $destination['city_id'];
+		}
+
+		return '';
+	}
+
+	/**
+	 * Get destination office ID from package.
+	 *
+	 * @param array $package Shipping package.
+	 * @return int|string Office ID or empty string.
+	 */
+	protected function get_destination_office_id( $package ) {
+		// Check if office ID is stored in session (from checkout form).
+		if ( WC()->session ) {
+			$carrier_id = $this->get_carrier_id();
+			$office_id  = WC()->session->get( $carrier_id . '_office_id' );
+			if ( ! empty( $office_id ) ) {
+				return $office_id;
+			}
+		}
+
+		return '';
+	}
+
+	/**
+	 * Get cache key for price calculation.
+	 *
+	 * @param array $params Calculation parameters.
+	 * @return string Cache key.
+	 */
+	protected function get_price_cache_key( $params ) {
+		$carrier_id = $this->get_carrier_id();
+		$hash       = md5( wp_json_encode( $params ) );
+		return "sesh_price_{$carrier_id}_{$hash}";
+	}
+
+	/**
+	 * Check if dynamic pricing is enabled for this carrier.
+	 *
+	 * @return bool
+	 */
+	protected function is_dynamic_pricing_enabled() {
+		// Can be overridden by child classes to check carrier-specific settings.
+		return true;
+	}
+
+	/**
+	 * Log an error message.
+	 *
+	 * @param string $message Error message.
+	 */
+	protected function log_error( $message ) {
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG && function_exists( 'wc_get_logger' ) ) {
+			$logger = wc_get_logger();
+			$logger->error(
+				$message,
+				array(
+					'source'  => 'sesh-shipping',
+					'carrier' => $this->get_carrier_id(),
+				)
+			);
+		}
 	}
 
 	/**

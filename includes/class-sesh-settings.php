@@ -530,6 +530,15 @@ class SESH_Settings {
 	}
 
 	/**
+	 * Check if Econt dynamic pricing is enabled.
+	 *
+	 * @return bool
+	 */
+	public function is_econt_dynamic_pricing() {
+		return (bool) $this->get( 'econt', 'use_dynamic_pricing', false );
+	}
+
+	/**
 	 * Check if address delivery is enabled.
 	 *
 	 * @return bool
