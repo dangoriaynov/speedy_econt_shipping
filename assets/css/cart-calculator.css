@@ -1,0 +1,283 @@
+/**
+ * Cart Shipping Calculator Styles.
+ *
+ * @package Speedy_Econt_Shipping
+ * @since   2.0.0
+ */
+
+/* Calculator Container */
+.sesh-cart-shipping-calculator {
+	background: #f9f9f9;
+	border: 1px solid #e0e0e0;
+	border-radius: 8px;
+	padding: 20px;
+	margin: 20px 0;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.sesh-calculator-title {
+	margin: 0 0 20px 0;
+	font-size: 1.2em;
+	font-weight: 600;
+	color: #333;
+}
+
+/* Calculator Form */
+.sesh-calculator-form {
+	display: flex;
+	flex-direction: column;
+	gap: 15px;
+}
+
+/* Carrier Pills */
+.sesh-carrier-pills {
+	display: flex;
+	gap: 10px;
+	flex-wrap: wrap;
+}
+
+.sesh-pill {
+	flex: 1;
+	min-width: 120px;
+	padding: 10px 20px;
+	border: 2px solid #ddd;
+	background: #fff;
+	border-radius: 25px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	text-align: center;
+}
+
+.sesh-pill:hover {
+	border-color: #999;
+	background: #f5f5f5;
+}
+
+.sesh-pill-active {
+	border-color: #0073aa;
+	background: #0073aa;
+	color: #fff;
+}
+
+.sesh-pill-active:hover {
+	border-color: #005a87;
+	background: #005a87;
+}
+
+/* Delivery Type */
+.sesh-delivery-type {
+	display: flex;
+	gap: 15px;
+	flex-wrap: wrap;
+}
+
+.sesh-radio-label {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	cursor: pointer;
+	padding: 8px 15px;
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 5px;
+	transition: all 0.2s ease;
+}
+
+.sesh-radio-label:hover {
+	border-color: #0073aa;
+	background: #f0f8ff;
+}
+
+.sesh-radio-label input[type="radio"] {
+	margin: 0;
+	cursor: pointer;
+}
+
+.sesh-radio-label span {
+	font-weight: 500;
+	color: #333;
+}
+
+/* City Field */
+.sesh-city-field {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.sesh-city-field label {
+	font-weight: 500;
+	color: #555;
+}
+
+.sesh-city-select {
+	width: 100%;
+}
+
+/* Calculate Button */
+.sesh-calculate-btn {
+	align-self: flex-start;
+	padding: 12px 30px;
+	background: #0073aa;
+	color: #fff;
+	border: none;
+	border-radius: 5px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background 0.3s ease;
+}
+
+.sesh-calculate-btn:hover {
+	background: #005a87;
+}
+
+.sesh-calculate-btn:disabled {
+	background: #ccc;
+	cursor: not-allowed;
+}
+
+/* Results */
+.sesh-calculator-results {
+	margin-top: 20px;
+	padding-top: 20px;
+	border-top: 1px solid #e0e0e0;
+}
+
+.sesh-result-card {
+	background: #fff;
+	border: 1px solid #e0e0e0;
+	border-radius: 5px;
+	padding: 15px;
+	margin-bottom: 15px;
+}
+
+.sesh-result-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 10px;
+}
+
+.sesh-result-carrier {
+	font-weight: 600;
+	color: #333;
+	font-size: 1.1em;
+}
+
+.sesh-result-price {
+	font-size: 1.3em;
+	font-weight: 700;
+	color: #0073aa;
+}
+
+.sesh-result-time {
+	display: block;
+	color: #666;
+	font-size: 0.9em;
+}
+
+/* Free Shipping Hint */
+.sesh-free-shipping-hint {
+	display: block;
+	padding: 12px 15px;
+	background: #fff3cd;
+	border: 1px solid #ffc107;
+	border-radius: 5px;
+	color: #856404;
+	font-weight: 500;
+	text-align: center;
+}
+
+.sesh-free-shipping-hint.sesh-eligible {
+	background: #d4edda;
+	border-color: #28a745;
+	color: #155724;
+}
+
+/* Loading State */
+.sesh-calculator-loading {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 15px;
+	background: #f0f8ff;
+	border: 1px solid #0073aa;
+	border-radius: 5px;
+	color: #0073aa;
+	font-weight: 500;
+}
+
+.sesh-calculator-loading .spinner {
+	float: none;
+	margin: 0;
+}
+
+/* Error State */
+.sesh-calculator-error {
+	padding: 12px 15px;
+	background: #f8d7da;
+	border: 1px solid #f5c6cb;
+	border-radius: 5px;
+	color: #721c24;
+	font-weight: 500;
+	margin-top: 15px;
+}
+
+/* Mobile Responsive */
+@media screen and (max-width: 768px) {
+	.sesh-cart-shipping-calculator {
+		padding: 15px;
+	}
+
+	.sesh-carrier-pills {
+		flex-direction: column;
+	}
+
+	.sesh-pill {
+		min-width: 100%;
+	}
+
+	.sesh-delivery-type {
+		flex-direction: column;
+	}
+
+	.sesh-radio-label {
+		width: 100%;
+	}
+
+	.sesh-calculate-btn {
+		width: 100%;
+	}
+
+	.sesh-result-header {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 10px;
+	}
+
+	.sesh-result-price {
+		font-size: 1.5em;
+	}
+}
+
+/* Select2 Overrides for Consistency */
+.sesh-city-field .select2-container {
+	max-width: 100%;
+}
+
+.sesh-city-field .select2-container--default .select2-selection--single {
+	height: auto;
+	padding: 8px 12px;
+	border-color: #ddd;
+	border-radius: 5px;
+}
+
+.sesh-city-field .select2-container--default .select2-selection--single .select2-selection__rendered {
+	line-height: 1.5;
+	padding: 0;
+}
+
+.sesh-city-field .select2-container--default .select2-selection--single .select2-selection__arrow {
+	height: 100%;
+}
