@@ -8,15 +8,17 @@
 Located in `.claude/agents/implement-issue.md`
 
 Use this subagent when implementing GitHub issues. It follows a structured workflow tailored for migrating legacy WordPress code to modern standards:
-1. Creates a feature branch following naming conventions
-2. Analyzes the issue requirements against the legacy codebase (`js.php`, `db.php`)
-3. Fetches documentation (WP Code Reference, WooCommerce, Speedy/Econt)
-4. Implements features while refactoring legacy patterns into Object-Oriented code
-5. Runs quality checks (PHPCS) and commits with conventional format
+1. Syncs `main` branch with remote (`git checkout main && git pull origin main`)
+2. Creates a feature branch from the updated `main`
+3. Analyzes the issue requirements against the legacy codebase (`js.php`, `db.php`)
+4. Fetches documentation (WP Code Reference, WooCommerce, Speedy/Econt)
+5. Implements features while refactoring legacy patterns into Object-Oriented code
+6. Runs quality checks (PHPCS) and commits with conventional format
 
 **Invocation:**
+```
 Use the implement-issue subagent to implement GitHub issue #42
-
+```
 
 ### Slash Commands
 
@@ -26,7 +28,10 @@ Located in `.claude/commands/implement.md`
 Shortcut to invoke the implement-issue subagent with an issue number or URL.
 
 **Usage:**
-/implement 42 /implement https://github.com/dangoriaynov/speedy_econt_shipping/issues/42
+```
+/implement 42
+/implement https://github.com/dangoriaynov/speedy_econt_shipping/issues/42
+```
 
 
 ### Skills
@@ -48,6 +53,10 @@ GitHub and Coding workflow conventions for WordPress/PHP projects. Automatically
 **Branch Types:** `feature/`, `fix/`, `hotfix/`, `docs/`, `refactor/`, `test/`, `chore/`
 
 **Commit Scopes:** `core`, `admin`, `checkout`, `api`, `speedy`, `econt`, `db`, `assets`, `legacy`
+
+**Branch Workflow (Required):**
+- Always start from `main` branch synced to remote before creating feature branches
+- Run `git checkout main && git pull origin main` before `git checkout -b <branch-name>`
 
 **Critical Rules:**
 - ❌ **Legacy Ban:** Do not add new logic to `js.php` or `css.php`. Move to `assets/`.

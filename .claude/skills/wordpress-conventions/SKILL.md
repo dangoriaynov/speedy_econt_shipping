@@ -45,18 +45,53 @@ This skill enforces security and architectural standards for the Speedy/Econt Sh
 
 ## 3. Git Conventions
 
+### Branch Workflow (Required)
+
+**Before creating any feature branch:**
+1. Checkout `main`: `git checkout main`
+2. Sync with remote: `git pull origin main`
+3. Create branch from updated `main`: `git checkout -b <branch-name>`
+
+This ensures all feature branches start from the latest codebase and avoids merge conflicts.
+
 ### Branch Naming
-* `feature/dynamic-rates`
-* `fix/checkout-js-error`
-* `refactor/db-layer`
-* `chore/composer-setup`
+
+| Type | Example | Use Case |
+|------|---------|----------|
+| `feature/` | `feature/dynamic-rates` | New functionality |
+| `fix/` | `fix/checkout-js-error` | Bug fixes |
+| `hotfix/` | `hotfix/critical-security` | Urgent production fixes |
+| `refactor/` | `refactor/db-layer` | Code restructuring |
+| `docs/` | `docs/api-readme` | Documentation updates |
+| `test/` | `test/unit-coverage` | Test additions |
+| `chore/` | `chore/composer-setup` | Maintenance tasks |
 
 ### Commit Messages
-Format: `type(scope): description [Relates to #issue]`
 
-* `feat(api): implement speedy calculate_rate method`
-* `fix(checkout): resolve ajax nonce failure`
-* `refactor(legacy): move office loader from db.php to repository class`
+**Format:** `type(scope): description`
+
+Add `Relates to #issue` or `Closes #issue` in the commit body.
+
+**Scopes:** `core`, `admin`, `checkout`, `api`, `speedy`, `econt`, `db`, `assets`, `legacy`
+
+**Examples:**
+```
+feat(api): implement speedy calculate_rate method
+
+Relates to #42
+```
+
+```
+fix(checkout): resolve ajax nonce failure
+
+Closes #15
+```
+
+```
+refactor(legacy): move office loader from db.php to repository class
+
+Relates to #8
+```
 
 ## Review & Merge Workflow
 
