@@ -89,11 +89,19 @@ class SESH_Frontend {
 		wp_enqueue_style( 'select2' );
 		wp_enqueue_script( 'select2' );
 
-		// Frontend styles.
+		// Base frontend styles.
 		wp_enqueue_style(
 			'sesh-frontend',
 			SESH_PLUGIN_URL . 'assets/css/frontend.css',
 			array(),
+			SESH_VERSION
+		);
+
+		// Modern checkout UI styles.
+		wp_enqueue_style(
+			'sesh-checkout-css',
+			SESH_PLUGIN_URL . 'assets/css/sesh-checkout.css',
+			array( 'sesh-frontend', 'select2' ),
 			SESH_VERSION
 		);
 
