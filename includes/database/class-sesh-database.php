@@ -459,10 +459,423 @@ class SESH_Database {
 
 	/**
 	 * Delete expired cache entries.
+	 *
+	 * @return int Number of deleted entries.
 	 */
 	public function cleanup_cache() {
-		$this->wpdb->query(
+		return $this->wpdb->query(
 			"DELETE FROM {$this->tables['api_cache']} WHERE expires_at < NOW()"
 		);
+	}
+
+	/**
+	 * Invalidate cache by key pattern.
+	 *
+	 * @param string $pattern Key pattern (supports % wildcard).
+	 * @return int Number of deleted entries.
+	 */
+	public function invalidate_cache_by_pattern( $pattern ) {
+		return $this->wpdb->query(
+			$this->wpdb->prepare(
+				"DELETE FROM {$this->tables['api_cache']} WHERE cache_key LIKE %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$pattern
+			)
+		);
+	}
+
+	/**
+	 * Invalidate cache by carrier.
+	 *
+	 * @param string $carrier Carrier (speedy or econt).
+	 * @return int Number of deleted entries.
+	 */
+	public function invalidate_cache_by_carrier( $carrier ) {
+		return $this->wpdb->delete(
+			$this->tables['api_cache'],
+			array( 'carrier' => $carrier ),
+			array( '%s' )
+		);
+	}
+
+	/**
+	 * Invalidate cache by request type.
+	 *
+	 * @param string $request_type Request type.
+	 * @return int Number of deleted entries.
+	 */
+	public function invalidate_cache_by_type( $request_type ) {
+		return $this->wpdb->delete(
+			$this->tables['api_cache'],
+			array( 'request_type' => $request_type ),
+			array( '%s' )
+		);
+	}
+
+	/**
+	 * Invalidate all cache.
+	 *
+	 * @return int Number of deleted entries.
+	 */
+	public function invalidate_all_cache() {
+		return $this->wpdb->query( "TRUNCATE TABLE {$this->tables['api_cache']}" );
+	}
+
+	/**
+	 * Get cache statistics.
+	 *
+	 * @return array
+	 */
+	public function get_cache_stats() {
+		$total = $this->wpdb->get_var(
+			"SELECT COUNT(*) FROM {$this->tables['api_cache']}"
+		);
+
+		$expired = $this->wpdb->get_var(
+			"SELECT COUNT(*) FROM {$this->tables['api_cache']} WHERE expires_at < NOW()"
+		);
+
+		$by_carrier = $this->wpdb->get_results(
+			"SELECT carrier, COUNT(*) as count FROM {$this->tables['api_cache']} GROUP BY carrier",
+			ARRAY_A
+		);
+
+		return array(
+			'total'      => (int) $total,
+			'expired'    => (int) $expired,
+			'active'     => (int) $total - (int) $expired,
+			'by_carrier' => $by_carrier,
+		);
+	}
+
+	// =========================================================================
+	// Shipping Labels Methods
+	// =========================================================================
+
+	/**
+	 * Insert a shipping label.
+	 *
+	 * @param array $data Label data.
+	 * @return int|false Insert ID or false on failure.
+	 */
+	public function insert_label( $data ) {
+		$defaults = array(
+			'order_id'        => 0,
+			'carrier'         => '',
+			'tracking_number' => '',
+			'label_data'      => null,
+			'label_format'    => 'pdf',
+			'status'          => 'pending',
+			'api_response'    => null,
+		);
+
+		$data = wp_parse_args( $data, $defaults );
+
+		$result = $this->wpdb->insert(
+			$this->tables['labels'],
+			array(
+				'order_id'        => $data['order_id'],
+				'carrier'         => $data['carrier'],
+				'tracking_number' => $data['tracking_number'],
+				'label_data'      => $data['label_data'],
+				'label_format'    => $data['label_format'],
+				'status'          => $data['status'],
+				'api_response'    => is_array( $data['api_response'] ) ? wp_json_encode( $data['api_response'] ) : $data['api_response'],
+			),
+			array( '%d', '%s', '%s', '%s', '%s', '%s', '%s' )
+		);
+
+		return false !== $result ? $this->wpdb->insert_id : false;
+	}
+
+	/**
+	 * Get label by ID.
+	 *
+	 * @param int $label_id Label ID.
+	 * @return object|null
+	 */
+	public function get_label( $label_id ) {
+		return $this->wpdb->get_row(
+			$this->wpdb->prepare(
+				"SELECT * FROM {$this->tables['labels']} WHERE id = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$label_id
+			)
+		);
+	}
+
+	/**
+	 * Get labels for an order.
+	 *
+	 * @param int $order_id Order ID.
+	 * @return array
+	 */
+	public function get_labels_by_order( $order_id ) {
+		return $this->wpdb->get_results(
+			$this->wpdb->prepare(
+				"SELECT * FROM {$this->tables['labels']} WHERE order_id = %d ORDER BY created_at DESC", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$order_id
+			)
+		);
+	}
+
+	/**
+	 * Get label by tracking number.
+	 *
+	 * @param string $tracking_number Tracking number.
+	 * @return object|null
+	 */
+	public function get_label_by_tracking( $tracking_number ) {
+		return $this->wpdb->get_row(
+			$this->wpdb->prepare(
+				"SELECT * FROM {$this->tables['labels']} WHERE tracking_number = %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$tracking_number
+			)
+		);
+	}
+
+	/**
+	 * Update label status.
+	 *
+	 * @param int    $label_id Label ID.
+	 * @param string $status   New status (pending, generated, printed, cancelled).
+	 * @return bool
+	 */
+	public function update_label_status( $label_id, $status ) {
+		$allowed_statuses = array( 'pending', 'generated', 'printed', 'cancelled' );
+		if ( ! in_array( $status, $allowed_statuses, true ) ) {
+			return false;
+		}
+
+		return false !== $this->wpdb->update(
+			$this->tables['labels'],
+			array( 'status' => $status ),
+			array( 'id' => $label_id ),
+			array( '%s' ),
+			array( '%d' )
+		);
+	}
+
+	/**
+	 * Update label data.
+	 *
+	 * @param int   $label_id Label ID.
+	 * @param array $data     Data to update.
+	 * @return bool
+	 */
+	public function update_label( $label_id, $data ) {
+		$allowed_fields = array(
+			'tracking_number',
+			'label_data',
+			'label_format',
+			'status',
+			'api_response',
+		);
+
+		$update_data   = array();
+		$update_format = array();
+
+		foreach ( $allowed_fields as $field ) {
+			if ( isset( $data[ $field ] ) ) {
+				$value = $data[ $field ];
+
+				if ( 'api_response' === $field && is_array( $value ) ) {
+					$value = wp_json_encode( $value );
+				}
+
+				$update_data[ $field ] = $value;
+				$update_format[]       = '%s';
+			}
+		}
+
+		if ( empty( $update_data ) ) {
+			return false;
+		}
+
+		return false !== $this->wpdb->update(
+			$this->tables['labels'],
+			$update_data,
+			array( 'id' => $label_id ),
+			$update_format,
+			array( '%d' )
+		);
+	}
+
+	/**
+	 * Delete label.
+	 *
+	 * @param int $label_id Label ID.
+	 * @return bool
+	 */
+	public function delete_label( $label_id ) {
+		return false !== $this->wpdb->delete(
+			$this->tables['labels'],
+			array( 'id' => $label_id ),
+			array( '%d' )
+		);
+	}
+
+	/**
+	 * Get labels by status.
+	 *
+	 * @param string $status Status filter.
+	 * @param int    $limit  Limit results.
+	 * @return array
+	 */
+	public function get_labels_by_status( $status, $limit = 100 ) {
+		return $this->wpdb->get_results(
+			$this->wpdb->prepare(
+				"SELECT * FROM {$this->tables['labels']} WHERE status = %s ORDER BY created_at DESC LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$status,
+				$limit
+			)
+		);
+	}
+
+	// =========================================================================
+	// Additional Query Methods
+	// =========================================================================
+
+	/**
+	 * Get site by ID.
+	 *
+	 * @param string $carrier Carrier (speedy or econt).
+	 * @param int    $site_id Site ID.
+	 * @return object|null
+	 */
+	public function get_site_by_id( $carrier, $site_id ) {
+		$table = $this->get_table_name( $carrier . '_sites' );
+		if ( empty( $table ) ) {
+			return null;
+		}
+
+		return $this->wpdb->get_row(
+			$this->wpdb->prepare(
+				"SELECT * FROM {$table} WHERE id = %d AND is_prod = 1", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$site_id
+			)
+		);
+	}
+
+	/**
+	 * Get office by ID.
+	 *
+	 * @param string $carrier   Carrier (speedy or econt).
+	 * @param int    $office_id Office ID.
+	 * @return object|null
+	 */
+	public function get_office_by_id( $carrier, $office_id ) {
+		$table = $this->get_table_name( $carrier . '_offices' );
+		if ( empty( $table ) ) {
+			return null;
+		}
+
+		return $this->wpdb->get_row(
+			$this->wpdb->prepare(
+				"SELECT * FROM {$table} WHERE id = %d AND is_prod = 1", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$office_id
+			)
+		);
+	}
+
+	/**
+	 * Search sites by name.
+	 *
+	 * @param string $carrier     Carrier (speedy or econt).
+	 * @param string $search_term Search term.
+	 * @param int    $limit       Limit results.
+	 * @return array
+	 */
+	public function search_sites( $carrier, $search_term, $limit = 20 ) {
+		$table = $this->get_table_name( $carrier . '_sites' );
+		if ( empty( $table ) ) {
+			return array();
+		}
+
+		return $this->wpdb->get_results(
+			$this->wpdb->prepare(
+				"SELECT * FROM {$table} WHERE is_prod = 1 AND name LIKE %s ORDER BY name LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				'%' . $this->wpdb->esc_like( $search_term ) . '%',
+				$limit
+			)
+		);
+	}
+
+	/**
+	 * Search offices by name or address.
+	 *
+	 * @param string $carrier     Carrier (speedy or econt).
+	 * @param string $search_term Search term.
+	 * @param int    $limit       Limit results.
+	 * @return array
+	 */
+	public function search_offices( $carrier, $search_term, $limit = 20 ) {
+		$table = $this->get_table_name( $carrier . '_offices' );
+		if ( empty( $table ) ) {
+			return array();
+		}
+
+		$like_term = '%' . $this->wpdb->esc_like( $search_term ) . '%';
+
+		return $this->wpdb->get_results(
+			$this->wpdb->prepare(
+				"SELECT * FROM {$table} WHERE is_prod = 1 AND (name LIKE %s OR address LIKE %s OR city LIKE %s) ORDER BY name LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$like_term,
+				$like_term,
+				$like_term,
+				$limit
+			)
+		);
+	}
+
+	/**
+	 * Get count of sites/offices.
+	 *
+	 * @param string $carrier Carrier (speedy or econt).
+	 * @param string $type    Type (sites or offices).
+	 * @return int
+	 */
+	public function get_count( $carrier, $type ) {
+		$table = $this->get_table_name( $carrier . '_' . $type );
+		if ( empty( $table ) ) {
+			return 0;
+		}
+
+		return (int) $this->wpdb->get_var(
+			"SELECT COUNT(*) FROM {$table} WHERE is_prod = 1" // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		);
+	}
+
+	/**
+	 * Get last update time for carrier data.
+	 *
+	 * @param string $carrier Carrier (speedy or econt).
+	 * @return string|null
+	 */
+	public function get_last_update_time( $carrier ) {
+		$table = $this->get_table_name( $carrier . '_sites' );
+		if ( empty( $table ) ) {
+			return null;
+		}
+
+		return $this->wpdb->get_var(
+			"SELECT MAX(updated_at) FROM {$table} WHERE is_prod = 1" // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		);
+	}
+
+	/**
+	 * Check if tables need data refresh.
+	 *
+	 * @param string $carrier Carrier.
+	 * @param int    $max_age Maximum age in seconds (default 24 hours).
+	 * @return bool
+	 */
+	public function needs_refresh( $carrier, $max_age = 86400 ) {
+		$last_update = $this->get_last_update_time( $carrier );
+
+		if ( ! $last_update ) {
+			return true;
+		}
+
+		$last_update_time = strtotime( $last_update );
+		return ( time() - $last_update_time ) > $max_age;
 	}
 }
