@@ -13,7 +13,10 @@ Use this subagent when implementing GitHub issues. It follows a structured workf
 3. Analyzes the issue requirements against the legacy codebase (`js.php`, `db.php`)
 4. Fetches documentation (WP Code Reference, WooCommerce, Speedy/Econt)
 5. Implements features while refactoring legacy patterns into Object-Oriented code
-6. Runs quality checks (PHPCS) and commits with conventional format
+6. Runs verification checks (PHP syntax, PHPCS, JS lint) - fixes issues automatically or asks user
+7. Commits with conventional format and pushes to remote
+8. Creates a Pull Request with summary and test plan
+9. Closes the GitHub issue with reference to the PR
 
 **Invocation:**
 ```
@@ -25,7 +28,7 @@ Use the implement-issue subagent to implement GitHub issue #42
 #### /implement
 Located in `.claude/commands/implement.md`
 
-Shortcut to invoke the implement-issue subagent with an issue number or URL.
+Shortcut to invoke the implement-issue subagent with an issue number or URL. Handles the full workflow including verification, PR creation, and issue closure.
 
 **Usage:**
 ```
