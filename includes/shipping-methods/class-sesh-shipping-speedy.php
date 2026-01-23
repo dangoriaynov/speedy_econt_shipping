@@ -239,4 +239,96 @@ class SESH_Shipping_Speedy extends SESH_Shipping_Method {
 			'505' => __( 'Standard 24h', 'speedy_econt_shipping' ),
 		);
 	}
+
+	/**
+	 * Format calculation parameters for Speedy API.
+	 *
+	 * @param array $data Common calculation data.
+	 * @return array Speedy-formatted parameters.
+	 */
+	protected function format_calculation_params( $data ) {
+		$params = array(
+			'mode'        => 'calculate',
+			'sender'      => $this->get_sender_params(),
+			'recipient'   => $this->get_recipient_params( $data ),
+			'service'     => $this->get_service_params(),
+			'content'     => $this->get_content_params( $data ),
+			'payment'     => array(
+				'courierServicePayer' => 'SENDER',
+			),
+		);
+
+		return $params;
+	}
+
+	/**
+	 * Get sender parameters for API calculation.
+	 *
+	 * @return array Sender data.
+	 */
+	private function get_sender_params() {
+		// Use site/office from settings or default.
+		// This should be configured in plugin settings (sender office).
+		return array(
+			'siteId' => 68134, // Sofia (default - should come from settings).
+		);
+	}
+
+	/**
+	 * Get recipient parameters for API calculation.
+	 *
+	 * @param array $data Calculation data.
+	 * @return array Recipient data.
+	 */
+	private function get_recipient_params( $data ) {
+		$params = array();
+
+		// Office delivery.
+		if ( ! empty( $data['office_id'] ) ) {
+			$params['officeId'] = (int) $data['office_id'];
+		} elseif ( ! empty( $data['city_id'] ) ) {
+			$params['siteId'] = (int) $data['city_id'];
+		}
+
+		return $params;
+	}
+
+	/**
+	 * Get service parameters for API calculation.
+	 *
+	 * @return array Service configuration.
+	 */
+	private function get_service_params() {
+		// Get configured service ID or use default.
+		$service_id = $this->get_option( 'service_id', '505' );
+
+		return array(
+			'serviceId' => ! empty( $service_id ) ? (int) $service_id : 505,
+		);
+	}
+
+	/**
+	 * Get content parameters for API calculation.
+	 *
+	 * @param array $data Calculation data.
+	 * @return array Content data.
+	 */
+	private function get_content_params( $data ) {
+		return array(
+			'parcelsCount' => 1,
+			'totalWeight'  => $data['weight'],
+		);
+	}
+
+	/**
+	 * Check if dynamic pricing is enabled for Speedy.
+	 *
+	 * @return bool
+	 */
+	protected function is_dynamic_pricing_enabled() {
+		if ( $this->settings ) {
+			return $this->settings->is_speedy_dynamic_pricing();
+		}
+		return false;
+	}
 }
