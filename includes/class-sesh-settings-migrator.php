@@ -125,6 +125,7 @@ class SESH_Settings_Migrator {
 			'load_custom_jquery'        => false,
 			'address_validation_needed' => true,
 			'delivery_details_cart'     => '<th>Доставка</th><td data-title="Доставка">Преминете към следваща стъпка за опциите на доставка</td>',
+			'cart_calculator_enabled'   => true,
 			'debug_mode'                => false,
 			'cache_ttl'                 => 3600,
 		),
