@@ -1,7 +1,14 @@
 ---
-description: Implement a GitHub issue using the implement-issue subagent. Creates a feature branch, analyzes the legacy context, and implements using WordPress best practices.
-argument-hint: <issue-number-or-url>
-allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Task
+description: "Implement a GitHub issue using the implement-issue subagent. Creates a feature branch, analyzes the legacy context, and implements using WordPress best practices."
+argument_hint: "<issue-number-or-url>"
+allowed_tools:
+  - Read
+  - Write
+  - Edit
+  - Bash
+  - Grep
+  - Glob
+  - Task
 ---
 
 ## Mission
@@ -12,13 +19,14 @@ Implement the GitHub issue: $ARGUMENTS
 
 Use the `implement-issue` subagent to implement this GitHub issue following the complete workflow:
 
-1. **Create Branch**: Create a feature branch following naming conventions.
-2. **Analyze Context**: Determine if the issue touches legacy files (`js.php`, `db.php`, `globals`) and plan the refactoring.
-3. **Fetch Docs**: Read WordPress Code Reference or WooCommerce docs if needed.
-4. **Implement**: Build the feature following WordPress Coding Standards (Strict Sanitization & Nonces).
-5. **Migrate**: Ensure legacy patterns are replaced with Object-Oriented patterns where touched.
-6. **Test**: Verify the implementation works and does not break existing `is_prod` data logic.
-7. **Commit**: Create a well-formatted commit message.
+1. **Sync Main Branch**: Checkout `main` and pull latest changes from remote (`git checkout main && git pull origin main`).
+2. **Create Branch**: Create a feature branch from the updated `main` following naming conventions.
+3. **Analyze Context**: Determine if the issue touches legacy files (`js.php`, `db.php`, `globals`) and plan the refactoring.
+4. **Fetch Docs**: Read WordPress Code Reference or WooCommerce docs if needed.
+5. **Implement**: Build the feature following WordPress Coding Standards (Strict Sanitization & Nonces).
+6. **Migrate**: Ensure legacy patterns are replaced with Object-Oriented patterns where touched.
+7. **Test**: Verify the implementation works and does not break existing `is_prod` data logic.
+8. **Commit**: Create a well-formatted commit message.
 
 ## Context
 
