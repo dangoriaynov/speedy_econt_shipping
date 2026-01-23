@@ -159,6 +159,7 @@ final class SESH_Plugin {
 		require_once SESH_PLUGIN_DIR . 'includes/class-sesh-settings-migrator.php';
 		require_once SESH_PLUGIN_DIR . 'includes/class-sesh-settings.php';
 		require_once SESH_PLUGIN_DIR . 'includes/database/class-sesh-database.php';
+		require_once SESH_PLUGIN_DIR . 'includes/database/class-sesh-db-migrator.php';
 
 		// API classes.
 		require_once SESH_PLUGIN_DIR . 'includes/api/interface-sesh-api-client.php';
@@ -250,6 +251,10 @@ final class SESH_Plugin {
 		// Initialize components.
 		$this->settings = new SESH_Settings();
 		$this->database = new SESH_Database();
+
+		// Run database migration if needed.
+		$db_migrator = new SESH_DB_Migrator( $this->database );
+		$db_migrator->maybe_migrate();
 
 		// Initialize API clients if credentials are available.
 		if ( $this->settings->is_speedy_enabled() && $this->settings->get_speedy_username() ) {
@@ -364,10 +369,17 @@ final class SESH_Plugin {
 	 * Plugin activation.
 	 */
 	public function activate() {
-		// Create database tables.
+		// Ensure required classes are loaded.
 		require_once SESH_PLUGIN_DIR . 'includes/database/class-sesh-database.php';
+		require_once SESH_PLUGIN_DIR . 'includes/database/class-sesh-db-migrator.php';
+
+		// Create database tables.
 		$database = new SESH_Database();
 		$database->create_tables();
+
+		// Run migrations for existing installations.
+		$migrator = new SESH_DB_Migrator( $database );
+		$migrator->maybe_migrate();
 
 		// Schedule data refresh.
 		if ( ! wp_next_scheduled( 'sesh_daily_data_refresh' ) ) {
