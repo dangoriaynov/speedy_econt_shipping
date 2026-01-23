@@ -1,0 +1,23 @@
+/**
+ * Admin styles for Speedy & Econt Shipping plugin.
+ *
+ * @package Speedy_Econt_Shipping
+ * @since   2.0.0
+ */
+
+/* Meta box styles */
+.sesh-meta-box-info {
+	color: #666;
+	font-style: italic;
+	font-size: 12px;
+}
+
+/* Order shipping info */
+#sesh_shipping_info .inside p {
+	margin: 0.5em 0;
+}
+
+#sesh_shipping_info .inside strong {
+	display: inline-block;
+	min-width: 80px;
+}
