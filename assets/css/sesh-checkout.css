@@ -1,0 +1,628 @@
+/**
+ * Modern Checkout UI Styles for Speedy & Econt Shipping
+ *
+ * @package Speedy_Econt_Shipping
+ * @since   2.0.0
+ */
+
+/**
+ * CSS Custom Properties for Easy Customization
+ * These can be overridden by themes
+ */
+:root {
+	--sesh-speedy-color: #0066cc;
+	--sesh-speedy-light: #e6f2ff;
+	--sesh-econt-color: #00a651;
+	--sesh-econt-light: #e6f7ef;
+	--sesh-address-color: #6c757d;
+	--sesh-address-light: #f1f3f5;
+	--sesh-primary: #007bff;
+	--sesh-success: #28a745;
+	--sesh-danger: #dc3545;
+	--sesh-warning: #ffc107;
+	--sesh-border: #dee2e6;
+	--sesh-border-radius: 8px;
+	--sesh-box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+	--sesh-box-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.12);
+	--sesh-transition: all 0.3s ease;
+}
+
+/**
+ * Carrier Selection Cards
+ * Radio buttons styled as visual cards with carrier branding
+ */
+#shipping_to_field {
+	margin-bottom: 2rem;
+	padding: 0;
+}
+
+#shipping_to_field > label {
+	display: block;
+	font-size: 1.1rem;
+	font-weight: 600;
+	margin-bottom: 1rem;
+	color: #333;
+}
+
+#shipping_to_field .woocommerce-input-wrapper {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1rem;
+	align-items: stretch;
+}
+
+#shipping_to_field span label {
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+	padding: 1.25rem 1.5rem;
+	border: 2px solid var(--sesh-border);
+	border-radius: var(--sesh-border-radius);
+	background: #fff;
+	cursor: pointer;
+	transition: var(--sesh-transition);
+	min-width: 200px;
+	flex: 1;
+	position: relative;
+	margin: 0;
+	font-size: 1rem;
+	line-height: 1.5;
+}
+
+#shipping_to_field span label:hover {
+	border-color: var(--sesh-primary);
+	box-shadow: var(--sesh-box-shadow);
+	transform: translateY(-2px);
+}
+
+/* Hide default radio button */
+#shipping_to_field input[type="radio"] {
+	position: absolute;
+	opacity: 0;
+	width: 0;
+	height: 0;
+	margin: 0;
+}
+
+/* Custom radio button indicator */
+#shipping_to_field input[type="radio"] + label::before {
+	content: "";
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+	border: 2px solid var(--sesh-border);
+	border-radius: 50%;
+	margin-right: 12px;
+	transition: var(--sesh-transition);
+	flex-shrink: 0;
+	background: #fff;
+}
+
+#shipping_to_field input[type="radio"]:checked + label::before {
+	border-color: var(--sesh-primary);
+	border-width: 6px;
+}
+
+/* Selected state */
+#shipping_to_field input[type="radio"]:checked + label {
+	border-color: var(--sesh-primary);
+	background: rgba(0, 123, 255, 0.03);
+	box-shadow: var(--sesh-box-shadow);
+}
+
+/* Carrier-specific branding */
+#shipping_to_field label[for="shipping_to_speedy"] {
+	border-left: 4px solid var(--sesh-speedy-color);
+}
+
+#shipping_to_field input[type="radio"]:checked + label[for="shipping_to_speedy"] {
+	border-color: var(--sesh-speedy-color);
+	background: var(--sesh-speedy-light);
+}
+
+#shipping_to_field input[type="radio"]:checked + label[for="shipping_to_speedy"]::before {
+	border-color: var(--sesh-speedy-color);
+}
+
+#shipping_to_field label[for="shipping_to_econt"] {
+	border-left: 4px solid var(--sesh-econt-color);
+}
+
+#shipping_to_field input[type="radio"]:checked + label[for="shipping_to_econt"] {
+	border-color: var(--sesh-econt-color);
+	background: var(--sesh-econt-light);
+}
+
+#shipping_to_field input[type="radio"]:checked + label[for="shipping_to_econt"]::before {
+	border-color: var(--sesh-econt-color);
+}
+
+#shipping_to_field label[for="shipping_to_address"] {
+	border-left: 4px solid var(--sesh-address-color);
+}
+
+#shipping_to_field input[type="radio"]:checked + label[for="shipping_to_address"] {
+	border-color: var(--sesh-address-color);
+	background: var(--sesh-address-light);
+}
+
+#shipping_to_field input[type="radio"]:checked + label[for="shipping_to_address"]::before {
+	border-color: var(--sesh-address-color);
+}
+
+/* Focus states for accessibility */
+#shipping_to_field input[type="radio"]:focus + label {
+	outline: 2px solid var(--sesh-primary);
+	outline-offset: 2px;
+}
+
+/**
+ * Location Dropdowns (Region, City, Office)
+ * Enhanced styling for Select2 dropdowns
+ */
+#speedy_region_sel_field,
+#speedy_city_sel_field,
+#speedy_office_sel_field,
+#econt_region_sel_field,
+#econt_city_sel_field,
+#econt_office_sel_field {
+	margin-bottom: 1.5rem;
+}
+
+#speedy_region_sel_field > label,
+#speedy_city_sel_field > label,
+#speedy_office_sel_field > label,
+#econt_region_sel_field > label,
+#econt_city_sel_field > label,
+#econt_office_sel_field > label {
+	font-weight: 600;
+	color: #333;
+	margin-bottom: 0.5rem;
+	display: block;
+}
+
+/* Required field indicator */
+#speedy_region_sel_field > label::after,
+#speedy_city_sel_field > label::after,
+#speedy_office_sel_field > label::after,
+#econt_region_sel_field > label::after,
+#econt_city_sel_field > label::after,
+#econt_office_sel_field > label::after {
+	content: " *";
+	color: var(--sesh-danger);
+	font-weight: 700;
+}
+
+/* Hide optional indicator */
+#speedy_region_sel_field > label > span.optional,
+#speedy_city_sel_field > label > span.optional,
+#speedy_office_sel_field > label > span.optional,
+#econt_region_sel_field > label > span.optional,
+#econt_city_sel_field > label > span.optional,
+#econt_office_sel_field > label > span.optional {
+	display: none;
+}
+
+/* Select2 container styling */
+#speedy_region_sel_field .select2-container,
+#speedy_city_sel_field .select2-container,
+#speedy_office_sel_field .select2-container,
+#econt_region_sel_field .select2-container,
+#econt_city_sel_field .select2-container,
+#econt_office_sel_field .select2-container {
+	width: 100% !important;
+	max-width: 100%;
+}
+
+/* Enhanced Select2 selection styling */
+.select2-container--default .select2-selection--single {
+	border: 2px solid var(--sesh-border);
+	border-radius: var(--sesh-border-radius);
+	height: 50px;
+	padding: 0.5rem 1rem;
+	transition: var(--sesh-transition);
+	background: #fff;
+}
+
+.select2-container--default.select2-container--focus .select2-selection--single,
+.select2-container--default.select2-container--open .select2-selection--single {
+	border-color: var(--sesh-primary);
+	box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+	line-height: 34px;
+	padding-left: 0;
+	color: #333;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+	height: 48px;
+	right: 10px;
+}
+
+/* Office dropdown with wrapped text */
+#select2-speedy_office_sel-container,
+#select2-econt_office_sel-container {
+	word-wrap: break-word !important;
+	text-overflow: inherit !important;
+	white-space: normal !important;
+	height: auto !important;
+	line-height: 1.5 !important;
+	padding-top: 0.5rem !important;
+	padding-bottom: 0.5rem !important;
+}
+
+/* Select2 dropdown menu */
+.select2-container--default .select2-results__option {
+	padding: 0.75rem 1rem;
+	transition: var(--sesh-transition);
+}
+
+.select2-container--default .select2-results__option--highlighted[aria-selected] {
+	background-color: var(--sesh-primary);
+	color: #fff;
+}
+
+.select2-dropdown {
+	border: 2px solid var(--sesh-border);
+	border-radius: var(--sesh-border-radius);
+	box-shadow: var(--sesh-box-shadow);
+}
+
+.select2-search--dropdown .select2-search__field {
+	border: 2px solid var(--sesh-border);
+	border-radius: 4px;
+	padding: 0.5rem;
+}
+
+/**
+ * Price Display
+ * Clear shipping cost presentation
+ */
+.woocommerce-Price-amount.amount {
+	font-weight: 600;
+	color: #333;
+}
+
+#custom_price {
+	font-size: 1.1em;
+	font-weight: 700;
+	color: var(--sesh-success);
+}
+
+/* Cart subtotal delivery label */
+.cart-subtotal th {
+	font-weight: 600;
+}
+
+/**
+ * Free Shipping Badge
+ * Visual indicator when free shipping threshold is met
+ */
+.sesh-free-shipping-badge {
+	display: inline-block;
+	padding: 0.25rem 0.75rem;
+	background: var(--sesh-success);
+	color: #fff;
+	border-radius: 20px;
+	font-size: 0.85rem;
+	font-weight: 600;
+	margin-left: 0.5rem;
+	vertical-align: middle;
+}
+
+/**
+ * Free Shipping Progress Messages
+ * Messages showing progress toward free shipping
+ */
+#deliv_msg {
+	margin: 1rem 0;
+	padding: 1rem 1.5rem;
+	border-radius: var(--sesh-border-radius);
+	border-left: 4px solid;
+	animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+	from {
+		opacity: 0;
+		transform: translateY(-10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+#deliv_msg.woocommerce-message {
+	background: #d4edda;
+	border-color: var(--sesh-success);
+	color: #155724;
+}
+
+#deliv_msg.woocommerce-message a.button {
+	background: var(--sesh-success);
+	color: #fff;
+	padding: 0.5rem 1rem;
+	border-radius: 4px;
+	text-decoration: none;
+	transition: var(--sesh-transition);
+	display: inline-block;
+	margin-left: 0.5rem;
+	border: none;
+	font-weight: 600;
+}
+
+#deliv_msg.woocommerce-message a.button:hover {
+	background: #1e7e34;
+	transform: translateY(-2px);
+	box-shadow: var(--sesh-box-shadow);
+}
+
+/**
+ * Loading States
+ * Spinners and skeleton loaders during AJAX operations
+ */
+.sesh-loading {
+	position: relative;
+	pointer-events: none;
+	opacity: 0.6;
+}
+
+.sesh-loading::after {
+	content: "";
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 20px;
+	height: 20px;
+	margin-top: -10px;
+	margin-left: -10px;
+	border: 3px solid var(--sesh-border);
+	border-top-color: var(--sesh-primary);
+	border-radius: 50%;
+	animation: seshSpin 0.8s linear infinite;
+}
+
+@keyframes seshSpin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+/* Skeleton loader for select fields */
+.sesh-skeleton {
+	background: linear-gradient(
+		90deg,
+		#f0f0f0 25%,
+		#e0e0e0 50%,
+		#f0f0f0 75%
+	);
+	background-size: 200% 100%;
+	animation: seshSkeletonLoading 1.5s ease-in-out infinite;
+	border-radius: var(--sesh-border-radius);
+	height: 50px;
+	width: 100%;
+}
+
+@keyframes seshSkeletonLoading {
+	0% {
+		background-position: 200% 0;
+	}
+	100% {
+		background-position: -200% 0;
+	}
+}
+
+/**
+ * Error States
+ * User-friendly error messages
+ */
+.sesh-error-message {
+	display: flex;
+	align-items: center;
+	padding: 1rem 1.5rem;
+	margin: 1rem 0;
+	background: #f8d7da;
+	color: #721c24;
+	border: 2px solid #f5c6cb;
+	border-left: 4px solid var(--sesh-danger);
+	border-radius: var(--sesh-border-radius);
+	animation: slideDown 0.3s ease;
+}
+
+.sesh-error-message::before {
+	content: "⚠";
+	font-size: 1.5rem;
+	margin-right: 0.75rem;
+	flex-shrink: 0;
+}
+
+.sesh-field-error {
+	border-color: var(--sesh-danger) !important;
+}
+
+.sesh-field-error-message {
+	display: block;
+	margin-top: 0.5rem;
+	color: var(--sesh-danger);
+	font-size: 0.875rem;
+	font-weight: 500;
+}
+
+/**
+ * Mobile Responsive Design
+ * Optimized for all screen sizes
+ */
+@media (max-width: 768px) {
+	#shipping_to_field .woocommerce-input-wrapper {
+		flex-direction: column;
+	}
+
+	#shipping_to_field span label {
+		width: 100%;
+		min-width: 100%;
+	}
+
+	#deliv_msg {
+		padding: 0.75rem 1rem;
+		font-size: 0.9rem;
+	}
+
+	#deliv_msg.woocommerce-message a.button {
+		display: block;
+		margin-left: 0;
+		margin-top: 0.5rem;
+		text-align: center;
+	}
+
+	.select2-container--default .select2-selection--single {
+		height: 48px;
+	}
+
+	.select2-container--default .select2-selection--single .select2-selection__arrow {
+		height: 46px;
+	}
+}
+
+@media (max-width: 480px) {
+	:root {
+		--sesh-border-radius: 6px;
+	}
+
+	#shipping_to_field span label {
+		padding: 1rem;
+		font-size: 0.95rem;
+	}
+
+	#shipping_to_field input[type="radio"] + label::before {
+		width: 18px;
+		height: 18px;
+		margin-right: 10px;
+	}
+
+	#shipping_to_field input[type="radio"]:checked + label::before {
+		border-width: 5px;
+	}
+
+	.sesh-error-message,
+	#deliv_msg {
+		padding: 0.75rem;
+		font-size: 0.85rem;
+	}
+}
+
+/**
+ * Accessibility Enhancements
+ * WCAG 2.1 AA compliance
+ */
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+	}
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+	#shipping_to_field span label {
+		border-width: 3px;
+	}
+
+	.select2-container--default .select2-selection--single {
+		border-width: 3px;
+	}
+}
+
+/* Focus visible for keyboard navigation */
+#shipping_to_field input[type="radio"]:focus-visible + label {
+	outline: 3px solid var(--sesh-primary);
+	outline-offset: 3px;
+}
+
+.select2-container--default .select2-selection--single:focus-visible {
+	outline: 3px solid var(--sesh-primary);
+	outline-offset: 2px;
+}
+
+/**
+ * Print Styles
+ * Clean layout for printed checkout pages
+ */
+@media print {
+	#shipping_to_field span label {
+		border: 1px solid #000;
+		box-shadow: none;
+	}
+
+	#shipping_to_field input[type="radio"]:checked + label {
+		background: #f0f0f0;
+	}
+
+	.sesh-loading::after,
+	.sesh-skeleton {
+		display: none;
+	}
+}
+
+/**
+ * Theme Compatibility Overrides
+ * Ensure consistent styling across popular WooCommerce themes
+ */
+.woocommerce-checkout #shipping_to_field {
+	clear: both;
+}
+
+.woocommerce form .form-row#shipping_to_field {
+	padding-left: 0;
+	padding-right: 0;
+}
+
+/* Storefront theme compatibility */
+.storefront-handheld-footer-bar #shipping_to_field .woocommerce-input-wrapper {
+	display: flex;
+}
+
+/* Astra theme compatibility */
+.ast-separate-container #shipping_to_field {
+	margin-bottom: 2rem;
+}
+
+/* Flatsome theme compatibility */
+.woocommerce-page.checkout-page #shipping_to_field {
+	margin-bottom: 2rem;
+}
+
+/**
+ * RTL (Right-to-Left) Support
+ */
+[dir="rtl"] #shipping_to_field input[type="radio"] + label::before {
+	margin-right: 0;
+	margin-left: 12px;
+}
+
+[dir="rtl"] #shipping_to_field label[for="shipping_to_speedy"],
+[dir="rtl"] #shipping_to_field label[for="shipping_to_econt"],
+[dir="rtl"] #shipping_to_field label[for="shipping_to_address"] {
+	border-left: none;
+	border-right: 4px solid;
+}
+
+[dir="rtl"] #deliv_msg {
+	border-left: none;
+	border-right: 4px solid;
+}
+
+[dir="rtl"] .sesh-error-message {
+	border-left: 2px solid #f5c6cb;
+	border-right: 4px solid var(--sesh-danger);
+}
+
+[dir="rtl"] .sesh-error-message::before {
+	margin-right: 0;
+	margin-left: 0.75rem;
+}

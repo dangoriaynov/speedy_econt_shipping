@@ -14,6 +14,15 @@ defined( 'ABSPATH' ) || exit;
  * Handles all frontend functionality including checkout field customization,
  * office selection, and shipping calculations display.
  *
+ * Enqueues modern checkout UI styles (sesh-checkout.css) that provide:
+ * - Visual carrier selection cards with branding
+ * - Styled Select2 dropdowns for region/city/office selection
+ * - Clear shipping cost display with free shipping badges
+ * - Loading and error states for better UX
+ * - Mobile responsive design (mobile-first approach)
+ * - WCAG 2.1 AA accessibility compliance
+ * - Theme-independent styling with CSS custom properties
+ *
  * Note: The legacy frontend functions are still active for backward compatibility.
  * This class will gradually take over frontend functionality in future updates.
  */
@@ -69,11 +78,19 @@ class SESH_Frontend {
 			return;
 		}
 
-		// Frontend styles (will be added in future phases).
+		// Modern checkout UI styles.
+		wp_enqueue_style(
+			'sesh-checkout',
+			SESH_PLUGIN_URL . 'assets/css/sesh-checkout.css',
+			array(),
+			SESH_VERSION
+		);
+
+		// Legacy frontend styles (for backward compatibility).
 		wp_enqueue_style(
 			'sesh-frontend',
 			SESH_PLUGIN_URL . 'assets/css/frontend.css',
-			array(),
+			array( 'sesh-checkout' ),
 			SESH_VERSION
 		);
 

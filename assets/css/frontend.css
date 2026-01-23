@@ -1,8 +1,40 @@
 /**
  * Frontend styles for Speedy & Econt Shipping plugin.
  *
+ * This file contains legacy compatibility styles and utility classes.
+ * Modern checkout UI styles are in sesh-checkout.css.
+ *
  * @package Speedy_Econt_Shipping
  * @since   2.0.0
  */
 
-/* Placeholder for future checkout customizations */
+/**
+ * Utility Classes for JavaScript
+ * These classes can be added dynamically via JS
+ */
+
+/* Show/Hide utilities */
+.sesh-hidden {
+	display: none !important;
+}
+
+.sesh-visible {
+	display: block !important;
+}
+
+/* Disabled state */
+.sesh-disabled {
+	opacity: 0.5;
+	pointer-events: none;
+	cursor: not-allowed;
+}
+
+/**
+ * Legacy Compatibility
+ * Ensures backward compatibility with themes expecting old class names
+ */
+
+/* Legacy field visibility (from css.php) */
+.sesh-legacy-hidden {
+	display: none;
+}
