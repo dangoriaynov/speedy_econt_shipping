@@ -63,8 +63,8 @@ class SESH_Shipping_Speedy extends SESH_Shipping_Method {
 		}
 
 		// Fall back to global settings.
-		if ( $this->settings ) {
-			return $this->settings->get_speedy_free_from();
+		if ( $this->plugin_settings ) {
+			return $this->plugin_settings->get_speedy_free_from();
 		}
 
 		return -1;
@@ -76,8 +76,8 @@ class SESH_Shipping_Speedy extends SESH_Shipping_Method {
 	 * @return float
 	 */
 	protected function get_fallback_rate() {
-		if ( $this->settings ) {
-			return $this->settings->get_speedy_shipping();
+		if ( $this->plugin_settings ) {
+			return $this->plugin_settings->get_speedy_shipping();
 		}
 		return 0;
 	}
@@ -94,13 +94,13 @@ class SESH_Shipping_Speedy extends SESH_Shipping_Method {
 		}
 
 		// Check if Speedy is enabled in settings.
-		if ( $this->settings && ! $this->settings->is_speedy_enabled() ) {
+		if ( $this->plugin_settings && ! $this->plugin_settings->is_speedy_enabled() ) {
 			return false;
 		}
 
 		// Check if we have API credentials.
-		if ( $this->settings ) {
-			$username = $this->settings->get_speedy_username();
+		if ( $this->plugin_settings ) {
+			$username = $this->plugin_settings->get_speedy_username();
 			if ( empty( $username ) ) {
 				return false;
 			}
@@ -326,8 +326,8 @@ class SESH_Shipping_Speedy extends SESH_Shipping_Method {
 	 * @return bool
 	 */
 	protected function is_dynamic_pricing_enabled() {
-		if ( $this->settings ) {
-			return $this->settings->is_speedy_dynamic_pricing();
+		if ( $this->plugin_settings ) {
+			return $this->plugin_settings->is_speedy_dynamic_pricing();
 		}
 		return false;
 	}
