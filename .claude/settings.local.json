@@ -1,29 +1,13 @@
 {
   "permissions": {
     "allow": [
-      "WebFetch(domain:api.speedy.bg)",
-      "WebFetch(domain:www.econt.com)",
-      "WebSearch",
-      "mcp__plugin_github_github__issue_write",
-      "mcp__plugin_github_github__issue_read",
-      "mcp__plugin_github_github__list_issues",
-      "mcp__plugin_github_github__create_pull_request",
-      "mcp__plugin_github_github__merge_pull_request",
-      "Bash(wc:*)",
-      "Bash(php -l:*)",
-      "Bash(php:*)",
+      "Bash(git -C /Users/dgoriaynov/Downloads/git/speedy-econt-shipping status --short)",
+      "Bash(ls:*)",
+      "Bash(find:*)",
       "Bash(git checkout:*)",
-      "Bash(git add:*)",
-      "Bash(git commit:*)",
-      "Bash(git push:*)",
       "Bash(git pull:*)",
-      "Bash(git branch:*)",
-      "Bash(gh issue list:*)",
-      "Bash(gh issue view:*)",
-      "Bash(gh issue create:*)",
-      "Bash(gh label list:*)",
-      "Bash(gh label create:*)",
-      "Bash(gh pr create:*)"
+      "Bash(php:*)",
+      "Bash(git add:*)"
     ]
   }
 }

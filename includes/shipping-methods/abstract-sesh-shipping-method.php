@@ -24,11 +24,14 @@ abstract class SESH_Shipping_Method extends WC_Shipping_Method {
 	protected $api_client = null;
 
 	/**
-	 * Settings instance.
+	 * Plugin settings instance.
+	 *
+	 * Note: Named $plugin_settings to avoid conflict with WC_Settings_API::$settings
+	 * which is a public array property.
 	 *
 	 * @var SESH_Settings|null
 	 */
-	protected $settings = null;
+	protected $plugin_settings = null;
 
 	/**
 	 * Constructor.
@@ -57,7 +60,7 @@ abstract class SESH_Shipping_Method extends WC_Shipping_Method {
 		// Get settings from plugin settings.
 		$plugin = SESH_Plugin::instance();
 		if ( $plugin ) {
-			$this->settings = $plugin->get_settings();
+			$this->plugin_settings = $plugin->get_settings();
 		}
 
 		// Actions.
@@ -503,8 +506,8 @@ abstract class SESH_Shipping_Method extends WC_Shipping_Method {
 	 * @return string
 	 */
 	protected function get_free_shipping_suffix() {
-		if ( $this->settings ) {
-			return $this->settings->get_free_shipping_label_suffix();
+		if ( $this->plugin_settings ) {
+			return $this->plugin_settings->get_free_shipping_label_suffix();
 		}
 		return __( 'for free', 'speedy_econt_shipping' );
 	}
