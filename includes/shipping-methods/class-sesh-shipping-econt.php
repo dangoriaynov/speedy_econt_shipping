@@ -63,8 +63,8 @@ class SESH_Shipping_Econt extends SESH_Shipping_Method {
 		}
 
 		// Fall back to global settings.
-		if ( $this->settings ) {
-			return $this->settings->get_econt_free_from();
+		if ( $this->plugin_settings ) {
+			return $this->plugin_settings->get_econt_free_from();
 		}
 
 		return -1;
@@ -76,8 +76,8 @@ class SESH_Shipping_Econt extends SESH_Shipping_Method {
 	 * @return float
 	 */
 	protected function get_fallback_rate() {
-		if ( $this->settings ) {
-			return $this->settings->get_econt_shipping();
+		if ( $this->plugin_settings ) {
+			return $this->plugin_settings->get_econt_shipping();
 		}
 		return 0;
 	}
@@ -94,7 +94,7 @@ class SESH_Shipping_Econt extends SESH_Shipping_Method {
 		}
 
 		// Check if Econt is enabled in settings.
-		if ( $this->settings && ! $this->settings->is_econt_enabled() ) {
+		if ( $this->plugin_settings && ! $this->plugin_settings->is_econt_enabled() ) {
 			return false;
 		}
 
@@ -264,9 +264,9 @@ class SESH_Shipping_Econt extends SESH_Shipping_Method {
 	 * @return bool
 	 */
 	protected function is_dynamic_pricing_enabled() {
-		if ( $this->settings ) {
+		if ( $this->plugin_settings ) {
 			// Check if Econt has dynamic pricing setting.
-			$use_dynamic = $this->settings->get( 'econt', 'use_dynamic_pricing', false );
+			$use_dynamic = $this->plugin_settings->get( 'econt', 'use_dynamic_pricing', false );
 			return (bool) $use_dynamic;
 		}
 		return false;

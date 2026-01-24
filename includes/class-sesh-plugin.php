@@ -166,50 +166,19 @@ final class SESH_Plugin {
 		require_once SESH_PLUGIN_DIR . 'includes/api/class-sesh-speedy-api.php';
 		require_once SESH_PLUGIN_DIR . 'includes/api/class-sesh-econt-api.php';
 
-		// Shipping method classes.
-		require_once SESH_PLUGIN_DIR . 'includes/shipping-methods/abstract-sesh-shipping-method.php';
-		require_once SESH_PLUGIN_DIR . 'includes/shipping-methods/class-sesh-shipping-speedy.php';
-		require_once SESH_PLUGIN_DIR . 'includes/shipping-methods/class-sesh-shipping-econt.php';
-		require_once SESH_PLUGIN_DIR . 'includes/shipping-methods/class-sesh-shipping-address.php';
+		// Note: Shipping method classes are loaded in load_shipping_method_classes()
+		// on 'woocommerce_shipping_init' hook to ensure WC_Shipping_Method is available.
 
 		// Admin classes.
 		if ( is_admin() ) {
 			require_once SESH_PLUGIN_DIR . 'includes/admin/class-sesh-admin.php';
+			require_once SESH_PLUGIN_DIR . 'includes/admin/class-sesh-wc-settings.php';
 		}
 
 		// Frontend classes.
 		if ( ! is_admin() || defined( 'DOING_AJAX' ) ) {
 			require_once SESH_PLUGIN_DIR . 'includes/class-sesh-frontend.php';
 		}
-
-		// Legacy compatibility - load old files for backward compatibility.
-		$this->load_legacy_files();
-	}
-
-	/**
-	 * Load legacy files for backward compatibility.
-	 *
-	 * These files will be deprecated in future versions.
-	 */
-	private function load_legacy_files() {
-		// Only load legacy files if new system isn't fully operational.
-		if ( ! $this->is_new_system_ready() ) {
-			require_once SESH_PLUGIN_DIR . 'api.php';
-			require_once SESH_PLUGIN_DIR . 'db.php';
-			require_once SESH_PLUGIN_DIR . 'js.php';
-			require_once SESH_PLUGIN_DIR . 'css.php';
-		}
-	}
-
-	/**
-	 * Check if new system is ready.
-	 *
-	 * @return bool
-	 */
-	private function is_new_system_ready() {
-		// Phase 3.1 complete: Modern JavaScript architecture is now active.
-		// The legacy js.php inline scripts are replaced by modular JS files.
-		return true;
 	}
 
 	/**
@@ -225,6 +194,9 @@ final class SESH_Plugin {
 
 		// WooCommerce compatibility declarations.
 		add_action( 'before_woocommerce_init', array( $this, 'declare_wc_compatibility' ) );
+
+		// Load shipping method classes when WooCommerce is ready.
+		add_action( 'woocommerce_shipping_init', array( $this, 'load_shipping_method_classes' ) );
 
 		// Register shipping methods with WooCommerce.
 		add_filter( 'woocommerce_shipping_methods', array( $this, 'register_shipping_methods' ) );
@@ -248,6 +220,9 @@ final class SESH_Plugin {
 		// Run settings migration if needed.
 		SESH_Settings_Migrator::maybe_migrate();
 
+		// Migrate to WooCommerce settings format if needed.
+		SESH_Settings_Migrator::migrate_to_wc_settings();
+
 		// Initialize components.
 		$this->settings = new SESH_Settings();
 		$this->database = new SESH_Database();
@@ -262,23 +237,27 @@ final class SESH_Plugin {
 				$this->settings->get_speedy_username(),
 				$this->settings->get_speedy_password()
 			);
+			$this->speedy_api->set_database( $this->database );
 		}
 
-		// Econt doesn't require credentials for basic operations.
+		// Initialize Econt API (credentials optional for nomenclatures, required for shipments).
 		if ( $this->settings->is_econt_enabled() ) {
-			$this->econt_api = new SESH_Econt_API();
+			$this->econt_api = new SESH_Econt_API(
+				$this->settings->get_econt_username(),
+				$this->settings->get_econt_password(),
+				$this->database
+			);
 		}
 
-		// Initialize admin or frontend only when new system is ready.
-		// This prevents conflicts with legacy code during migration.
-		if ( $this->is_new_system_ready() ) {
-			if ( is_admin() ) {
-				new SESH_Admin( $this->settings );
-			}
+		// Initialize admin.
+		if ( is_admin() ) {
+			new SESH_Admin( $this->settings );
+			$this->init_wc_settings();
+		}
 
-			if ( ! is_admin() || defined( 'DOING_AJAX' ) ) {
-				new SESH_Frontend( $this->settings, $this->database );
-			}
+		// Initialize frontend.
+		if ( ! is_admin() || defined( 'DOING_AJAX' ) ) {
+			new SESH_Frontend( $this->settings, $this->database );
 		}
 
 		/**
@@ -350,18 +329,27 @@ final class SESH_Plugin {
 	}
 
 	/**
+	 * Load shipping method classes.
+	 *
+	 * Called on 'woocommerce_shipping_init' to ensure WC_Shipping_Method is available.
+	 */
+	public function load_shipping_method_classes() {
+		require_once SESH_PLUGIN_DIR . 'includes/shipping-methods/abstract-sesh-shipping-method.php';
+		require_once SESH_PLUGIN_DIR . 'includes/shipping-methods/class-sesh-shipping-speedy.php';
+		require_once SESH_PLUGIN_DIR . 'includes/shipping-methods/class-sesh-shipping-econt.php';
+		require_once SESH_PLUGIN_DIR . 'includes/shipping-methods/class-sesh-shipping-address.php';
+	}
+
+	/**
 	 * Register shipping methods with WooCommerce.
 	 *
 	 * @param array $methods Existing shipping methods.
 	 * @return array
 	 */
 	public function register_shipping_methods( $methods ) {
-		// Only register if new system is ready.
-		if ( $this->is_new_system_ready() ) {
-			$methods['sesh_speedy']  = 'SESH_Shipping_Speedy';
-			$methods['sesh_econt']   = 'SESH_Shipping_Econt';
-			$methods['sesh_address'] = 'SESH_Shipping_Address';
-		}
+		$methods['sesh_speedy']  = 'SESH_Shipping_Speedy';
+		$methods['sesh_econt']   = 'SESH_Shipping_Econt';
+		$methods['sesh_address'] = 'SESH_Shipping_Address';
 		return $methods;
 	}
 
@@ -427,6 +415,25 @@ final class SESH_Plugin {
 	}
 
 	/**
+	 * Initialize WooCommerce settings integration.
+	 */
+	private function init_wc_settings() {
+		// Add our settings tab to WooCommerce settings.
+		add_filter( 'woocommerce_get_settings_pages', array( $this, 'add_wc_settings_page' ) );
+	}
+
+	/**
+	 * Add settings page to WooCommerce.
+	 *
+	 * @param array $settings Settings pages.
+	 * @return array
+	 */
+	public function add_wc_settings_page( $settings ) {
+		$settings[] = new SESH_WC_Settings( $this->settings );
+		return $settings;
+	}
+
+	/**
 	 * Add plugin action links.
 	 *
 	 * @param array $links Existing links.
@@ -434,7 +441,7 @@ final class SESH_Plugin {
 	 */
 	public function plugin_action_links( $links ) {
 		$plugin_links = array(
-			'<a href="' . esc_url( admin_url( 'options-general.php?page=speedy-econt-shipping' ) ) . '">' .
+			'<a href="' . esc_url( admin_url( 'admin.php?page=wc-settings&tab=sesh_shipping' ) ) . '">' .
 			esc_html__( 'Settings', 'speedy_econt_shipping' ) . '</a>',
 		);
 		return array_merge( $plugin_links, $links );

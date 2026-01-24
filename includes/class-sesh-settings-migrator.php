@@ -342,4 +342,76 @@ class SESH_Settings_Migrator {
 	public static function get_version() {
 		return get_option( 'sesh_settings_version', '' );
 	}
+
+	/**
+	 * Migrate settings to WooCommerce settings format.
+	 *
+	 * Migrates from plugin-specific option names to WooCommerce individual option format.
+	 *
+	 * @return bool True if migration performed.
+	 */
+	public static function migrate_to_wc_settings() {
+		// Check if already migrated to WC settings format.
+		if ( get_option( 'sesh_wc_settings_migrated', false ) ) {
+			return false;
+		}
+
+		// Get settings from new structure.
+		$speedy_settings  = get_option( 'sesh_speedy_settings', array() );
+		$econt_settings   = get_option( 'sesh_econt_settings', array() );
+		$address_settings = get_option( 'sesh_address_settings', array() );
+		$general_settings = get_option( 'sesh_general_settings', array() );
+
+		// Migrate Speedy settings.
+		if ( ! empty( $speedy_settings ) ) {
+			update_option( 'sesh_speedy_enabled', ! empty( $speedy_settings['enabled'] ) ? 'yes' : 'no' );
+			update_option( 'sesh_speedy_username', $speedy_settings['api_username'] ?? '' );
+			update_option( 'sesh_speedy_password', $speedy_settings['api_password'] ?? '' );
+			update_option( 'sesh_speedy_dynamic_pricing', ! empty( $speedy_settings['use_dynamic_pricing'] ) ? 'yes' : 'no' );
+			update_option( 'sesh_speedy_fallback_rate', $speedy_settings['fallback_rate'] ?? 0 );
+			update_option( 'sesh_speedy_free_from', $speedy_settings['free_shipping_threshold'] ?? '' );
+		}
+
+		// Migrate Econt settings.
+		if ( ! empty( $econt_settings ) ) {
+			update_option( 'sesh_econt_enabled', ! empty( $econt_settings['enabled'] ) ? 'yes' : 'no' );
+			update_option( 'sesh_econt_username', $econt_settings['api_username'] ?? '' );
+			update_option( 'sesh_econt_password', $econt_settings['api_password'] ?? '' );
+			update_option( 'sesh_econt_dynamic_pricing', ! empty( $econt_settings['use_dynamic_pricing'] ) ? 'yes' : 'no' );
+			update_option( 'sesh_econt_fallback_rate', $econt_settings['fallback_rate'] ?? 0 );
+			update_option( 'sesh_econt_free_from', $econt_settings['free_shipping_threshold'] ?? '' );
+		}
+
+		// Migrate Address settings.
+		if ( ! empty( $address_settings ) ) {
+			update_option( 'sesh_address_enabled', ! empty( $address_settings['enabled'] ) ? 'yes' : 'no' );
+			update_option( 'sesh_address_label', $address_settings['label'] ?? __( 'address', 'speedy_econt_shipping' ) );
+			update_option( 'sesh_address_fallback_rate', $address_settings['fallback_rate'] ?? 0 );
+			update_option( 'sesh_address_free_from', $address_settings['free_shipping_threshold'] ?? '' );
+			update_option( 'sesh_address_fields', $address_settings['fields'] ?? '#billing_state, #billing_city, #billing_address_1' );
+		}
+
+		// Migrate General settings.
+		if ( ! empty( $general_settings ) ) {
+			update_option( 'sesh_shipping_options_order', $general_settings['shipping_options_order'] ?? 'speedy,econt,address' );
+			update_option( 'sesh_emergency_contact', $general_settings['emergency_contact'] ?? '' );
+			update_option( 'sesh_free_shipping_label', $general_settings['free_shipping_label_suffix'] ?? __( 'for free', 'speedy_econt_shipping' ) );
+			update_option( 'sesh_email_required', ! empty( $general_settings['email_required'] ) ? 'yes' : 'no' );
+			update_option( 'sesh_address_validation', ! empty( $general_settings['address_validation_needed'] ) ? 'yes' : 'no' );
+			update_option( 'sesh_hidden_fields', $general_settings['hidden_fields'] ?? '' );
+			update_option( 'sesh_debug_mode', ! empty( $general_settings['debug_mode'] ) ? 'yes' : 'no' );
+		}
+
+		// Mark migration complete.
+		update_option( 'sesh_wc_settings_migrated', true );
+
+		/**
+		 * Fires after WooCommerce settings migration is complete.
+		 *
+		 * @since 2.0.0
+		 */
+		do_action( 'sesh_wc_settings_migrated' );
+
+		return true;
+	}
 }

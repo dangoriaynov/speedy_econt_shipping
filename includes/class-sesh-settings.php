@@ -71,6 +71,8 @@ class SESH_Settings {
 		'additionally_hidden_fields_03' => array( 'general', 'hidden_fields' ),
 		'shipping_opts_order_14'        => array( 'general', 'shipping_options_order' ),
 		'emergency_contact_13'          => array( 'general', 'emergency_contact' ),
+		'econt_username'                => array( 'econt', 'api_username' ),
+		'econt_password'                => array( 'econt', 'api_password' ),
 		'show_store_messages_6'         => array( 'general', 'show_store_messages' ),
 		'show_deliv_opts_6'             => array( 'general', 'show_delivery_options' ),
 		'calculate_final_price_8'       => array( 'general', 'calculate_final_price' ),
@@ -508,6 +510,30 @@ class SESH_Settings {
 	 */
 	public function is_econt_enabled() {
 		return (bool) $this->get( 'econt', 'enabled', true );
+	}
+
+	/**
+	 * Get Econt username.
+	 *
+	 * @return string
+	 */
+	public function get_econt_username() {
+		return (string) $this->get( 'econt', 'api_username', '' );
+	}
+
+	/**
+	 * Get Econt password (decrypted).
+	 *
+	 * @return string
+	 */
+	public function get_econt_password() {
+		$password = $this->get( 'econt', 'api_password', '' );
+
+		if ( ! empty( $password ) && SESH_Encryption::is_encrypted( $password ) ) {
+			return SESH_Encryption::decrypt( $password );
+		}
+
+		return (string) $password;
 	}
 
 	/**
