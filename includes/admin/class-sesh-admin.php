@@ -59,7 +59,22 @@ class SESH_Admin {
 					sprintf(
 						/* translators: %s: settings page URL */
 						__( 'Speedy shipping is enabled but API credentials are missing. Please <a href="%s">configure your settings</a>.', 'speedy_econt_shipping' ),
-						esc_url( admin_url( 'admin.php?page=wc-settings&tab=shipping&section=sesh_speedy' ) )
+						esc_url( admin_url( 'admin.php?page=wc-settings&tab=sesh_shipping&section=speedy' ) )
+					),
+					'warning'
+				);
+			}
+		}
+
+		// Check if Econt credentials are missing when Econt is enabled.
+		if ( $this->settings->is_econt_enabled() ) {
+			$username = $this->settings->get_econt_username();
+			if ( empty( $username ) ) {
+				$this->show_notice(
+					sprintf(
+						/* translators: %s: settings page URL */
+						__( 'Econt shipping is enabled but API credentials are missing. Please <a href="%s">configure your settings</a>.', 'speedy_econt_shipping' ),
+						esc_url( admin_url( 'admin.php?page=wc-settings&tab=sesh_shipping&section=econt' ) )
 					),
 					'warning'
 				);
