@@ -169,10 +169,12 @@ final class SESH_Plugin {
 		// Note: Shipping method classes are loaded in load_shipping_method_classes()
 		// on 'woocommerce_shipping_init' hook to ensure WC_Shipping_Method is available.
 
+		// Note: WooCommerce Settings integration is loaded in init_wc_settings()
+		// to ensure WC_Settings_Page is available.
+
 		// Admin classes.
 		if ( is_admin() ) {
 			require_once SESH_PLUGIN_DIR . 'includes/admin/class-sesh-admin.php';
-			require_once SESH_PLUGIN_DIR . 'includes/admin/class-sesh-wc-settings.php';
 		}
 
 		// Frontend classes.
@@ -200,6 +202,9 @@ final class SESH_Plugin {
 
 		// Register shipping methods with WooCommerce.
 		add_filter( 'woocommerce_shipping_methods', array( $this, 'register_shipping_methods' ) );
+
+		// Initialize WooCommerce settings integration after WooCommerce loads.
+		add_action( 'woocommerce_init', array( $this, 'init_wc_settings' ) );
 
 		// Add settings link on plugins page.
 		add_filter( 'plugin_action_links_' . SESH_PLUGIN_BASENAME, array( $this, 'plugin_action_links' ) );
@@ -252,7 +257,6 @@ final class SESH_Plugin {
 		// Initialize admin.
 		if ( is_admin() ) {
 			new SESH_Admin( $this->settings );
-			$this->init_wc_settings();
 		}
 
 		// Initialize frontend.
@@ -416,8 +420,24 @@ final class SESH_Plugin {
 
 	/**
 	 * Initialize WooCommerce settings integration.
+	 *
+	 * Hooked to 'woocommerce_init' to ensure WooCommerce is fully loaded
+	 * and WC_Settings_Page parent class is available.
 	 */
-	private function init_wc_settings() {
+	public function init_wc_settings() {
+		// Only initialize in admin context.
+		if ( ! is_admin() ) {
+			return;
+		}
+
+		// Verify WC_Settings_Page class exists before loading our settings class.
+		if ( ! class_exists( 'WC_Settings_Page' ) ) {
+			return;
+		}
+
+		// Load WooCommerce settings integration class.
+		require_once SESH_PLUGIN_DIR . 'includes/admin/class-sesh-wc-settings.php';
+
 		// Add our settings tab to WooCommerce settings.
 		add_filter( 'woocommerce_get_settings_pages', array( $this, 'add_wc_settings_page' ) );
 	}
@@ -429,7 +449,10 @@ final class SESH_Plugin {
 	 * @return array
 	 */
 	public function add_wc_settings_page( $settings ) {
-		$settings[] = new SESH_WC_Settings( $this->settings );
+		// Double-check class exists before instantiating (defensive programming).
+		if ( class_exists( 'SESH_WC_Settings' ) ) {
+			$settings[] = new SESH_WC_Settings( $this->settings );
+		}
 		return $settings;
 	}
 
