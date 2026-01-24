@@ -67,8 +67,8 @@ class SESH_Shipping_Address extends SESH_Shipping_Method {
 		}
 
 		// Fall back to global settings.
-		if ( $this->settings ) {
-			return $this->settings->get_address_free_from();
+		if ( $this->plugin_settings ) {
+			return $this->plugin_settings->get_address_free_from();
 		}
 
 		return -1;
@@ -80,8 +80,8 @@ class SESH_Shipping_Address extends SESH_Shipping_Method {
 	 * @return float
 	 */
 	protected function get_fallback_rate() {
-		if ( $this->settings ) {
-			return $this->settings->get_address_shipping();
+		if ( $this->plugin_settings ) {
+			return $this->plugin_settings->get_address_shipping();
 		}
 		return 0;
 	}
@@ -98,17 +98,17 @@ class SESH_Shipping_Address extends SESH_Shipping_Method {
 		}
 
 		// Check if address delivery is enabled in settings.
-		if ( $this->settings && ! $this->settings->is_address_enabled() ) {
+		if ( $this->plugin_settings && ! $this->plugin_settings->is_address_enabled() ) {
 			return false;
 		}
 
 		// Address delivery requires Speedy to be enabled and configured.
-		if ( $this->settings ) {
-			if ( ! $this->settings->is_speedy_enabled() ) {
+		if ( $this->plugin_settings ) {
+			if ( ! $this->plugin_settings->is_speedy_enabled() ) {
 				return false;
 			}
 
-			$username = $this->settings->get_speedy_username();
+			$username = $this->plugin_settings->get_speedy_username();
 			if ( empty( $username ) ) {
 				return false;
 			}
@@ -231,8 +231,8 @@ class SESH_Shipping_Address extends SESH_Shipping_Method {
 	 * @return string
 	 */
 	private function get_default_title() {
-		if ( $this->settings ) {
-			return $this->settings->get_address_label();
+		if ( $this->plugin_settings ) {
+			return $this->plugin_settings->get_address_label();
 		}
 		return __( 'Address Delivery', 'speedy_econt_shipping' );
 	}

@@ -13,10 +13,6 @@ defined( 'ABSPATH' ) || exit;
  *
  * Handles all admin functionality including settings pages,
  * order meta boxes, and admin notices.
- *
- * Note: The legacy admin (SeshSpeedyEcontShippingAdmin) is still active
- * for backward compatibility. This class will gradually take over
- * admin functionality in future updates.
  */
 class SESH_Admin {
 
@@ -63,7 +59,7 @@ class SESH_Admin {
 					sprintf(
 						/* translators: %s: settings page URL */
 						__( 'Speedy shipping is enabled but API credentials are missing. Please <a href="%s">configure your settings</a>.', 'speedy_econt_shipping' ),
-						esc_url( admin_url( 'options-general.php?page=speedy-econt-shipping' ) )
+						esc_url( admin_url( 'admin.php?page=wc-settings&tab=shipping&section=sesh_speedy' ) )
 					),
 					'warning'
 				);
@@ -91,9 +87,9 @@ class SESH_Admin {
 	 * @param string $hook Current admin page hook.
 	 */
 	public function enqueue_scripts( $hook ) {
-		// Only load on our settings page or WooCommerce order pages.
+		// Only load on WooCommerce settings or order pages.
 		$allowed_pages = array(
-			'settings_page_speedy-econt-shipping',
+			'woocommerce_page_wc-settings',
 			'post.php',
 			'edit.php',
 			'woocommerce_page_wc-orders',
@@ -103,7 +99,7 @@ class SESH_Admin {
 			return;
 		}
 
-		// Admin styles (will be added in future phases).
+		// Admin styles.
 		wp_enqueue_style(
 			'sesh-admin',
 			SESH_PLUGIN_URL . 'assets/css/admin.css',
