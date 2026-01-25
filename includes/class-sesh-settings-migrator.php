@@ -39,6 +39,7 @@ class SESH_Settings_Migrator {
 		'econt'   => 'sesh_econt_settings',
 		'address' => 'sesh_address_settings',
 		'general' => 'sesh_general_settings',
+		'sender'  => 'sesh_sender_settings',
 	);
 
 	/**
@@ -128,6 +129,15 @@ class SESH_Settings_Migrator {
 			'cart_calculator_enabled'   => true,
 			'debug_mode'                => false,
 			'cache_ttl'                 => 3600,
+		),
+		'sender'  => array(
+			'sender_name'    => '',
+			'sender_phone'   => '',
+			'sender_email'   => '',
+			'sender_region'  => '',
+			'sender_city'    => '',
+			'sender_address' => '',
+			'sender_postcode' => '',
 		),
 	);
 
