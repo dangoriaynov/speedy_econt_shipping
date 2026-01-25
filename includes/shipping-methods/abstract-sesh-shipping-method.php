@@ -85,7 +85,7 @@ abstract class SESH_Shipping_Method extends WC_Shipping_Method {
 				'default'     => $this->method_title,
 				'desc_tip'    => true,
 			),
-			'cost'       => array(
+			'cost'             => array(
 				'title'       => __( 'Cost', 'speedy_econt_shipping' ),
 				'type'        => 'price',
 				'placeholder' => '',
@@ -93,7 +93,15 @@ abstract class SESH_Shipping_Method extends WC_Shipping_Method {
 				'default'     => '',
 				'desc_tip'    => true,
 			),
-			'free_from'  => array(
+			'min_order_amount' => array(
+				'title'       => __( 'Minimum Order Amount', 'speedy_econt_shipping' ),
+				'type'        => 'price',
+				'placeholder' => '',
+				'description' => __( 'Minimum order subtotal required to display this shipping method. Leave blank to disable.', 'speedy_econt_shipping' ),
+				'default'     => '',
+				'desc_tip'    => true,
+			),
+			'free_from'        => array(
 				'title'       => __( 'Free Shipping Threshold', 'speedy_econt_shipping' ),
 				'type'        => 'price',
 				'placeholder' => '',
@@ -115,7 +123,20 @@ abstract class SESH_Shipping_Method extends WC_Shipping_Method {
 	}
 
 	/**
+	 * Get the method title for admin display.
+	 *
+	 * This is used in shipping zones settings to identify the shipping method.
+	 *
+	 * @return string
+	 */
+	public function get_method_title() {
+		return $this->method_title;
+	}
+
+	/**
 	 * Get the title for the shipping method.
+	 *
+	 * This is the title shown to customers during checkout.
 	 *
 	 * @return string
 	 */
@@ -133,6 +154,11 @@ abstract class SESH_Shipping_Method extends WC_Shipping_Method {
 	public function is_available( $package ) {
 		$is_available = $this->is_enabled();
 
+		// Check minimum order amount requirement.
+		if ( $is_available && ! $this->meets_minimum_order_amount( $package ) ) {
+			$is_available = false;
+		}
+
 		/**
 		 * Filter whether the shipping method is available.
 		 *
@@ -142,6 +168,25 @@ abstract class SESH_Shipping_Method extends WC_Shipping_Method {
 		 * @param SESH_Shipping_Method $method       Shipping method instance.
 		 */
 		return apply_filters( 'sesh_shipping_method_is_available', $is_available, $package, $this );
+	}
+
+	/**
+	 * Check if cart meets minimum order amount requirement.
+	 *
+	 * @param array $package Shipping package.
+	 * @return bool True if minimum is met or not set, false otherwise.
+	 */
+	protected function meets_minimum_order_amount( $package ) {
+		$min_amount = $this->get_option( 'min_order_amount' );
+
+		// If no minimum is set, always return true.
+		if ( '' === $min_amount || (float) $min_amount <= 0 ) {
+			return true;
+		}
+
+		$cart_total = $this->get_cart_total( $package );
+
+		return $cart_total >= (float) $min_amount;
 	}
 
 	/**
