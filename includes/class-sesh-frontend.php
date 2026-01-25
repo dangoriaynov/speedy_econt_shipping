@@ -41,6 +41,13 @@ class SESH_Frontend {
 	private $cart_calculator;
 
 	/**
+	 * Customer tracking instance.
+	 *
+	 * @var SESH_Customer_Tracking
+	 */
+	private $customer_tracking;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param SESH_Settings $settings Settings instance.
@@ -51,6 +58,7 @@ class SESH_Frontend {
 		$this->database = $database;
 		$this->init_hooks();
 		$this->init_cart_calculator();
+		$this->init_customer_tracking();
 	}
 
 	/**
@@ -80,6 +88,24 @@ class SESH_Frontend {
 	private function init_cart_calculator() {
 		require_once SESH_PLUGIN_DIR . 'includes/class-sesh-cart-calculator.php';
 		$this->cart_calculator = new SESH_Cart_Calculator( $this->settings, $this->database );
+	}
+
+	/**
+	 * Initialize customer tracking.
+	 */
+	private function init_customer_tracking() {
+		// Get plugin instance to access API clients.
+		$plugin = SESH_Plugin::instance();
+
+		// Initialize label manager.
+		$label_manager = new SESH_Label_Manager(
+			$this->database,
+			$plugin->get_speedy_api(),
+			$plugin->get_econt_api()
+		);
+
+		// Initialize customer tracking.
+		$this->customer_tracking = new SESH_Customer_Tracking( $this->database, $label_manager );
 	}
 
 	/**
