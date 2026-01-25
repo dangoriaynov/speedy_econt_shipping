@@ -7,7 +7,12 @@
       "Bash(git checkout:*)",
       "Bash(git pull:*)",
       "Bash(php:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(gh issue list:*)",
+      "Bash(gh issue view:*)",
+      "Bash(node --check:*)",
+      "Bash(test:*)",
+      "Bash(node -c:*)"
     ]
   }
 }

@@ -166,6 +166,15 @@ final class SESH_Plugin {
 		require_once SESH_PLUGIN_DIR . 'includes/api/class-sesh-speedy-api.php';
 		require_once SESH_PLUGIN_DIR . 'includes/api/class-sesh-econt-api.php';
 
+		// Label classes.
+		require_once SESH_PLUGIN_DIR . 'includes/labels/class-sesh-validation-result.php';
+		require_once SESH_PLUGIN_DIR . 'includes/labels/class-sesh-label-result.php';
+		require_once SESH_PLUGIN_DIR . 'includes/labels/class-sesh-label-generator.php';
+		require_once SESH_PLUGIN_DIR . 'includes/labels/class-sesh-label-manager.php';
+
+		// Tracking classes.
+		require_once SESH_PLUGIN_DIR . 'includes/class-sesh-tracking-urls.php';
+
 		// Note: Shipping method classes are loaded in load_shipping_method_classes()
 		// on 'woocommerce_shipping_init' hook to ensure WC_Shipping_Method is available.
 
@@ -175,11 +184,14 @@ final class SESH_Plugin {
 		// Admin classes.
 		if ( is_admin() ) {
 			require_once SESH_PLUGIN_DIR . 'includes/admin/class-sesh-admin.php';
+			require_once SESH_PLUGIN_DIR . 'includes/admin/class-sesh-admin-orders.php';
+			require_once SESH_PLUGIN_DIR . 'includes/admin/class-sesh-admin-ajax.php';
 		}
 
 		// Frontend classes.
 		if ( ! is_admin() || defined( 'DOING_AJAX' ) ) {
 			require_once SESH_PLUGIN_DIR . 'includes/class-sesh-frontend.php';
+			require_once SESH_PLUGIN_DIR . 'includes/frontend/class-sesh-customer-tracking.php';
 		}
 	}
 

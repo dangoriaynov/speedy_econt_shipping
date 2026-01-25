@@ -1,0 +1,408 @@
+/**
+ * SESH Admin Orders Styles
+ *
+ * @package Speedy_Econt_Shipping
+ * @since   2.0.0
+ */
+
+/* ==========================================================================
+   Orders List - Tracking Column
+   ========================================================================== */
+
+.sesh-tracking-cell {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.sesh-tracking-number {
+	font-family: monospace;
+	font-size: 13px;
+}
+
+.sesh-no-tracking {
+	color: #999;
+}
+
+.sesh-copy-tracking {
+	padding: 2px 6px !important;
+	min-height: 0 !important;
+	line-height: 1 !important;
+}
+
+.sesh-copy-tracking .dashicons {
+	font-size: 14px;
+	width: 14px;
+	height: 14px;
+}
+
+.sesh-copy-tracking.sesh-copied {
+	background-color: #00a32a;
+	color: #fff;
+	border-color: #00a32a;
+}
+
+/* ==========================================================================
+   Label Meta Box
+   ========================================================================== */
+
+.sesh-label-meta-box {
+	position: relative;
+}
+
+.sesh-label-info {
+	padding: 12px;
+}
+
+.sesh-label-carrier {
+	margin-bottom: 16px;
+}
+
+.sesh-carrier-logo {
+	display: inline-block;
+	padding: 6px 12px;
+	background: #f0f0f1;
+	border-radius: 4px;
+	font-weight: 600;
+	text-transform: uppercase;
+	font-size: 12px;
+	letter-spacing: 0.5px;
+}
+
+.sesh-carrier-logo.sesh-carrier-speedy {
+	background: #e74c3c;
+	color: #fff;
+}
+
+.sesh-carrier-logo.sesh-carrier-econt {
+	background: #2ecc71;
+	color: #fff;
+}
+
+.sesh-label-field {
+	margin-bottom: 12px;
+}
+
+.sesh-label-field label {
+	display: block;
+	font-weight: 600;
+	margin-bottom: 4px;
+	color: #1d2327;
+}
+
+.sesh-tracking-display {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.sesh-tracking-display .sesh-tracking-number {
+	font-family: monospace;
+	font-size: 14px;
+	background: #f0f0f1;
+	padding: 6px 10px;
+	border-radius: 3px;
+}
+
+.sesh-label-status {
+	display: inline-block;
+	padding: 4px 10px;
+	border-radius: 3px;
+	font-size: 12px;
+	font-weight: 600;
+	text-transform: uppercase;
+}
+
+.sesh-label-status.sesh-status-pending {
+	background: #f0f0f1;
+	color: #646970;
+}
+
+.sesh-label-status.sesh-status-generated {
+	background: #d5e8ff;
+	color: #135e96;
+}
+
+.sesh-label-status.sesh-status-printed {
+	background: #d4edda;
+	color: #155724;
+}
+
+.sesh-label-status.sesh-status-cancelled {
+	background: #f8d7da;
+	color: #721c24;
+}
+
+.sesh-label-actions {
+	margin-top: 16px;
+	padding-top: 12px;
+	border-top: 1px solid #dcdcde;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.sesh-label-actions .button {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.sesh-label-actions .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+}
+
+/* No Label State */
+
+.sesh-no-label {
+	padding: 12px;
+}
+
+.sesh-no-label-message {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	color: #646970;
+	margin-bottom: 12px;
+}
+
+.sesh-no-label-message .dashicons {
+	color: #2271b1;
+}
+
+/* Validation Errors */
+
+.sesh-validation-errors {
+	background: #fcf8e3;
+	border-left: 4px solid #f0ad4e;
+	padding: 12px;
+	margin-bottom: 16px;
+}
+
+.sesh-error-intro {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 0 0 12px 0;
+	font-weight: 600;
+	color: #856404;
+}
+
+.sesh-error-intro .dashicons {
+	color: #f0ad4e;
+}
+
+.sesh-error-list {
+	margin: 0;
+	padding-left: 20px;
+	color: #856404;
+}
+
+.sesh-error-list li {
+	margin-bottom: 4px;
+}
+
+/* Loading State */
+
+.sesh-loading {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	padding: 20px;
+	background: rgba(255, 255, 255, 0.9);
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 10;
+}
+
+.sesh-loading-text {
+	font-weight: 600;
+	color: #1d2327;
+}
+
+.sesh-loading-state {
+	opacity: 0.6;
+	pointer-events: none;
+}
+
+/* ==========================================================================
+   Tracking Meta Box
+   ========================================================================== */
+
+.sesh-tracking-meta-box {
+	position: relative;
+}
+
+.sesh-tracking-status {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	padding: 16px;
+	background: #f0f6fc;
+	border-left: 4px solid #2271b1;
+	margin-bottom: 20px;
+}
+
+.sesh-status-icon {
+	flex-shrink: 0;
+}
+
+.sesh-status-icon .dashicons {
+	width: 40px;
+	height: 40px;
+	font-size: 40px;
+	color: #2271b1;
+}
+
+.sesh-status-info h4 {
+	margin: 0 0 4px 0;
+	font-size: 14px;
+	font-weight: 600;
+	color: #1d2327;
+}
+
+.sesh-status-text {
+	margin: 0;
+	font-size: 18px;
+	font-weight: 600;
+	color: #2271b1;
+}
+
+/* Tracking Timeline */
+
+.sesh-tracking-timeline {
+	margin-bottom: 20px;
+}
+
+.sesh-tracking-timeline h4 {
+	margin: 0 0 12px 0;
+	font-size: 14px;
+	font-weight: 600;
+	color: #1d2327;
+}
+
+.sesh-timeline-events {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	border-left: 2px solid #dcdcde;
+	padding-left: 20px;
+}
+
+.sesh-timeline-event {
+	position: relative;
+	margin-bottom: 20px;
+	padding-bottom: 20px;
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.sesh-timeline-event:last-child {
+	border-bottom: 0;
+	margin-bottom: 0;
+	padding-bottom: 0;
+}
+
+.sesh-timeline-event::before {
+	content: '';
+	position: absolute;
+	left: -26px;
+	top: 4px;
+	width: 10px;
+	height: 10px;
+	background: #2271b1;
+	border: 2px solid #fff;
+	border-radius: 50%;
+}
+
+.sesh-event-date {
+	font-size: 12px;
+	color: #646970;
+	margin-bottom: 4px;
+}
+
+.sesh-event-status {
+	font-weight: 600;
+	color: #1d2327;
+	margin-bottom: 4px;
+}
+
+.sesh-event-description {
+	color: #646970;
+	margin-bottom: 4px;
+	font-size: 13px;
+}
+
+.sesh-event-location {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	font-size: 12px;
+	color: #646970;
+}
+
+.sesh-event-location .dashicons {
+	font-size: 14px;
+	width: 14px;
+	height: 14px;
+}
+
+/* Tracking Actions */
+
+.sesh-tracking-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	padding: 12px 0;
+	border-top: 1px solid #dcdcde;
+	margin-bottom: 12px;
+}
+
+.sesh-tracking-actions .button {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.sesh-tracking-actions .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+}
+
+.sesh-tracking-updated {
+	color: #646970;
+	font-size: 12px;
+}
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+
+@media (max-width: 782px) {
+	.sesh-tracking-cell {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.sesh-label-actions,
+	.sesh-tracking-actions {
+		flex-direction: column;
+	}
+
+	.sesh-label-actions .button,
+	.sesh-tracking-actions .button {
+		width: 100%;
+		justify-content: center;
+	}
+
+	.sesh-tracking-status {
+		flex-direction: column;
+		text-align: center;
+	}
+}
