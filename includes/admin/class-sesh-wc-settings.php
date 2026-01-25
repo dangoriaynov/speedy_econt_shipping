@@ -47,6 +47,7 @@ class SESH_WC_Settings extends WC_Settings_Page {
 			'speedy'  => __( 'Speedy', 'speedy_econt_shipping' ),
 			'econt'   => __( 'Econt', 'speedy_econt_shipping' ),
 			'address' => __( 'Address Delivery', 'speedy_econt_shipping' ),
+			'sender'  => __( 'Sender Address', 'speedy_econt_shipping' ),
 		);
 	}
 
@@ -64,6 +65,8 @@ class SESH_WC_Settings extends WC_Settings_Page {
 				return $this->get_econt_settings();
 			case 'address':
 				return $this->get_address_settings();
+			case 'sender':
+				return $this->get_sender_settings();
 			default:
 				return $this->get_general_settings();
 		}
@@ -137,6 +140,38 @@ class SESH_WC_Settings extends WC_Settings_Page {
 			array(
 				'type' => 'sectionend',
 				'id'   => 'sesh_general_settings',
+			),
+
+			// Label Generation Settings.
+			array(
+				'title' => __( 'Label Generation Settings', 'speedy_econt_shipping' ),
+				'type'  => 'title',
+				'desc'  => __( 'Configure automatic shipping label generation.', 'speedy_econt_shipping' ),
+				'id'    => 'sesh_label_settings',
+			),
+			array(
+				'title'    => __( 'Auto-Generate Labels', 'speedy_econt_shipping' ),
+				'desc'     => __( 'Automatically generate shipping labels when orders reach specified status', 'speedy_econt_shipping' ),
+				'id'       => 'sesh_auto_generate_labels',
+				'default'  => 'no',
+				'type'     => 'checkbox',
+			),
+			array(
+				'title'    => __( 'Auto-Generate Status', 'speedy_econt_shipping' ),
+				'desc'     => __( 'Order status that triggers automatic label generation', 'speedy_econt_shipping' ),
+				'id'       => 'sesh_auto_generate_status',
+				'default'  => 'processing',
+				'type'     => 'select',
+				'class'    => 'wc-enhanced-select',
+				'options'  => array(
+					'processing' => __( 'Processing', 'speedy_econt_shipping' ),
+					'completed'  => __( 'Completed', 'speedy_econt_shipping' ),
+					'on-hold'    => __( 'On Hold', 'speedy_econt_shipping' ),
+				),
+			),
+			array(
+				'type' => 'sectionend',
+				'id'   => 'sesh_label_settings',
 			),
 		);
 	}
@@ -334,6 +369,84 @@ class SESH_WC_Settings extends WC_Settings_Page {
 	}
 
 	/**
+	 * Get Sender Address settings.
+	 *
+	 * @return array
+	 */
+	private function get_sender_settings() {
+		return array(
+			array(
+				'title' => __( 'Sender Address Configuration', 'speedy_econt_shipping' ),
+				'type'  => 'title',
+				'desc'  => __( 'Configure the sender address for shipping labels and API requests. This information is required for generating shipping labels.', 'speedy_econt_shipping' ),
+				'id'    => 'sesh_sender_settings',
+			),
+			array(
+				'title'    => __( 'Company/Sender Name', 'speedy_econt_shipping' ),
+				'desc'     => __( 'Full name or company name of the sender', 'speedy_econt_shipping' ),
+				'id'       => 'sesh_sender_name',
+				'default'  => '',
+				'type'     => 'text',
+				'css'      => 'min-width:400px;',
+			),
+			array(
+				'title'    => __( 'Phone Number', 'speedy_econt_shipping' ),
+				'desc'     => __( 'Bulgarian phone number (format: 0888123456 or +359888123456)', 'speedy_econt_shipping' ),
+				'id'       => 'sesh_sender_phone',
+				'default'  => '',
+				'type'     => 'text',
+				'css'      => 'min-width:300px;',
+			),
+			array(
+				'title'    => __( 'Email Address', 'speedy_econt_shipping' ),
+				'desc'     => __( 'Contact email for shipping notifications', 'speedy_econt_shipping' ),
+				'id'       => 'sesh_sender_email',
+				'default'  => get_option( 'admin_email' ),
+				'type'     => 'email',
+				'css'      => 'min-width:300px;',
+			),
+			array(
+				'title'    => __( 'Region', 'speedy_econt_shipping' ),
+				'desc'     => __( 'Bulgarian region/oblast', 'speedy_econt_shipping' ),
+				'id'       => 'sesh_sender_region',
+				'default'  => '',
+				'type'     => 'text',
+				'css'      => 'min-width:300px;',
+				'class'    => 'sesh-sender-region',
+			),
+			array(
+				'title'    => __( 'City', 'speedy_econt_shipping' ),
+				'desc'     => __( 'City name (must exist in carrier databases)', 'speedy_econt_shipping' ),
+				'id'       => 'sesh_sender_city',
+				'default'  => '',
+				'type'     => 'text',
+				'css'      => 'min-width:300px;',
+				'class'    => 'sesh-sender-city',
+			),
+			array(
+				'title'    => __( 'Street Address', 'speedy_econt_shipping' ),
+				'desc'     => __( 'Full street address including building number', 'speedy_econt_shipping' ),
+				'id'       => 'sesh_sender_address',
+				'default'  => '',
+				'type'     => 'textarea',
+				'css'      => 'min-width:400px; min-height:60px;',
+			),
+			array(
+				'title'    => __( 'Post Code', 'speedy_econt_shipping' ),
+				'desc'     => __( 'Bulgarian postal code', 'speedy_econt_shipping' ),
+				'id'       => 'sesh_sender_postcode',
+				'default'  => '',
+				'type'     => 'text',
+				'css'      => 'min-width:150px;',
+			),
+			array(
+				'type' => 'sectionend',
+				'id'   => 'sesh_sender_settings',
+			),
+		);
+	}
+
+	/**
 	 * Save settings.
 	 */
 	public function save() {
@@ -397,6 +510,16 @@ class SESH_WC_Settings extends WC_Settings_Page {
 				$this->plugin_settings->set( 'address', 'fields', get_option( 'sesh_address_fields', '#billing_state, #billing_city, #billing_address_1' ) );
 				break;
 
+			case 'sender':
+				$this->plugin_settings->set( 'sender', 'sender_name', get_option( 'sesh_sender_name', '' ) );
+				$this->plugin_settings->set( 'sender', 'sender_phone', get_option( 'sesh_sender_phone', '' ) );
+				$this->plugin_settings->set( 'sender', 'sender_email', get_option( 'sesh_sender_email', '' ) );
+				$this->plugin_settings->set( 'sender', 'sender_region', get_option( 'sesh_sender_region', '' ) );
+				$this->plugin_settings->set( 'sender', 'sender_city', get_option( 'sesh_sender_city', '' ) );
+				$this->plugin_settings->set( 'sender', 'sender_address', get_option( 'sesh_sender_address', '' ) );
+				$this->plugin_settings->set( 'sender', 'sender_postcode', get_option( 'sesh_sender_postcode', '' ) );
+				break;
+
 			default:
 				// General settings.
 				$this->plugin_settings->set( 'general', 'shipping_options_order', get_option( 'sesh_shipping_options_order', 'speedy,econt,address' ) );
@@ -404,6 +527,8 @@ class SESH_WC_Settings extends WC_Settings_Page {
 				$this->plugin_settings->set( 'general', 'free_shipping_label_suffix', get_option( 'sesh_free_shipping_label', __( 'for free', 'speedy_econt_shipping' ) ) );
 				$this->plugin_settings->set( 'general', 'email_required', 'yes' === get_option( 'sesh_email_required', 'no' ) );
 				$this->plugin_settings->set( 'general', 'address_validation_needed', 'yes' === get_option( 'sesh_address_validation', 'yes' ) );
+				$this->plugin_settings->set( 'general', 'auto_generate_labels', 'yes' === get_option( 'sesh_auto_generate_labels', 'no' ) );
+				$this->plugin_settings->set( 'general', 'auto_generate_status', get_option( 'sesh_auto_generate_status', 'processing' ) );
 				$this->plugin_settings->set( 'general', 'hidden_fields', get_option( 'sesh_hidden_fields', '' ) );
 				$this->plugin_settings->set( 'general', 'debug_mode', 'yes' === get_option( 'sesh_debug_mode', 'no' ) );
 				break;

@@ -1,0 +1,350 @@
+/**
+ * Customer Tracking Styles
+ *
+ * @package Speedy_Econt_Shipping
+ * @since   2.0.0
+ */
+
+/* ==========================================================================
+   Tracking Section
+   ========================================================================== */
+
+.sesh-tracking-section {
+	margin-top: 2em;
+	padding: 1.5em;
+	background: #f9f9f9;
+	border: 1px solid #e5e5e5;
+	border-radius: 4px;
+}
+
+.sesh-tracking-section h2 {
+	margin-top: 0;
+	padding-bottom: 0.5em;
+	border-bottom: 2px solid #0073aa;
+	color: #333;
+}
+
+.sesh-tracking-container {
+	position: relative;
+}
+
+/* ==========================================================================
+   Carrier Header
+   ========================================================================== */
+
+.sesh-tracking-header {
+	margin-bottom: 1.5em;
+	text-align: center;
+}
+
+.sesh-carrier-logo {
+	display: inline-block;
+}
+
+.sesh-carrier-logo img {
+	max-width: 150px;
+	height: auto;
+}
+
+.sesh-carrier-name {
+	font-size: 1.2em;
+	color: #333;
+}
+
+/* ==========================================================================
+   Tracking Number
+   ========================================================================== */
+
+.sesh-tracking-number {
+	margin-bottom: 1em;
+	padding: 1em;
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+}
+
+.sesh-tracking-number label {
+	display: block;
+	margin-bottom: 0.5em;
+	font-weight: 600;
+	color: #666;
+}
+
+.sesh-tracking-number-value {
+	display: flex;
+	align-items: center;
+	gap: 0.5em;
+}
+
+.sesh-tracking-number-value strong {
+	font-size: 1.2em;
+	color: #0073aa;
+	font-family: monospace;
+}
+
+.sesh-copy-tracking {
+	padding: 0.25em 0.5em;
+	background: #f0f0f0;
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	cursor: pointer;
+	transition: all 0.2s;
+}
+
+.sesh-copy-tracking:hover {
+	background: #0073aa;
+	border-color: #0073aa;
+	color: #fff;
+}
+
+.sesh-copy-tracking .dashicons {
+	width: 18px;
+	height: 18px;
+	font-size: 18px;
+}
+
+/* ==========================================================================
+   Current Status
+   ========================================================================== */
+
+.sesh-tracking-status {
+	margin-bottom: 1em;
+	padding: 1em;
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+}
+
+.sesh-tracking-status label {
+	display: block;
+	margin-bottom: 0.5em;
+	font-weight: 600;
+	color: #666;
+}
+
+.sesh-status-badge {
+	display: inline-block;
+	padding: 0.5em 1em;
+	background: #0073aa;
+	color: #fff;
+	border-radius: 20px;
+	font-weight: 600;
+	font-size: 0.95em;
+}
+
+/* ==========================================================================
+   Track Button
+   ========================================================================== */
+
+.sesh-tracking-actions {
+	margin-bottom: 1.5em;
+	text-align: center;
+}
+
+.sesh-track-button {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5em;
+	padding: 0.75em 1.5em !important;
+	background: #0073aa !important;
+	color: #fff !important;
+	border: none !important;
+	border-radius: 4px;
+	font-weight: 600;
+	text-decoration: none !important;
+	transition: background 0.2s;
+}
+
+.sesh-track-button:hover {
+	background: #005a87 !important;
+}
+
+.sesh-track-button .dashicons {
+	width: 20px;
+	height: 20px;
+	font-size: 20px;
+}
+
+/* ==========================================================================
+   Tracking Timeline
+   ========================================================================== */
+
+.sesh-tracking-timeline {
+	margin: 2em 0;
+}
+
+.sesh-tracking-timeline h3 {
+	margin: 0 0 1em;
+	font-size: 1.1em;
+	color: #333;
+}
+
+.sesh-timeline-events {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.sesh-timeline-event {
+	position: relative;
+	padding-left: 2em;
+	padding-bottom: 1.5em;
+	border-left: 2px solid #e5e5e5;
+}
+
+.sesh-timeline-event:last-child {
+	border-left-color: transparent;
+	padding-bottom: 0;
+}
+
+.sesh-event-marker {
+	position: absolute;
+	left: -6px;
+	top: 0;
+	width: 10px;
+	height: 10px;
+	background: #0073aa;
+	border: 2px solid #fff;
+	border-radius: 50%;
+}
+
+.sesh-timeline-event:first-child .sesh-event-marker {
+	background: #46b450;
+}
+
+.sesh-event-content {
+	padding: 0.75em;
+	background: #fff;
+	border: 1px solid #e5e5e5;
+	border-radius: 4px;
+}
+
+.sesh-event-date {
+	margin-bottom: 0.5em;
+	font-size: 0.9em;
+	color: #666;
+}
+
+.sesh-event-status {
+	margin-bottom: 0.25em;
+	font-weight: 600;
+	color: #333;
+}
+
+.sesh-event-description {
+	margin-bottom: 0.25em;
+	color: #666;
+	font-size: 0.95em;
+}
+
+.sesh-event-location {
+	display: flex;
+	align-items: center;
+	gap: 0.25em;
+	color: #666;
+	font-size: 0.9em;
+}
+
+.sesh-event-location .dashicons {
+	width: 16px;
+	height: 16px;
+	font-size: 16px;
+}
+
+/* ==========================================================================
+   Tracking Footer
+   ========================================================================== */
+
+.sesh-tracking-footer {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-top: 1.5em;
+	padding-top: 1em;
+	border-top: 1px solid #e5e5e5;
+}
+
+.sesh-refresh-tracking {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5em;
+}
+
+.sesh-refresh-tracking .dashicons {
+	width: 18px;
+	height: 18px;
+	font-size: 18px;
+}
+
+.sesh-tracking-updated {
+	color: #666;
+	font-size: 0.9em;
+}
+
+/* ==========================================================================
+   Loading State
+   ========================================================================== */
+
+.sesh-tracking-loading {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	padding: 1em 2em;
+	background: rgba(255, 255, 255, 0.95);
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+	text-align: center;
+}
+
+.sesh-tracking-loading .spinner {
+	float: none;
+	margin: 0 auto 0.5em;
+}
+
+.sesh-tracking-container.is-loading {
+	opacity: 0.6;
+	pointer-events: none;
+}
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+
+@media (max-width: 768px) {
+	.sesh-tracking-footer {
+		flex-direction: column;
+		gap: 1em;
+		text-align: center;
+	}
+
+	.sesh-tracking-number-value {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.sesh-track-button {
+		width: 100%;
+		justify-content: center;
+	}
+}
+
+/* ==========================================================================
+   Copy Feedback
+   ========================================================================== */
+
+@keyframes sesh-copy-feedback {
+	0% {
+		background: #46b450;
+		border-color: #46b450;
+	}
+	100% {
+		background: #f0f0f0;
+		border-color: #ddd;
+	}
+}
+
+.sesh-copy-tracking.copied {
+	animation: sesh-copy-feedback 0.6s;
+}

@@ -33,6 +33,7 @@ class SESH_Settings {
 		'econt'   => 'sesh_econt_settings',
 		'address' => 'sesh_address_settings',
 		'general' => 'sesh_general_settings',
+		'sender'  => 'sesh_sender_settings',
 	);
 
 	/**
@@ -419,6 +420,54 @@ class SESH_Settings {
 		$sanitized['cache_ttl'] = isset( $input['cache_ttl'] )
 			? absint( $input['cache_ttl'] )
 			: 3600;
+
+		return $sanitized;
+	}
+
+	/**
+	 * Sanitize Sender settings.
+	 *
+	 * @param array $input Raw input.
+	 * @return array Sanitized settings.
+	 */
+	public function sanitize_sender_settings( $input ) {
+		$sanitized = array();
+
+		$sanitized['sender_name'] = isset( $input['sender_name'] )
+			? sanitize_text_field( $input['sender_name'] )
+			: '';
+
+		// Validate and sanitize Bulgarian phone number.
+		$phone = isset( $input['sender_phone'] ) ? sanitize_text_field( $input['sender_phone'] ) : '';
+		if ( ! empty( $phone ) && ! $this->validate_bulgarian_phone( $phone ) ) {
+			add_settings_error(
+				'sesh_sender_settings',
+				'invalid_phone',
+				__( 'Invalid Bulgarian phone number format. Use format: 0888123456 or +359888123456', 'speedy_econt_shipping' ),
+				'error'
+			);
+		}
+		$sanitized['sender_phone'] = $phone;
+
+		$sanitized['sender_email'] = isset( $input['sender_email'] )
+			? sanitize_email( $input['sender_email'] )
+			: '';
+
+		$sanitized['sender_region'] = isset( $input['sender_region'] )
+			? sanitize_text_field( $input['sender_region'] )
+			: '';
+
+		$sanitized['sender_city'] = isset( $input['sender_city'] )
+			? sanitize_text_field( $input['sender_city'] )
+			: '';
+
+		$sanitized['sender_address'] = isset( $input['sender_address'] )
+			? sanitize_textarea_field( $input['sender_address'] )
+			: '';
+
+		$sanitized['sender_postcode'] = isset( $input['sender_postcode'] )
+			? sanitize_text_field( $input['sender_postcode'] )
+			: '';
 
 		return $sanitized;
 	}
@@ -842,5 +891,118 @@ class SESH_Settings {
 		}
 
 		return $this->save();
+	}
+
+	// =========================================================================
+	// Sender Settings Getters
+	// =========================================================================
+
+	/**
+	 * Get sender name.
+	 *
+	 * @return string
+	 */
+	public function get_sender_name() {
+		return (string) $this->get( 'sender', 'sender_name', '' );
+	}
+
+	/**
+	 * Get sender phone.
+	 *
+	 * @return string
+	 */
+	public function get_sender_phone() {
+		return (string) $this->get( 'sender', 'sender_phone', '' );
+	}
+
+	/**
+	 * Get sender email.
+	 *
+	 * @return string
+	 */
+	public function get_sender_email() {
+		return (string) $this->get( 'sender', 'sender_email', '' );
+	}
+
+	/**
+	 * Get sender region.
+	 *
+	 * @return string
+	 */
+	public function get_sender_region() {
+		return (string) $this->get( 'sender', 'sender_region', '' );
+	}
+
+	/**
+	 * Get sender city.
+	 *
+	 * @return string
+	 */
+	public function get_sender_city() {
+		return (string) $this->get( 'sender', 'sender_city', '' );
+	}
+
+	/**
+	 * Get sender address.
+	 *
+	 * @return string
+	 */
+	public function get_sender_address() {
+		return (string) $this->get( 'sender', 'sender_address', '' );
+	}
+
+	/**
+	 * Get sender postcode.
+	 *
+	 * @return string
+	 */
+	public function get_sender_postcode() {
+		return (string) $this->get( 'sender', 'sender_postcode', '' );
+	}
+
+	/**
+	 * Get all sender settings as an array.
+	 *
+	 * @return array
+	 */
+	public function get_sender_params() {
+		return array(
+			'name'     => $this->get_sender_name(),
+			'phone'    => $this->get_sender_phone(),
+			'email'    => $this->get_sender_email(),
+			'region'   => $this->get_sender_region(),
+			'city'     => $this->get_sender_city(),
+			'address'  => $this->get_sender_address(),
+			'postcode' => $this->get_sender_postcode(),
+		);
+	}
+
+	/**
+	 * Validate Bulgarian phone number format.
+	 *
+	 * @param string $phone Phone number to validate.
+	 * @return bool
+	 */
+	private function validate_bulgarian_phone( $phone ) {
+		// Remove all spaces and dashes.
+		$phone = preg_replace( '/[\s\-]/', '', $phone );
+
+		// Check valid formats:
+		// - 0888123456 (10 digits starting with 0)
+		// - +359888123456 (13 characters starting with +359)
+		// - 00359888123456 (14 digits starting with 00359).
+		if ( preg_match( '/^0[0-9]{9}$/', $phone ) ) {
+			return true;
+		}
+
+		if ( preg_match( '/^\+3590?[0-9]{9}$/', $phone ) ) {
+			return true;
+		}
+
+		if ( preg_match( '/^003590?[0-9]{9}$/', $phone ) ) {
+			return true;
+		}
+
+		return false;
 	}
 }
