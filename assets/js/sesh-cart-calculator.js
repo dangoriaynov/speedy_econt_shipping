@@ -56,6 +56,9 @@
 
 			// Recalculate when cart updates.
 			$(document.body).on('updated_cart_totals', this.onCartUpdated.bind(this));
+
+			// Update delivery type visibility on init.
+			this.updateDeliveryTypeVisibility();
 		},
 
 		/**
@@ -67,6 +70,7 @@
 			$('#sesh_calc_city').select2({
 				ajax: {
 					url: sesh_cart_config.ajax_url,
+					type: 'POST',
 					dataType: 'json',
 					delay: 250,
 					data: function (params) {
@@ -92,6 +96,30 @@
 		},
 
 		/**
+		 * Update delivery type visibility based on selected carrier.
+		 *
+		 * Econt only supports office delivery, so hide "To Address" option.
+		 */
+		updateDeliveryTypeVisibility: function () {
+			const carrier = this.selectedCarrier;
+			const $addressOption = this.$container.find('input[name="calc_delivery_type"][value="address"]').closest('.sesh-radio-label');
+			const $addressRadio = this.$container.find('input[name="calc_delivery_type"][value="address"]');
+
+			if (carrier === 'econt') {
+				// Hide address option for Econt.
+				$addressOption.hide();
+
+				// If address was selected, switch to office.
+				if ($addressRadio.is(':checked')) {
+					this.$container.find('input[name="calc_delivery_type"][value="office"]').prop('checked', true);
+				}
+			} else {
+				// Show address option for Speedy.
+				$addressOption.show();
+			}
+		},
+
+		/**
 		 * Handle carrier selection.
 		 *
 		 * @param {Event} e Click event.
@@ -113,6 +141,9 @@
 			this.$container.find('.sesh-carrier-pills button')
 				.removeClass('sesh-pill-active');
 			$btn.addClass('sesh-pill-active');
+
+			// Update delivery type visibility (hide address for Econt).
+			this.updateDeliveryTypeVisibility();
 
 			// Clear city selection.
 			$('#sesh_calc_city').val(null).trigger('change');

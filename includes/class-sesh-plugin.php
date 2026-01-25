@@ -262,6 +262,10 @@ final class SESH_Plugin {
 		// Initialize frontend.
 		if ( ! is_admin() || defined( 'DOING_AJAX' ) ) {
 			new SESH_Frontend( $this->settings, $this->database );
+
+			// Initialize autocomplete handler.
+			require_once SESH_PLUGIN_DIR . 'includes/class-sesh-autocomplete-handler.php';
+			new SESH_Autocomplete_Handler( $this->database, $this->settings );
 		}
 
 		/**
@@ -464,7 +468,7 @@ final class SESH_Plugin {
 	 */
 	public function plugin_action_links( $links ) {
 		$plugin_links = array(
-			'<a href="' . esc_url( admin_url( 'admin.php?page=wc-settings&tab=sesh_shipping' ) ) . '">' .
+			'<a href="' . esc_url( self::get_settings_url() ) . '">' .
 			esc_html__( 'Settings', 'speedy_econt_shipping' ) . '</a>',
 		);
 		return array_merge( $plugin_links, $links );
@@ -553,5 +557,21 @@ final class SESH_Plugin {
 	 */
 	public function get_plugin_file() {
 		return $this->plugin_file;
+	}
+
+	/**
+	 * Get settings page URL.
+	 *
+	 * @param string $section Optional. Settings section (speedy, econt, address). Default empty (general).
+	 * @return string Settings page URL.
+	 */
+	public static function get_settings_url( $section = '' ) {
+		$url = admin_url( 'admin.php?page=wc-settings&tab=sesh_shipping' );
+
+		if ( ! empty( $section ) ) {
+			$url = add_query_arg( 'section', sanitize_key( $section ), $url );
+		}
+
+		return $url;
 	}
 }

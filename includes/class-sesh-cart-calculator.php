@@ -223,6 +223,11 @@ class SESH_Cart_Calculator {
 			wp_send_json_error( array( 'message' => __( 'Invalid delivery type', 'speedy_econt_shipping' ) ) );
 		}
 
+		// Econt only supports office delivery.
+		if ( 'econt' === $carrier && 'address' === $delivery_type ) {
+			wp_send_json_error( array( 'message' => __( 'Address delivery is not available for Econt', 'speedy_econt_shipping' ) ) );
+		}
+
 		if ( empty( $city_id ) ) {
 			wp_send_json_error( array( 'message' => __( 'Please select a city', 'speedy_econt_shipping' ) ) );
 		}

@@ -126,20 +126,38 @@ class SESH_Frontend {
 			true
 		);
 
-		// 2. Location Selector (depends on price display).
+		// 2. Autocomplete module (depends on Select2).
 		wp_enqueue_script(
-			'sesh-location-selector',
-			SESH_PLUGIN_URL . 'assets/js/sesh-location-selector.js',
-			array( 'jquery', 'select2', 'sesh-price-display' ),
+			'sesh-autocomplete',
+			SESH_PLUGIN_URL . 'assets/js/sesh-autocomplete.js',
+			array( 'jquery', 'select2' ),
 			SESH_VERSION,
 			true
 		);
 
-		// 3. Checkout main module (depends on both above).
+		// 3. Location Selector (depends on price display and autocomplete).
+		wp_enqueue_script(
+			'sesh-location-selector',
+			SESH_PLUGIN_URL . 'assets/js/sesh-location-selector.js',
+			array( 'jquery', 'select2', 'sesh-price-display', 'sesh-autocomplete' ),
+			SESH_VERSION,
+			true
+		);
+
+		// 4. City Persistence module (depends on location selector).
+		wp_enqueue_script(
+			'sesh-city-persistence',
+			SESH_PLUGIN_URL . 'assets/js/sesh-city-persistence.js',
+			array( 'jquery', 'sesh-location-selector' ),
+			SESH_VERSION,
+			true
+		);
+
+		// 5. Checkout main module (depends on all above).
 		wp_enqueue_script(
 			'sesh-checkout',
 			SESH_PLUGIN_URL . 'assets/js/sesh-checkout.js',
-			array( 'jquery', 'wc-checkout', 'sesh-price-display', 'sesh-location-selector' ),
+			array( 'jquery', 'wc-checkout', 'sesh-price-display', 'sesh-location-selector', 'sesh-city-persistence' ),
 			SESH_VERSION,
 			true
 		);
@@ -171,19 +189,21 @@ class SESH_Frontend {
 		);
 
 		return array(
-			'ajax_url'                => admin_url( 'admin-ajax.php' ),
-			'nonce'                   => wp_create_nonce( 'sesh_frontend_nonce' ),
-			'delivery_options'        => $delivery_options,
-			'default_shipping_method' => $default_shipping_method,
-			'currency_symbol'         => html_entity_decode( get_woocommerce_currency_symbol() ),
-			'shop_url'                => get_permalink( wc_get_page_id( 'shop' ) ),
-			'calculate_final_price'   => $this->settings->is_calculate_final_price(),
-			'delivery_price_selector' => $this->settings->get_delivery_price_selector(),
-			'free_shipping_suffix'    => $this->settings->get_free_shipping_label_suffix(),
-			'show_store_messages'     => $show_store_messages,
-			'shipping_to_id'          => 'shipping-to-row',
-			'selectors'               => $selectors,
-			'i18n'                    => array(
+			'ajax_url'                  => admin_url( 'admin-ajax.php' ),
+			'nonce'                     => wp_create_nonce( 'sesh_frontend_nonce' ),
+			'delivery_options'          => $delivery_options,
+			'default_shipping_method'   => $default_shipping_method,
+			'currency_symbol'           => html_entity_decode( get_woocommerce_currency_symbol() ),
+			'shop_url'                  => get_permalink( wc_get_page_id( 'shop' ) ),
+			'calculate_final_price'     => $this->settings->is_calculate_final_price(),
+			'delivery_price_selector'   => $this->settings->get_delivery_price_selector(),
+			'free_shipping_suffix'      => $this->settings->get_free_shipping_label_suffix(),
+			'show_store_messages'       => $show_store_messages,
+			'shipping_to_id'            => 'shipping-to-row',
+			'selectors'                 => $selectors,
+			'enable_address_autocomplete' => $this->settings->is_address_enabled(),
+			'autocomplete_nonce'        => wp_create_nonce( 'sesh_frontend_nonce' ),
+			'i18n'                      => array(
 				'select_region'          => __( 'Select region', 'speedy_econt_shipping' ),
 				'select_city'            => __( 'Select city', 'speedy_econt_shipping' ),
 				'select_office'          => __( 'Select office', 'speedy_econt_shipping' ),
