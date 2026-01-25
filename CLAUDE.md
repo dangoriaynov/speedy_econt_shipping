@@ -7,16 +7,15 @@
 #### implement-issue
 Located in `.claude/agents/implement-issue.md`
 
-Use this subagent when implementing GitHub issues. It follows a structured workflow tailored for migrating legacy WordPress code to modern standards:
+Use this subagent when implementing GitHub issues or fixing problems. It follows a structured workflow tailored for migrating legacy WordPress code to modern standards:
 1. Syncs `main` branch with remote (`git checkout main && git pull origin main`)
 2. Creates a feature branch from the updated `main`
-3. Analyzes the issue requirements against the legacy codebase (`js.php`, `db.php`)
-4. Fetches documentation (WP Code Reference, WooCommerce, Speedy/Econt)
-5. Implements features while refactoring legacy patterns into Object-Oriented code
-6. Runs verification checks (PHP syntax, PHPCS, JS lint) - fixes issues automatically or asks user
-7. Commits with conventional format and pushes to remote
-8. Creates a Pull Request with summary and test plan
-9. Closes the GitHub issue with reference to the PR
+3. Analyzes the issue requirements against the legacy codebase
+4. Implements features while refactoring legacy patterns into Object-Oriented code
+5. Runs verification checks (PHP syntax, PHPCS, JS lint) - fixes issues automatically or asks user
+6. Reports summary of changes
+
+**Note:** This subagent does NOT create commits, push to remote, or create PRs. The user handles version control manually after reviewing changes.
 
 **Invocation:**
 ```
@@ -28,12 +27,13 @@ Use the implement-issue subagent to implement GitHub issue #42
 #### /implement
 Located in `.claude/commands/implement.md`
 
-Shortcut to invoke the implement-issue subagent with an issue number or URL. Handles the full workflow including verification, PR creation, and issue closure.
+Shortcut to invoke the implement-issue subagent with an issue number, URL, or problem description. Handles implementation and verification only - no commits or PRs.
 
 **Usage:**
 ```
 /implement 42
 /implement https://github.com/dangoriaynov/speedy_econt_shipping/issues/42
+/implement fix the admin notice pointing to wrong settings URL
 ```
 
 
