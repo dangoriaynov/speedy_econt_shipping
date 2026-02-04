@@ -800,6 +800,86 @@ class SESH_Database {
 	}
 
 	/**
+	 * Search cities (sites) by name for autocomplete.
+	 *
+	 * Prioritizes exact matches and starts-with matches.
+	 *
+	 * @param string $carrier     Carrier (speedy or econt).
+	 * @param string $search_term Search term.
+	 * @param int    $limit       Limit results.
+	 * @return array
+	 */
+	public function search_cities( $carrier, $search_term, $limit = 20 ) {
+		$table = $this->get_table_name( $carrier . '_sites' );
+		if ( empty( $table ) ) {
+			return array();
+		}
+
+		$like_term        = $this->wpdb->esc_like( $search_term );
+		$starts_with_term = $like_term . '%';
+		$contains_term    = '%' . $like_term . '%';
+
+		// Use CASE to prioritize: exact match first, then starts-with, then contains.
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		return $this->wpdb->get_results(
+			$this->wpdb->prepare(
+				"SELECT *,
+					CASE
+						WHEN name = %s THEN 1
+						WHEN name LIKE %s THEN 2
+						ELSE 3
+					END AS match_priority
+				FROM {$table}
+				WHERE is_prod = 1 AND name LIKE %s
+				ORDER BY match_priority ASC, name ASC
+				LIMIT %d",
+				$search_term,
+				$starts_with_term,
+				$contains_term,
+				$limit
+			)
+		);
+	}
+
+	/**
+	 * Get offices by city ID.
+	 *
+	 * Joins with sites table to get offices for a specific city ID.
+	 *
+	 * @param string $carrier Carrier (speedy or econt).
+	 * @param int    $city_id City ID from sites table.
+	 * @return array
+	 */
+	public function get_offices_by_city_id( $carrier, $city_id ) {
+		$offices_table = $this->get_table_name( $carrier . '_offices' );
+		$sites_table   = $this->get_table_name( $carrier . '_sites' );
+
+		if ( empty( $offices_table ) || empty( $sites_table ) ) {
+			return array();
+		}
+
+		// First get the city name from the sites table.
+		$city = $this->wpdb->get_row(
+			$this->wpdb->prepare(
+				"SELECT name FROM {$sites_table} WHERE id = %d AND is_prod = 1", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$city_id
+			)
+		);
+
+		if ( ! $city ) {
+			return array();
+		}
+
+		// Get offices for that city name.
+		return $this->wpdb->get_results(
+			$this->wpdb->prepare(
+				"SELECT * FROM {$offices_table} WHERE is_prod = 1 AND city = %s ORDER BY name", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$city->name
+			)
+		);
+	}
+
+	/**
 	 * Search offices by name or address.
 	 *
 	 * @param string $carrier     Carrier (speedy or econt).

@@ -12,7 +12,17 @@
       "Bash(gh issue view:*)",
       "Bash(node --check:*)",
       "Bash(test:*)",
-      "Bash(node -c:*)"
+      "Bash(node -c:*)",
+      "Bash(git log:*)",
+      "WebSearch",
+      "WebFetch(domain:developer.woocommerce.com)",
+      "Bash(phpcs:*)",
+      "Bash(composer run phpcs:*)",
+      "Bash(npm run lint)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:gist.github.com)",
+      "Bash(wc:*)",
+      "Bash(xargs:*)"
     ]
   }
 }

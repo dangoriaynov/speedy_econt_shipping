@@ -51,6 +51,49 @@ class SESH_Settings {
 	private $using_new_structure = false;
 
 	/**
+	 * WooCommerce option name mapping.
+	 *
+	 * Maps internal group.key to WC option names.
+	 *
+	 * @var array
+	 */
+	private $wc_option_map = array(
+		'speedy.enabled'                   => array( 'sesh_speedy_enabled', 'checkbox' ),
+		'speedy.api_username'              => array( 'sesh_speedy_username', 'text' ),
+		'speedy.api_password'              => array( 'sesh_speedy_password', 'text' ),
+		'speedy.use_dynamic_pricing'       => array( 'sesh_speedy_dynamic_pricing', 'checkbox' ),
+		'speedy.fallback_rate'             => array( 'sesh_speedy_fallback_rate', 'price' ),
+		'speedy.free_shipping_threshold'   => array( 'sesh_speedy_free_from', 'price' ),
+		'econt.enabled'                    => array( 'sesh_econt_enabled', 'checkbox' ),
+		'econt.api_username'               => array( 'sesh_econt_username', 'text' ),
+		'econt.api_password'               => array( 'sesh_econt_password', 'text' ),
+		'econt.use_dynamic_pricing'        => array( 'sesh_econt_dynamic_pricing', 'checkbox' ),
+		'econt.fallback_rate'              => array( 'sesh_econt_fallback_rate', 'price' ),
+		'econt.free_shipping_threshold'    => array( 'sesh_econt_free_from', 'price' ),
+		'address.enabled'                  => array( 'sesh_address_enabled', 'checkbox' ),
+		'address.label'                    => array( 'sesh_address_label', 'text' ),
+		'address.fallback_rate'            => array( 'sesh_address_fallback_rate', 'price' ),
+		'address.free_shipping_threshold'  => array( 'sesh_address_free_from', 'price' ),
+		'address.fields'                   => array( 'sesh_address_fields', 'text' ),
+		'general.shipping_options_order'   => array( 'sesh_shipping_options_order', 'text' ),
+		'general.emergency_contact'        => array( 'sesh_emergency_contact', 'text' ),
+		'general.free_shipping_label_suffix' => array( 'sesh_free_shipping_label', 'text' ),
+		'general.email_required'           => array( 'sesh_email_required', 'checkbox' ),
+		'general.address_validation_needed' => array( 'sesh_address_validation', 'checkbox' ),
+		'general.hidden_fields'            => array( 'sesh_hidden_fields', 'textarea' ),
+		'general.debug_mode'               => array( 'sesh_debug_mode', 'checkbox' ),
+		'general.auto_generate_labels'     => array( 'sesh_auto_generate_labels', 'checkbox' ),
+		'general.auto_generate_status'     => array( 'sesh_auto_generate_status', 'text' ),
+		'sender.sender_name'               => array( 'sesh_sender_name', 'text' ),
+		'sender.sender_phone'              => array( 'sesh_sender_phone', 'text' ),
+		'sender.sender_email'              => array( 'sesh_sender_email', 'text' ),
+		'sender.sender_region'             => array( 'sesh_sender_region', 'text' ),
+		'sender.sender_city'               => array( 'sesh_sender_city', 'text' ),
+		'sender.sender_address'            => array( 'sesh_sender_address', 'textarea' ),
+		'sender.sender_postcode'           => array( 'sesh_sender_postcode', 'text' ),
+	);
+
+	/**
 	 * Legacy key to new structure mapping.
 	 *
 	 * @var array
@@ -150,17 +193,52 @@ class SESH_Settings {
 	/**
 	 * Get a setting value.
 	 *
+	 * Checks WC options first (source of truth), then falls back to
+	 * internal storage for legacy/migration scenarios.
+	 *
 	 * @param string $group   Settings group (speedy, econt, address, general).
 	 * @param string $key     Setting key.
 	 * @param mixed  $default Default value.
 	 * @return mixed
 	 */
 	public function get( $group, $key, $default = null ) {
+		$map_key = "{$group}.{$key}";
+
+		// Check WC options first (source of truth after settings page save).
+		if ( isset( $this->wc_option_map[ $map_key ] ) ) {
+			list( $option_name, $type ) = $this->wc_option_map[ $map_key ];
+			$value = get_option( $option_name, null );
+
+			if ( null !== $value ) {
+				return $this->convert_wc_value( $value, $type, $default );
+			}
+		}
+
+		// Fall back to internal storage (legacy/migration).
 		if ( isset( $this->settings[ $group ][ $key ] ) ) {
 			return $this->settings[ $group ][ $key ];
 		}
 
 		return $default;
+	}
+
+	/**
+	 * Convert WC option value to expected type.
+	 *
+	 * @param mixed  $value   Raw value from WC option.
+	 * @param string $type    Field type (checkbox, text, price, textarea).
+	 * @param mixed  $default Default value for type inference.
+	 * @return mixed
+	 */
+	private function convert_wc_value( $value, $type, $default ) {
+		switch ( $type ) {
+			case 'checkbox':
+				return 'yes' === $value;
+			case 'price':
+				return '' === $value ? '' : (float) $value;
+			default:
+				return $value;
+		}
 	}
 
 	/**

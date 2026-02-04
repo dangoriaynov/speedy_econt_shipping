@@ -180,6 +180,23 @@ class SESH_Label_Generator {
 			$errors[] = __( 'Recipient name is required.', 'speedy_econt_shipping' );
 		}
 
+		// Check that checkout shipping data was captured.
+		$carrier = $order->get_meta( '_sesh_carrier' );
+		$city_id = $order->get_meta( '_sesh_city_id' );
+
+		if ( empty( $carrier ) ) {
+			$errors[] = __( 'Shipping carrier not set. This order may have been placed before the shipping enhancement update. Please manually select a carrier and office in the Delivery Details section.', 'speedy_econt_shipping' );
+		}
+
+		// For Speedy/Econt, validate city_id.
+		if ( in_array( $carrier, array( 'speedy', 'econt' ), true ) && empty( $city_id ) ) {
+			// Try to auto-detect city from shipping address.
+			$auto_city_id = $this->try_auto_detect_city( $order, $carrier );
+			if ( ! $auto_city_id ) {
+				$errors[] = __( 'Destination city ID not set. The customer needs to complete checkout with the updated checkout form, or you can manually set the city/office in the Delivery Details section.', 'speedy_econt_shipping' );
+			}
+		}
+
 		// Check for delivery details meta.
 		$delivery_type = $order->get_meta( '_sesh_delivery_type' );
 		if ( empty( $delivery_type ) ) {
@@ -190,7 +207,7 @@ class SESH_Label_Generator {
 		if ( 'office' === $delivery_type ) {
 			$office_id = $order->get_meta( '_sesh_office_id' );
 			if ( empty( $office_id ) ) {
-				$errors[] = __( 'Office ID is required for office delivery.', 'speedy_econt_shipping' );
+				$errors[] = __( 'Office ID is required for office delivery. Please select an office in the Delivery Details section.', 'speedy_econt_shipping' );
 			}
 		}
 
@@ -239,6 +256,52 @@ class SESH_Label_Generator {
 	}
 
 	/**
+	 * Try to auto-detect city ID from shipping address.
+	 *
+	 * Used for orders placed before the checkout enhancement update,
+	 * or orders created via admin.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param WC_Order $order   Order object.
+	 * @param string   $carrier Carrier name.
+	 * @return int|false City ID or false if not found.
+	 */
+	private function try_auto_detect_city( $order, $carrier ) {
+		$city_name = $order->get_shipping_city();
+		if ( empty( $city_name ) ) {
+			return false;
+		}
+
+		// Search database for matching city.
+		$cities = $this->database->search_cities( $carrier, $city_name, 1 );
+
+		if ( empty( $cities ) ) {
+			return false;
+		}
+
+		$city = $cities[0];
+
+		// Save to order for future use.
+		$order->update_meta_data( '_sesh_city_id', $city->id );
+		$order->update_meta_data( '_sesh_city_name', $city->name );
+		$order->update_meta_data( '_sesh_carrier', $carrier );
+		$order->save();
+
+		// Add note about auto-detection.
+		$order->add_order_note(
+			sprintf(
+				/* translators: 1: city name, 2: city ID */
+				__( 'City auto-detected from shipping address: %1$s (ID: %2$d)', 'speedy_econt_shipping' ),
+				$city->name,
+				$city->id
+			)
+		);
+
+		return $city->id;
+	}
+
+	/**
 	 * Build shipment parameters for API request.
 	 *
 	 * @param WC_Order $order   Order object.
@@ -276,6 +339,10 @@ class SESH_Label_Generator {
 	/**
 	 * Get recipient parameters from order.
 	 *
+	 * Uses the checkout meta data saved by SESH_Frontend::save_checkout_shipping_meta().
+	 *
+	 * @since 3.0.0 Updated to use new meta keys from checkout enhancement.
+	 *
 	 * @param WC_Order $order Order object.
 	 * @return array
 	 */
@@ -283,14 +350,28 @@ class SESH_Label_Generator {
 		$recipient = array(
 			'contactName' => trim( $order->get_shipping_first_name() . ' ' . $order->get_shipping_last_name() ),
 			'phone'       => $order->get_billing_phone(),
+			'email'       => $order->get_billing_email(),
 		);
 
 		$delivery_type = $order->get_meta( '_sesh_delivery_type' );
+		$city_id       = $order->get_meta( '_sesh_city_id' );
 
 		if ( 'office' === $delivery_type ) {
-			$recipient['officeId'] = $order->get_meta( '_sesh_office_id' );
+			// Office delivery - use office_id from checkout.
+			$recipient['officeId']   = $order->get_meta( '_sesh_office_id' );
+			$recipient['officeName'] = $order->get_meta( '_sesh_office_name' );
+
+			// Also include city info for API compatibility.
+			if ( $city_id ) {
+				$recipient['cityId'] = $city_id;
+			}
 		} else {
-			$recipient['city']    = $order->get_shipping_city();
+			// Address delivery - use city_id and shipping address.
+			if ( $city_id ) {
+				$recipient['cityId'] = $city_id;
+			}
+
+			$recipient['city']    = $order->get_meta( '_sesh_city_name' ) ?: $order->get_shipping_city();
 			$recipient['address'] = $order->get_shipping_address_1();
 			if ( $order->get_shipping_address_2() ) {
 				$recipient['address'] .= ', ' . $order->get_shipping_address_2();

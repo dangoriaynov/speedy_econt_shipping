@@ -57,6 +57,14 @@ abstract class SESH_Shipping_Method extends WC_Shipping_Method {
 		$this->init_form_fields();
 		$this->init_settings();
 
+		// CRITICAL: Set $this->title from saved settings.
+		// WooCommerce uses this to display the method name in shipping zones list and checkout.
+		// Falls back to method_title if no saved title exists.
+		$this->title = $this->get_option( 'title', $this->method_title );
+
+		// Also set enabled status.
+		$this->enabled = $this->get_option( 'enabled', 'yes' );
+
 		// Get settings from plugin settings.
 		$plugin = SESH_Plugin::instance();
 		if ( $plugin ) {
@@ -190,6 +198,12 @@ abstract class SESH_Shipping_Method extends WC_Shipping_Method {
 			return 0;
 		}
 
+		// Check for pre-calculated price in session (from real-time AJAX calculation).
+		$session_cost = $this->get_session_shipping_cost();
+		if ( false !== $session_cost ) {
+			return $session_cost;
+		}
+
 		// Use configured flat rate if set.
 		$flat_cost = $this->get_option( 'cost' );
 		if ( ! empty( $flat_cost ) ) {
@@ -204,6 +218,50 @@ abstract class SESH_Shipping_Method extends WC_Shipping_Method {
 
 		// Fallback to settings-based rate.
 		return $this->get_fallback_rate();
+	}
+
+	/**
+	 * Get shipping cost from WooCommerce session.
+	 *
+	 * The session data is set by the real-time AJAX price calculation
+	 * in SESH_Frontend::ajax_calculate_checkout_shipping().
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return float|false Cost or false if not available/expired.
+	 */
+	protected function get_session_shipping_cost() {
+		if ( ! WC()->session ) {
+			return false;
+		}
+
+		$session_data = WC()->session->get( 'sesh_shipping_data' );
+
+		if ( ! $session_data ) {
+			return false;
+		}
+
+		// Validate that session data matches this carrier.
+		if ( ! isset( $session_data['carrier'] ) || $session_data['carrier'] !== $this->get_carrier_id() ) {
+			return false;
+		}
+
+		// Validate that session data is not expired (5 minutes).
+		if ( ! isset( $session_data['timestamp'] ) || ( time() - $session_data['timestamp'] ) > 300 ) {
+			return false;
+		}
+
+		// Return free shipping if applicable.
+		if ( isset( $session_data['is_free'] ) && $session_data['is_free'] ) {
+			return 0;
+		}
+
+		// Return calculated price.
+		if ( isset( $session_data['price'] ) ) {
+			return (float) $session_data['price'];
+		}
+
+		return false;
 	}
 
 	/**

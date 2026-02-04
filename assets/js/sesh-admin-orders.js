@@ -123,15 +123,43 @@
 				},
 				success: function (response) {
 					if (response.success) {
+						// Flash success state.
+						$button.addClass('sesh-success-flash');
 						SeshAdminOrders.showNotice('success', response.data.message);
-						// Reload page to show new label.
-						location.reload();
+
+						// Show tracking number if available.
+						if (response.data.tracking_number) {
+							SeshAdminOrders.showTrackingNumber($button, response.data.tracking_number);
+						}
+
+						// Reload page after 1.5s to show new label.
+						setTimeout(function () {
+							location.reload();
+						}, 1500);
 					} else {
-						SeshAdminOrders.showNotice('error', response.data.message);
+						// Flash error state.
+						$button.addClass('sesh-error-flash');
+						setTimeout(function () {
+							$button.removeClass('sesh-error-flash');
+						}, 2000);
+
+						// Show error with retry option.
+						SeshAdminOrders.showErrorWithRetry(response.data.message, $button);
 					}
 				},
-				error: function () {
-					SeshAdminOrders.showNotice('error', seshAdminOrders.i18n.error_occurred);
+				error: function (xhr, status, error) {
+					// Flash error state.
+					$button.addClass('sesh-error-flash');
+					setTimeout(function () {
+						$button.removeClass('sesh-error-flash');
+					}, 2000);
+
+					var errorMsg = seshAdminOrders.i18n.error_occurred;
+					if (xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.message) {
+						errorMsg = xhr.responseJSON.data.message;
+					}
+
+					SeshAdminOrders.showErrorWithRetry(errorMsg, $button);
 				},
 				complete: function () {
 					SeshAdminOrders.setLoading($button, false);
@@ -390,6 +418,57 @@
 					$(this).remove();
 				});
 			}, 5000);
+		},
+
+		/**
+		 * Show tracking number inline after generation.
+		 */
+		showTrackingNumber: function ($button, trackingNumber) {
+			const $container = $button.closest('.sesh-detail-row, .sesh-no-label');
+			const $trackingDisplay = $(
+				'<div class="sesh-tracking-success" style="margin-top: 12px; padding: 8px 12px; background: #d4edda; border-left: 3px solid #28a745; border-radius: 4px;">' +
+				'<strong>Tracking:</strong> ' +
+				'<code style="background: #fff; padding: 2px 6px; border-radius: 3px; margin-left: 4px;">' + trackingNumber + '</code>' +
+				'</div>'
+			);
+
+			$container.append($trackingDisplay);
+		},
+
+		/**
+		 * Show error message with retry button.
+		 */
+		showErrorWithRetry: function (message, $originalButton) {
+			// Create error notice with retry button.
+			const $notice = $(
+				'<div class="notice notice-error is-dismissible">' +
+				'<p><strong>Label Generation Failed:</strong> ' + message + '</p>' +
+				'<p>' +
+				'<button type="button" class="button button-small sesh-retry-generate" data-order-id="' + $originalButton.data('order-id') + '">' +
+				'<span class="dashicons dashicons-update"></span> Retry' +
+				'</button>' +
+				'</p>' +
+				'<button type="button" class="notice-dismiss">' +
+				'<span class="screen-reader-text">Dismiss this notice.</span>' +
+				'</button>' +
+				'</div>'
+			);
+
+			// Insert notice at top of page.
+			$('.wrap > h1').first().after($notice);
+
+			// Bind retry button.
+			$notice.find('.sesh-retry-generate').on('click', function () {
+				$notice.remove();
+				$originalButton.trigger('click');
+			});
+
+			// Make dismissible.
+			$notice.find('.notice-dismiss').on('click', function () {
+				$notice.fadeOut(function () {
+					$(this).remove();
+				});
+			});
 		},
 	};
 
