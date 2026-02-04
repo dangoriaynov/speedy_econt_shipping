@@ -58,6 +58,13 @@ class SESH_Admin_Orders {
 
 		// Enqueue scripts for order pages.
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+
+		// Add bulk actions.
+		add_filter( 'bulk_actions-edit-shop_order', array( $this, 'add_bulk_actions' ) );
+		add_filter( 'bulk_actions-woocommerce_page_wc-orders', array( $this, 'add_bulk_actions' ) );
+		add_filter( 'handle_bulk_actions-edit-shop_order', array( $this, 'handle_bulk_actions' ), 10, 3 );
+		add_filter( 'handle_bulk_actions-woocommerce_page_wc-orders', array( $this, 'handle_bulk_actions' ), 10, 3 );
+		add_action( 'admin_notices', array( $this, 'bulk_action_admin_notice' ) );
 	}
 
 	/**
@@ -169,6 +176,16 @@ class SESH_Admin_Orders {
 			return;
 		}
 
+		// Delivery details meta box (side, high priority) - shows customer's delivery selection.
+		add_meta_box(
+			'sesh_delivery_details',
+			__( 'Delivery Details', 'speedy_econt_shipping' ),
+			array( $this, 'render_delivery_details_meta_box' ),
+			$post_type,
+			'side',
+			'high'
+		);
+
 		// Shipping label meta box (side, high priority).
 		add_meta_box(
 			'sesh_shipping_label',
@@ -191,6 +208,155 @@ class SESH_Admin_Orders {
 				'default'
 			);
 		}
+	}
+
+	/**
+	 * Render delivery details meta box.
+	 *
+	 * Shows the carrier, city, and office information captured during checkout.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param WP_Post|WC_Order $post_or_order Post or order object.
+	 */
+	public function render_delivery_details_meta_box( $post_or_order ) {
+		$order = $post_or_order instanceof WC_Order
+			? $post_or_order
+			: wc_get_order( $post_or_order->ID );
+
+		if ( ! $order ) {
+			return;
+		}
+
+		// Get delivery details from order meta.
+		$carrier          = $order->get_meta( '_sesh_carrier' );
+		$delivery_type    = $order->get_meta( '_sesh_delivery_type' );
+		$city_name        = $order->get_meta( '_sesh_city_name' );
+		$city_id          = $order->get_meta( '_sesh_city_id' );
+		$office_name      = $order->get_meta( '_sesh_office_name' );
+		$office_id        = $order->get_meta( '_sesh_office_id' );
+		$office_address   = $order->get_meta( '_sesh_office_address' );
+		$calculated_price = $order->get_meta( '_sesh_calculated_shipping_price' );
+
+		// Check if any delivery data exists.
+		if ( empty( $carrier ) ) {
+			?>
+			<div class="sesh-delivery-details sesh-delivery-details--warning">
+				<p class="sesh-warning-message">
+					<span class="dashicons dashicons-warning"></span>
+					<?php esc_html_e( 'No shipping details captured. This order may have been placed before the checkout enhancement update, or via a method that bypassed the checkout form.', 'speedy_econt_shipping' ); ?>
+				</p>
+				<p class="description">
+					<?php esc_html_e( 'You may need to manually configure the delivery details before generating a shipping label.', 'speedy_econt_shipping' ); ?>
+				</p>
+			</div>
+			<?php
+			return;
+		}
+
+		// Get carrier label.
+		$carrier_labels = array(
+			'speedy'  => __( 'Speedy', 'speedy_econt_shipping' ),
+			'econt'   => __( 'Econt', 'speedy_econt_shipping' ),
+			'address' => __( 'Address Delivery', 'speedy_econt_shipping' ),
+		);
+		$carrier_label  = isset( $carrier_labels[ $carrier ] ) ? $carrier_labels[ $carrier ] : ucfirst( $carrier );
+
+		// Get delivery type label.
+		$delivery_type_label = 'office' === $delivery_type
+			? __( 'Office Pickup', 'speedy_econt_shipping' )
+			: __( 'Address Delivery', 'speedy_econt_shipping' );
+		?>
+		<div class="sesh-delivery-details">
+			<div class="sesh-detail-row">
+				<span class="sesh-detail-label"><?php esc_html_e( 'Carrier:', 'speedy_econt_shipping' ); ?></span>
+				<span class="sesh-detail-value sesh-carrier-badge sesh-carrier-badge--<?php echo esc_attr( $carrier ); ?>">
+					<?php echo esc_html( $carrier_label ); ?>
+				</span>
+			</div>
+
+			<div class="sesh-detail-row">
+				<span class="sesh-detail-label"><?php esc_html_e( 'Delivery Type:', 'speedy_econt_shipping' ); ?></span>
+				<span class="sesh-detail-value"><?php echo esc_html( $delivery_type_label ); ?></span>
+			</div>
+
+			<?php if ( $city_name ) : ?>
+			<div class="sesh-detail-row">
+				<span class="sesh-detail-label"><?php esc_html_e( 'City:', 'speedy_econt_shipping' ); ?></span>
+				<span class="sesh-detail-value">
+					<?php echo esc_html( $city_name ); ?>
+					<?php if ( $city_id ) : ?>
+						<span class="sesh-detail-id">(ID: <?php echo esc_html( $city_id ); ?>)</span>
+					<?php endif; ?>
+				</span>
+			</div>
+			<?php endif; ?>
+
+			<?php if ( 'office' === $delivery_type && $office_name ) : ?>
+			<div class="sesh-detail-row">
+				<span class="sesh-detail-label"><?php esc_html_e( 'Office:', 'speedy_econt_shipping' ); ?></span>
+				<span class="sesh-detail-value">
+					<?php echo esc_html( $office_name ); ?>
+					<?php if ( $office_id ) : ?>
+						<span class="sesh-detail-id">(ID: <?php echo esc_html( $office_id ); ?>)</span>
+					<?php endif; ?>
+				</span>
+			</div>
+
+			<?php if ( $office_address ) : ?>
+			<div class="sesh-detail-row">
+				<span class="sesh-detail-label"><?php esc_html_e( 'Office Address:', 'speedy_econt_shipping' ); ?></span>
+				<span class="sesh-detail-value"><?php echo esc_html( $office_address ); ?></span>
+			</div>
+			<?php endif; ?>
+			<?php endif; ?>
+
+			<?php if ( $calculated_price ) : ?>
+			<div class="sesh-detail-row sesh-detail-row--price">
+				<span class="sesh-detail-label"><?php esc_html_e( 'Calculated Price:', 'speedy_econt_shipping' ); ?></span>
+				<span class="sesh-detail-value"><?php echo wp_kses_post( wc_price( $calculated_price ) ); ?></span>
+			</div>
+			<?php endif; ?>
+
+			<?php
+			// Add "Generate Label" action button if no label exists yet.
+			$label = $this->label_manager->get_latest_label( $order->get_id() );
+			if ( ! $label || empty( $label->tracking_number ) ) :
+				// Validate order for label generation.
+				$generator  = new SESH_Label_Generator(
+					$this->settings,
+					SESH_Plugin::instance()->get_database(),
+					SESH_Plugin::instance()->get_speedy_api(),
+					SESH_Plugin::instance()->get_econt_api()
+				);
+				$validation = $generator->validate_order( $order );
+				?>
+				<div class="sesh-detail-row sesh-detail-row--actions">
+					<button
+						type="button"
+						class="button button-primary button-small sesh-generate-label"
+						data-order-id="<?php echo esc_attr( $order->get_id() ); ?>"
+						<?php disabled( ! $validation->is_valid() ); ?>
+						title="<?php echo esc_attr( $validation->is_valid() ? __( 'Generate shipping label', 'speedy_econt_shipping' ) : __( 'Fix validation errors first', 'speedy_econt_shipping' ) ); ?>"
+					>
+						<span class="dashicons dashicons-plus-alt"></span>
+						<?php esc_html_e( 'Generate Label', 'speedy_econt_shipping' ); ?>
+					</button>
+				</div>
+			<?php else : ?>
+				<!-- Label exists - show tracking number -->
+				<div class="sesh-detail-row sesh-detail-row--tracking">
+					<span class="sesh-detail-label"><?php esc_html_e( 'Tracking:', 'speedy_econt_shipping' ); ?></span>
+					<span class="sesh-detail-value">
+						<strong><?php echo esc_html( $label->tracking_number ); ?></strong>
+						<span class="sesh-label-status sesh-status-<?php echo esc_attr( $label->status ); ?>">
+							<?php echo esc_html( ucfirst( $label->status ) ); ?>
+						</span>
+					</span>
+				</div>
+			<?php endif; ?>
+		</div>
+		<?php
 	}
 
 	/**
@@ -343,5 +509,135 @@ class SESH_Admin_Orders {
 			}
 		}
 		return 'shop_order';
+	}
+
+	/**
+	 * Add bulk actions to orders list.
+	 *
+	 * @param array $actions Existing bulk actions.
+	 * @return array
+	 */
+	public function add_bulk_actions( $actions ) {
+		$actions['sesh_generate_labels'] = __( 'Generate shipping labels (SESH)', 'speedy_econt_shipping' );
+		return $actions;
+	}
+
+	/**
+	 * Handle bulk actions.
+	 *
+	 * @param string $redirect_to Redirect URL.
+	 * @param string $action      Bulk action name.
+	 * @param array  $post_ids    Selected post/order IDs.
+	 * @return string Modified redirect URL.
+	 */
+	public function handle_bulk_actions( $redirect_to, $action, $post_ids ) {
+		if ( 'sesh_generate_labels' !== $action ) {
+			return $redirect_to;
+		}
+
+		if ( empty( $post_ids ) ) {
+			return $redirect_to;
+		}
+
+		$generator = new SESH_Label_Generator(
+			$this->settings,
+			SESH_Plugin::instance()->get_database(),
+			SESH_Plugin::instance()->get_speedy_api(),
+			SESH_Plugin::instance()->get_econt_api()
+		);
+
+		$processed = 0;
+		$errors    = 0;
+
+		foreach ( $post_ids as $post_id ) {
+			$order = wc_get_order( $post_id );
+
+			if ( ! $order ) {
+				$errors++;
+				continue;
+			}
+
+			// Skip if not using SESH shipping.
+			if ( ! $this->order_uses_sesh_shipping( $order ) ) {
+				continue;
+			}
+
+			// Skip if label already exists.
+			$existing_label = $this->label_manager->get_latest_label( $order->get_id() );
+			if ( $existing_label && ! empty( $existing_label->tracking_number ) ) {
+				continue;
+			}
+
+			// Generate label.
+			$result = $generator->generate_label( $order->get_id() );
+
+			if ( $result->is_success() ) {
+				$processed++;
+			} else {
+				$errors++;
+			}
+		}
+
+		// Add query args for admin notice.
+		$redirect_to = add_query_arg(
+			array(
+				'sesh_bulk_generated' => $processed,
+				'sesh_bulk_errors'    => $errors,
+			),
+			$redirect_to
+		);
+
+		return $redirect_to;
+	}
+
+	/**
+	 * Display admin notice after bulk label generation.
+	 */
+	public function bulk_action_admin_notice() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! isset( $_REQUEST['sesh_bulk_generated'] ) ) {
+			return;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$generated = isset( $_REQUEST['sesh_bulk_generated'] ) ? absint( $_REQUEST['sesh_bulk_generated'] ) : 0;
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$errors = isset( $_REQUEST['sesh_bulk_errors'] ) ? absint( $_REQUEST['sesh_bulk_errors'] ) : 0;
+
+		if ( $generated > 0 ) {
+			printf(
+				'<div class="notice notice-success is-dismissible"><p>%s</p></div>',
+				esc_html(
+					sprintf(
+						/* translators: %d: number of labels generated */
+						_n(
+							'%d shipping label generated successfully.',
+							'%d shipping labels generated successfully.',
+							$generated,
+							'speedy_econt_shipping'
+						),
+						$generated
+					)
+				)
+			);
+		}
+
+		if ( $errors > 0 ) {
+			printf(
+				'<div class="notice notice-error is-dismissible"><p>%s</p></div>',
+				esc_html(
+					sprintf(
+						/* translators: %d: number of errors */
+						_n(
+							'%d order could not be processed. Check order details for validation errors.',
+							'%d orders could not be processed. Check order details for validation errors.',
+							$errors,
+							'speedy_econt_shipping'
+						),
+						$errors
+					)
+				)
+			);
+		}
 	}
 }

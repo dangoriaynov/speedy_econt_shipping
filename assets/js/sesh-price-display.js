@@ -227,6 +227,96 @@
 		},
 
 		/**
+		 * Create a loading spinner element.
+		 *
+		 * @param {string} size Spinner size (sm, md, lg).
+		 * @return {string} HTML string for spinner.
+		 */
+		createSpinner: function(size) {
+			size = size || 'md';
+			var sizeClass = 'sesh-spinner';
+			if (size === 'sm') {
+				sizeClass += ' sesh-spinner--sm';
+			} else if (size === 'lg') {
+				sizeClass += ' sesh-spinner--lg';
+			}
+			return '<span class="' + sizeClass + '"></span>';
+		},
+
+		/**
+		 * Create a loading indicator with text.
+		 *
+		 * @param {string} text Loading text.
+		 * @param {string} size Spinner size.
+		 * @return {string} HTML string.
+		 */
+		createLoadingIndicator: function(text, size) {
+			return '<div class="sesh-price-loading">' +
+				this.createSpinner(size) + ' ' +
+				'<span class="sesh-loading-text">' + (text || 'Loading...') + '</span>' +
+				'</div>';
+		},
+
+		/**
+		 * Create price breakdown display.
+		 *
+		 * @param {Object} breakdown Breakdown data { base_price, discount, final_price }.
+		 * @return {string} HTML string.
+		 */
+		createPriceBreakdown: function(breakdown) {
+			if (!breakdown) {
+				return '';
+			}
+
+			var html = '<div class="sesh-price-breakdown-details">';
+
+			if (breakdown.base_price > 0) {
+				html += '<div class="sesh-breakdown-row">';
+				html += '<span class="sesh-breakdown-label">Base price:</span>';
+				html += '<span class="sesh-breakdown-value">' + this.formatPrice(breakdown.base_price) + '</span>';
+				html += '</div>';
+			}
+
+			if (breakdown.discount > 0) {
+				html += '<div class="sesh-breakdown-row sesh-breakdown-row--discount">';
+				html += '<span class="sesh-breakdown-label">Discount:</span>';
+				html += '<span class="sesh-breakdown-value">-' + this.formatPrice(breakdown.discount) + '</span>';
+				html += '</div>';
+			}
+
+			html += '<div class="sesh-breakdown-row sesh-breakdown-row--total">';
+			html += '<span class="sesh-breakdown-label">Total:</span>';
+			html += '<span class="sesh-breakdown-value">' + this.formatPrice(breakdown.final_price) + '</span>';
+			html += '</div>';
+
+			html += '</div>';
+
+			return html;
+		},
+
+		/**
+		 * Create a "price may vary" indicator.
+		 *
+		 * @param {string} text Optional custom text.
+		 * @return {string} HTML string.
+		 */
+		createEstimatedIndicator: function(text) {
+			text = text || this.config.i18n.estimated || '(estimated)';
+			return '<span class="sesh-price-estimated">' + text + '</span>';
+		},
+
+		/**
+		 * Create a free shipping badge.
+		 *
+		 * @param {string} text Optional custom text.
+		 * @return {string} HTML string.
+		 */
+		createFreeBadge: function(text) {
+			text = text || this.config.i18n.free || 'FREE';
+			return '<span class="sesh-free-badge">' + text + '</span>';
+		},
+
+		/**
 		 * Log debug message.
 		 *
 		 * @param {string} message Log message.

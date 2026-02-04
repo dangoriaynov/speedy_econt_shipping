@@ -231,6 +231,36 @@
 	pointer-events: none;
 }
 
+/* Inline loading state for buttons */
+.sesh-generate-label.sesh-loading-state .dashicons-plus-alt {
+	animation: sesh-spin 1s linear infinite;
+}
+
+@keyframes sesh-spin {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+/* Success state flash */
+.button.sesh-success-flash {
+	background-color: #00a32a !important;
+	border-color: #00a32a !important;
+	color: #fff !important;
+	transition: all 0.3s ease;
+}
+
+/* Error state flash */
+.button.sesh-error-flash {
+	background-color: #d63638 !important;
+	border-color: #d63638 !important;
+	color: #fff !important;
+	transition: all 0.3s ease;
+}
+
 /* ==========================================================================
    Tracking Meta Box
    ========================================================================== */
@@ -377,6 +407,132 @@
 
 .sesh-tracking-updated {
 	color: #646970;
+	font-size: 12px;
+}
+
+/* ==========================================================================
+   Delivery Details Meta Box
+   ========================================================================== */
+
+.sesh-delivery-details {
+	font-size: 13px;
+}
+
+.sesh-detail-row {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+	padding: 8px 12px;
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.sesh-detail-row:last-child {
+	border-bottom: none;
+}
+
+.sesh-detail-label {
+	font-weight: 600;
+	color: #646970;
+	min-width: 120px;
+}
+
+.sesh-detail-value {
+	flex: 1;
+	text-align: right;
+	color: #1d2327;
+}
+
+.sesh-carrier-badge {
+	display: inline-block;
+	padding: 4px 10px;
+	border-radius: 3px;
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.sesh-carrier-badge--speedy {
+	background: #e74c3c;
+	color: #fff;
+}
+
+.sesh-carrier-badge--econt {
+	background: #2ecc71;
+	color: #fff;
+}
+
+.sesh-carrier-badge--address {
+	background: #3498db;
+	color: #fff;
+}
+
+.sesh-detail-id {
+	font-size: 11px;
+	color: #999;
+	margin-left: 4px;
+}
+
+.sesh-detail-row--price .sesh-detail-value {
+	font-weight: 700;
+	color: #2271b1;
+}
+
+.sesh-detail-row--actions {
+	padding-top: 12px;
+	border-top: 1px solid #dcdcde;
+	border-bottom: none;
+	justify-content: flex-start;
+}
+
+.sesh-detail-row--actions .button {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.sesh-detail-row--actions .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+}
+
+.sesh-detail-row--tracking {
+	background: #f0f6fc;
+	border-left: 3px solid #2271b1;
+}
+
+.sesh-detail-row--tracking .sesh-detail-value {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	justify-content: flex-end;
+}
+
+.sesh-delivery-details--warning {
+	padding: 12px;
+	background: #fff3cd;
+	border-left: 4px solid #f0ad4e;
+	border-radius: 4px;
+}
+
+.sesh-warning-message {
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+	margin: 0 0 8px 0;
+	color: #856404;
+}
+
+.sesh-warning-message .dashicons {
+	color: #f0ad4e;
+	flex-shrink: 0;
+	margin-top: 2px;
+}
+
+.sesh-delivery-details--warning .description {
+	margin: 0;
+	color: #856404;
 	font-size: 12px;
 }
 

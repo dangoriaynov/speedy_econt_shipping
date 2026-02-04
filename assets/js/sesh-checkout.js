@@ -91,10 +91,101 @@
 				self.handlePhoneChange();
 			});
 
+			// Listen for real-time price calculation from location selector.
+			$(document.body).on('sesh_price_calculated', function(e, carrier, priceData) {
+				self.handleRealTimePriceUpdate(carrier, priceData);
+			});
+
+			// Validate before checkout submission.
+			$(document.body).on('checkout_place_order', function() {
+				return self.validateBeforeSubmit();
+			});
+
 			// Initial setup on document ready.
 			$(document).ready(function() {
 				self.log('Document ready - initializing');
 				self.handleCheckoutUpdate();
+			});
+		},
+
+		/**
+		 * Validate required fields before allowing checkout submission.
+		 *
+		 * @return {boolean} True if valid, false to prevent submission.
+		 */
+		validateBeforeSubmit: function() {
+			var carrier = $('#sesh_carrier').val();
+			var cityId = $('#sesh_city_id').val();
+			var officeId = $('#sesh_office_id').val();
+			var deliveryType = $('#sesh_delivery_type').val();
+
+			// Remove any previous validation errors.
+			$('.sesh-validation-error-notice').remove();
+
+			// If no carrier, let WooCommerce handle it.
+			if (!carrier) {
+				return true;
+			}
+
+			var errors = [];
+
+			// For Speedy/Econt, city is required.
+			if ((carrier === 'speedy' || carrier === 'econt') && !cityId) {
+				errors.push(this.config.i18n.select_city || 'Please select a city');
+				this.highlightField('#' + carrier + '_city');
+			}
+
+			// For office delivery, office is required.
+			if (deliveryType === 'office' && !officeId) {
+				errors.push(this.config.i18n.select_office || 'Please select an office');
+				this.highlightField('#' + carrier + '_office');
+			}
+
+			// If errors, show them and prevent submission.
+			if (errors.length > 0) {
+				var errorHtml = '<div class="woocommerce-error sesh-validation-error-notice" role="alert" aria-live="assertive" tabindex="-1"><ul>';
+				errors.forEach(function(error) {
+					errorHtml += '<li>' + error + '</li>';
+				});
+				errorHtml += '</ul></div>';
+
+				// Insert error at top of checkout form.
+				$('.woocommerce-checkout').prepend(errorHtml);
+
+				// Focus the error div for screen readers.
+				$('.sesh-validation-error-notice').focus();
+
+				// Scroll to error.
+				$('html, body').animate({
+					scrollTop: $('.sesh-validation-error-notice').offset().top - 100
+				}, 500);
+
+				return false; // Prevent form submission.
+			}
+
+			return true; // Allow submission.
+		},
+
+		/**
+		 * Highlight a field with an error state.
+		 *
+		 * @param {string} selector Field selector.
+		 */
+		highlightField: function(selector) {
+			$(selector).addClass('sesh-field-error');
+
+			// Also highlight Select2 container if present.
+			$(selector).next('.select2-container').find('.select2-selection').addClass('sesh-field-error');
+
+			// Remove highlight after 3 seconds or when field changes.
+			setTimeout(function() {
+				$(selector).removeClass('sesh-field-error');
+				$(selector).next('.select2-container').find('.select2-selection').removeClass('sesh-field-error');
+			}, 3000);
+
+			$(selector).one('change', function() {
+				$(this).removeClass('sesh-field-error');
+				$(this).next('.select2-container').find('.select2-selection').removeClass('sesh-field-error');
 			});
 		},
 
@@ -142,6 +233,59 @@
 			this.updateFinalPrice();
 			this.showFreeDeliveryMessage();
 			this.toggleCarrierFields();
+			this.updateHiddenCarrierFields();
+			this.focusNextField();
+		},
+
+		/**
+		 * Focus the next relevant field after carrier selection.
+		 */
+		focusNextField: function() {
+			if (!this.selectedDeliveryOption) {
+				return;
+			}
+
+			var carrier = this.selectedDeliveryOption.name;
+			var $nextField = null;
+
+			// Focus city field for Speedy/Econt.
+			if (carrier === 'speedy') {
+				$nextField = $('#speedy_city');
+			} else if (carrier === 'econt') {
+				$nextField = $('#econt_city');
+			}
+
+			// Focus the field after a short delay to ensure it's visible.
+			if ($nextField && $nextField.length) {
+				setTimeout(function() {
+					$nextField.select2('open');
+				}, 300);
+			}
+		},
+
+		/**
+		 * Update hidden form fields with current carrier selection.
+		 */
+		updateHiddenCarrierFields: function() {
+			if (!this.selectedDeliveryOption) {
+				return;
+			}
+
+			var carrier = this.selectedDeliveryOption.name;
+			$('#sesh_carrier').val(carrier);
+
+			// Set delivery type based on carrier.
+			if (carrier === 'address') {
+				$('#sesh_delivery_type').val('address');
+				// Clear office fields for address delivery.
+				$('#sesh_office_id').val('');
+				$('#sesh_office_name').val('');
+				$('#sesh_office_address').val('');
+			} else {
+				$('#sesh_delivery_type').val('office');
+			}
+
+			this.log('Hidden carrier fields updated: ' + carrier);
 		},
 
 		/**
@@ -402,15 +546,21 @@
 
 			// Show fields for selected carrier.
 			if (selectedCarrier === 'speedy') {
-				$(selectors.speedy_region_field).show('slow');
-				$(selectors.speedy_city_field).show('slow');
+				$(selectors.speedy_region_field).show('slow').attr('aria-hidden', 'false');
+				$(selectors.speedy_city_field).show('slow').attr('aria-hidden', 'false');
+				// Set tabindex on select elements.
+				$(selectors.speedy_region_field + ' select, ' + selectors.speedy_city_field + ' select').attr('tabindex', '0');
 			} else if (selectedCarrier === 'econt') {
-				$(selectors.econt_region_field).show('slow');
-				$(selectors.econt_city_field).show('slow');
+				$(selectors.econt_region_field).show('slow').attr('aria-hidden', 'false');
+				$(selectors.econt_city_field).show('slow').attr('aria-hidden', 'false');
+				// Set tabindex on select elements.
+				$(selectors.econt_region_field + ' select, ' + selectors.econt_city_field + ' select').attr('tabindex', '0');
 			} else if (selectedCarrier === 'address') {
-				$(selectors.address_region_field).show('slow');
-				$(selectors.address_city_field).show('slow');
-				$(selectors.address_office_field).show('slow');
+				$(selectors.address_region_field).show('slow').attr('aria-hidden', 'false');
+				$(selectors.address_city_field).show('slow').attr('aria-hidden', 'false');
+				$(selectors.address_office_field).show('slow').attr('aria-hidden', 'false');
+				// Set tabindex on select elements.
+				$(selectors.address_region_field + ' select, ' + selectors.address_city_field + ' select, ' + selectors.address_office_field + ' select').attr('tabindex', '0');
 			}
 
 			this.log('Toggled carrier fields for: ' + selectedCarrier);
@@ -430,7 +580,9 @@
 				selectors.econt_office_field
 			];
 
-			$(fieldsToHide.join(',')).hide();
+			// Hide fields and set aria-hidden + tabindex for accessibility.
+			$(fieldsToHide.join(',')).hide().attr('aria-hidden', 'true');
+			$(fieldsToHide.join(',') + ' select').attr('tabindex', '-1');
 		},
 
 		/**
@@ -440,6 +592,61 @@
 		 */
 		getShippingSelector: function() {
 			return 'input[name="' + this.config.shipping_to_id + '"]';
+		},
+
+		/**
+		 * Handle real-time price update from location selector.
+		 *
+		 * @param {string} carrier   Carrier name.
+		 * @param {Object} priceData Price data from AJAX response.
+		 */
+		handleRealTimePriceUpdate: function(carrier, priceData) {
+			this.log('Real-time price update received', { carrier: carrier, priceData: priceData });
+
+			// Update cached delivery price for this carrier.
+			var option = this.config.delivery_options[carrier];
+			if (!option) {
+				return;
+			}
+
+			// Update the cached price.
+			this.deliveryPrices[option.id] = priceData.is_free ? 0 : priceData.price;
+
+			// If this is the currently selected carrier, update the display.
+			if (this.selectedDeliveryOption && this.selectedDeliveryOption.name === carrier) {
+				this.updateFinalPriceWithRealTime(priceData);
+			}
+		},
+
+		/**
+		 * Update final price display with real-time API price.
+		 *
+		 * @param {Object} priceData Price data from AJAX response.
+		 */
+		updateFinalPriceWithRealTime: function(priceData) {
+			var deliveryPrice = priceData.is_free ? 0 : priceData.price;
+
+			// Update delivery label.
+			$('.cart-subtotal th').last().text(this.config.i18n.delivery);
+
+			// Update delivery price display.
+			var delivPriceFormatted;
+			if (priceData.is_free) {
+				delivPriceFormatted = '<span class="sesh-free-badge">' + this.config.i18n.free + '</span>';
+			} else {
+				delivPriceFormatted = priceData.formatted_price;
+				if (priceData.is_fallback) {
+					delivPriceFormatted += ' <span class="sesh-price-estimated">' + (this.config.i18n.estimated || '(estimated)') + '</span>';
+				}
+			}
+			$(this.config.delivery_price_selector).last().html(delivPriceFormatted);
+
+			// Update total price.
+			var totalPrice = this.currentOrderPrice + deliveryPrice;
+			var totalFormatted = totalPrice.toFixed(2) + ' ' + this.config.currency_symbol;
+			this.setCustomShippingPrice(totalFormatted);
+
+			this.log('Final price updated with real-time data', { delivery: deliveryPrice, total: totalPrice });
 		},
 
 		/**

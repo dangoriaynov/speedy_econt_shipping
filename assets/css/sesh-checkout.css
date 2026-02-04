@@ -289,6 +289,254 @@
 	font-size: 18px;
 }
 
+/* Price estimated indicator */
+.sesh-price-estimated {
+	font-size: 12px;
+	color: var(--sesh-text-muted);
+	font-style: italic;
+	margin-left: var(--sesh-spacing-xs);
+}
+
+/* Price loading state */
+.sesh-price-loading {
+	display: flex;
+	align-items: center;
+	gap: var(--sesh-spacing-sm);
+	padding: var(--sesh-spacing-sm) 0;
+	color: var(--sesh-text-muted);
+	font-size: 14px;
+}
+
+/* Price result container */
+.sesh-price-result {
+	padding: var(--sesh-spacing-sm) 0;
+}
+
+/* Delivery time display */
+.sesh-delivery-time {
+	font-size: 13px;
+	color: var(--sesh-text-muted);
+	margin-top: var(--sesh-spacing-xs);
+}
+
+/* Price breakdown container */
+.sesh-price-breakdown {
+	margin-top: var(--sesh-spacing-md);
+	padding: var(--sesh-spacing-md);
+	background: var(--sesh-bg-light);
+	border-radius: var(--sesh-border-radius);
+	border: 1px solid var(--sesh-border);
+}
+
+.sesh-price-breakdown-details {
+	display: flex;
+	flex-direction: column;
+	gap: var(--sesh-spacing-xs);
+}
+
+.sesh-breakdown-row {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	font-size: 14px;
+}
+
+.sesh-breakdown-label {
+	color: var(--sesh-text-muted);
+}
+
+.sesh-breakdown-value {
+	font-weight: 500;
+	color: var(--sesh-text);
+}
+
+.sesh-breakdown-row--discount .sesh-breakdown-value {
+	color: var(--sesh-success);
+}
+
+.sesh-breakdown-row--total {
+	margin-top: var(--sesh-spacing-sm);
+	padding-top: var(--sesh-spacing-sm);
+	border-top: 1px solid var(--sesh-border);
+}
+
+.sesh-breakdown-row--total .sesh-breakdown-label,
+.sesh-breakdown-row--total .sesh-breakdown-value {
+	font-weight: 700;
+	font-size: 16px;
+	color: var(--sesh-text);
+}
+
+/* Price error state */
+.sesh-price-error {
+	display: flex;
+	align-items: center;
+	gap: var(--sesh-spacing-sm);
+	padding: var(--sesh-spacing-sm);
+	background: #fff3cd;
+	border: 1px solid var(--sesh-warning);
+	border-radius: var(--sesh-border-radius-sm);
+	color: #856404;
+	font-size: 14px;
+}
+
+.sesh-price-error .sesh-error__retry {
+	margin-left: auto;
+	padding: var(--sesh-spacing-xs) var(--sesh-spacing-sm);
+	background: var(--sesh-primary);
+	color: white;
+	border: none;
+	border-radius: var(--sesh-border-radius-sm);
+	font-size: 12px;
+	cursor: pointer;
+	transition: background var(--sesh-transition);
+}
+
+.sesh-price-error .sesh-error__retry:hover {
+	background: #0056b3;
+}
+
+/* ==========================================================================
+   Office Preview Card
+   ========================================================================== */
+
+.sesh-office-preview {
+	margin-top: var(--sesh-spacing-md);
+}
+
+.sesh-office-card {
+	padding: var(--sesh-spacing-md);
+	background: var(--sesh-bg-light);
+	border: 1px solid var(--sesh-border);
+	border-radius: var(--sesh-border-radius);
+	animation: seshSlideDown 0.3s ease-out;
+}
+
+.sesh-office-card__name {
+	font-weight: 600;
+	font-size: 16px;
+	color: var(--sesh-text);
+	margin-bottom: var(--sesh-spacing-xs);
+}
+
+.sesh-office-card__address {
+	font-size: 14px;
+	color: var(--sesh-text-muted);
+	margin-bottom: var(--sesh-spacing-sm);
+}
+
+.sesh-office-card__hours,
+.sesh-office-card__phone {
+	font-size: 13px;
+	color: var(--sesh-text);
+	margin-bottom: var(--sesh-spacing-xs);
+}
+
+.sesh-office-card__hours strong,
+.sesh-office-card__phone strong {
+	color: var(--sesh-text-muted);
+	font-weight: 500;
+}
+
+.sesh-office-card__map {
+	display: inline-flex;
+	align-items: center;
+	margin-top: var(--sesh-spacing-sm);
+	padding: var(--sesh-spacing-xs) var(--sesh-spacing-sm);
+	background: var(--sesh-primary);
+	color: white;
+	text-decoration: none;
+	font-size: 13px;
+	border-radius: var(--sesh-border-radius-sm);
+	transition: background var(--sesh-transition);
+}
+
+.sesh-office-card__map:hover {
+	background: #0056b3;
+	color: white;
+}
+
+.sesh-office-card__map::before {
+	content: '\1F4CD'; /* Pin emoji */
+	margin-right: var(--sesh-spacing-xs);
+}
+
+/* Office loading indicator */
+.sesh-office-loading {
+	display: flex;
+	align-items: center;
+	gap: var(--sesh-spacing-sm);
+	padding: var(--sesh-spacing-sm) 0;
+	color: var(--sesh-text-muted);
+	font-size: 14px;
+}
+
+/* ==========================================================================
+   Validation Indicators
+   ========================================================================== */
+
+.sesh-validation-success,
+.sesh-validation-warning,
+.sesh-validation-error {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--sesh-spacing-xs);
+	font-size: 13px;
+	margin-top: var(--sesh-spacing-xs);
+}
+
+.sesh-validation-success {
+	color: var(--sesh-success);
+}
+
+.sesh-validation-success::before {
+	content: '\2713'; /* Checkmark */
+	font-weight: bold;
+}
+
+.sesh-validation-warning {
+	color: #856404;
+}
+
+.sesh-validation-warning::before {
+	content: '\26A0'; /* Warning */
+}
+
+.sesh-validation-error {
+	color: var(--sesh-danger);
+}
+
+.sesh-validation-error::before {
+	content: '\2717'; /* X mark */
+	font-weight: bold;
+}
+
+/* Address validation message */
+.sesh-address-validation {
+	margin-top: var(--sesh-spacing-sm);
+	padding: var(--sesh-spacing-sm);
+	border-radius: var(--sesh-border-radius-sm);
+	font-size: 13px;
+}
+
+.sesh-address-validation--valid {
+	background: var(--sesh-econt-color-light);
+	border: 1px solid var(--sesh-success);
+	color: #155724;
+}
+
+.sesh-address-validation--warning {
+	background: #fff3cd;
+	border: 1px solid var(--sesh-warning);
+	color: #856404;
+}
+
+.sesh-address-validation--error {
+	background: #f8d7da;
+	border: 1px solid var(--sesh-danger);
+	color: #721c24;
+}
+
 /* ==========================================================================
    Free Shipping Badge & Messages
    ========================================================================== */
@@ -496,6 +744,12 @@
 	border: 0;
 }
 
+/* Hidden office fields - ensure they are not focusable */
+.sesh-location-selector[style*="display: none"] select,
+.sesh-location-selector[aria-hidden="true"] select {
+	tabindex: -1;
+}
+
 /* ==========================================================================
    Animations
    ========================================================================== */
@@ -664,6 +918,38 @@
 [dir="rtl"] .sesh-carrier-card__price {
 	margin-left: 0;
 	margin-right: auto;
+}
+
+/* ==========================================================================
+   Field Error Highlighting (Checkout Validation)
+   ========================================================================== */
+
+/* Field error highlighting for checkout validation */
+.sesh-field-error,
+.sesh-field-error + .select2-container .select2-selection,
+.select2-selection.sesh-field-error {
+	border-color: var(--sesh-danger) !important;
+	box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.25) !important;
+}
+
+/* Validation error notice at top of checkout */
+.sesh-validation-error-notice {
+	margin-bottom: var(--sesh-spacing-md);
+	animation: seshSlideDown 0.3s ease-out;
+}
+
+.sesh-validation-error-notice ul {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.sesh-validation-error-notice li {
+	margin-bottom: var(--sesh-spacing-xs);
+}
+
+.sesh-validation-error-notice li:last-child {
+	margin-bottom: 0;
 }
 
 /* ==========================================================================

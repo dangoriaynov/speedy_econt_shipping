@@ -21,6 +21,8 @@
 			this.cacheDom();
 			this.bindEvents();
 			this.initCityAutocomplete();
+			this.bindTestConnectionButtons();
+			this.initConditionalFields();
 		},
 
 		/**
@@ -230,6 +232,107 @@
 					$(this).remove();
 				});
 			}, 5000);
+		},
+
+		/**
+		 * Initialize conditional field visibility.
+		 */
+		initConditionalFields: function() {
+			const $autoGenerateToggle = $('#sesh_auto_generate_labels');
+			const $autoGenerateStatusRow = $('#sesh_auto_generate_status').closest('tr');
+
+			if (!$autoGenerateToggle.length || !$autoGenerateStatusRow.length) {
+				return;
+			}
+
+			// Set initial state.
+			this.toggleAutoGenerateStatus($autoGenerateToggle.is(':checked'), $autoGenerateStatusRow);
+
+			// Bind change event.
+			$autoGenerateToggle.on('change', function() {
+				SESHAdminSettings.toggleAutoGenerateStatus($(this).is(':checked'), $autoGenerateStatusRow);
+			});
+		},
+
+		/**
+		 * Toggle auto-generate status field visibility.
+		 *
+		 * @param {boolean} show Whether to show the field.
+		 * @param {jQuery} $row The table row element.
+		 */
+		toggleAutoGenerateStatus: function(show, $row) {
+			if (show) {
+				$row.slideDown(200);
+			} else {
+				$row.slideUp(200);
+			}
+		},
+
+		/**
+		 * Bind test connection buttons.
+		 */
+		bindTestConnectionButtons: function() {
+			const self = this;
+
+			$(document).on('click', '.sesh-test-connection', function(e) {
+				e.preventDefault();
+				self.testConnection($(this));
+			});
+		},
+
+		/**
+		 * Test API connection.
+		 *
+		 * @param {jQuery} $button Button element.
+		 */
+		testConnection: function($button) {
+			const provider = $button.data('provider');
+			const $result = $button.siblings('.sesh-test-result');
+			const originalText = $button.text();
+
+			// Get i18n strings from either localized variable.
+			const i18n = (window.seshAdmin && window.seshAdmin.i18n) ||
+				(window.seshAdminSettings && window.seshAdminSettings.i18n) || {};
+			const ajaxUrl = (window.seshAdmin && window.seshAdmin.ajaxUrl) ||
+				(window.seshAdminSettings && window.seshAdminSettings.ajax_url) ||
+				ajaxurl;
+			const nonce = (window.seshAdmin && window.seshAdmin.nonce) ||
+				(window.seshAdminSettings && window.seshAdminSettings.nonce) || '';
+
+			// Disable button and show loading.
+			$button.prop('disabled', true).text(i18n.testing || 'Testing...');
+			$result.text('').removeClass('sesh-success sesh-error');
+
+			$.ajax({
+				url: ajaxUrl,
+				type: 'POST',
+				data: {
+					action: 'sesh_test_' + provider + '_connection',
+					nonce: nonce
+				},
+				success: function(response) {
+					if (response.success) {
+						$result
+							.text(response.data.message)
+							.css('color', '#46b450')
+							.addClass('sesh-success');
+					} else {
+						$result
+							.text((i18n.error || 'Error:') + ' ' + (response.data.message || 'Unknown error'))
+							.css('color', '#dc3232')
+							.addClass('sesh-error');
+					}
+				},
+				error: function(xhr, status, error) {
+					$result
+						.text((i18n.error || 'Error:') + ' ' + error)
+						.css('color', '#dc3232')
+						.addClass('sesh-error');
+				},
+				complete: function() {
+					$button.prop('disabled', false).text(i18n.testButton || originalText);
+				}
+			});
 		}
 	};
 

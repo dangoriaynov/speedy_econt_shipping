@@ -71,15 +71,29 @@ class SESH_Frontend {
 		// Add checkout fields for carrier selection.
 		add_action( 'woocommerce_after_checkout_billing_form', array( $this, 'render_checkout_fields' ) );
 
-		// Output office data for JavaScript.
-		add_action( 'wp_footer', array( $this, 'output_office_data' ) );
+		// AJAX handlers for checkout.
+		add_action( 'wp_ajax_sesh_search_cities_checkout', array( $this, 'ajax_search_cities_checkout' ) );
+		add_action( 'wp_ajax_nopriv_sesh_search_cities_checkout', array( $this, 'ajax_search_cities_checkout' ) );
 
-		// AJAX handlers for office selection (will be expanded in Phase 3).
+		add_action( 'wp_ajax_sesh_get_offices_lazy', array( $this, 'ajax_get_offices_lazy' ) );
+		add_action( 'wp_ajax_nopriv_sesh_get_offices_lazy', array( $this, 'ajax_get_offices_lazy' ) );
+
+		add_action( 'wp_ajax_sesh_calculate_checkout_shipping', array( $this, 'ajax_calculate_checkout_shipping' ) );
+		add_action( 'wp_ajax_nopriv_sesh_calculate_checkout_shipping', array( $this, 'ajax_calculate_checkout_shipping' ) );
+
+		add_action( 'wp_ajax_sesh_search_streets', array( $this, 'ajax_search_streets' ) );
+		add_action( 'wp_ajax_nopriv_sesh_search_streets', array( $this, 'ajax_search_streets' ) );
+
+		// Legacy AJAX handlers (kept for backward compatibility).
 		add_action( 'wp_ajax_sesh_get_offices', array( $this, 'ajax_get_offices' ) );
 		add_action( 'wp_ajax_nopriv_sesh_get_offices', array( $this, 'ajax_get_offices' ) );
 
 		add_action( 'wp_ajax_sesh_get_cities', array( $this, 'ajax_get_cities' ) );
 		add_action( 'wp_ajax_nopriv_sesh_get_cities', array( $this, 'ajax_get_cities' ) );
+
+		// Checkout validation and order meta saving.
+		add_action( 'woocommerce_checkout_process', array( $this, 'validate_checkout_fields' ) );
+		add_action( 'woocommerce_checkout_create_order', array( $this, 'save_checkout_shipping_meta' ), 10, 2 );
 	}
 
 	/**
@@ -211,16 +225,28 @@ class SESH_Frontend {
 			'selectors'               => $selectors,
 			'i18n'                    => array(
 				'select_region'          => __( 'Select region', 'speedy_econt_shipping' ),
-				'select_city'            => __( 'Select city', 'speedy_econt_shipping' ),
-				'select_office'          => __( 'Select office', 'speedy_econt_shipping' ),
+				'select_city'            => __( 'Please select a city for delivery.', 'speedy_econt_shipping' ),
+				'select_office'          => __( 'Please select a pickup office.', 'speedy_econt_shipping' ),
+				'type_city_name'         => __( 'Type city name...', 'speedy_econt_shipping' ),
+				'type_street_name'       => __( 'Type street name...', 'speedy_econt_shipping' ),
+				'searching'              => __( 'Searching...', 'speedy_econt_shipping' ),
+				'no_results'             => __( 'No results found', 'speedy_econt_shipping' ),
 				'loading'                => __( 'Loading...', 'speedy_econt_shipping' ),
+				'loading_offices'        => __( 'Loading offices...', 'speedy_econt_shipping' ),
+				'calculating_price'      => __( 'Calculating price...', 'speedy_econt_shipping' ),
 				'error'                  => __( 'Error loading data', 'speedy_econt_shipping' ),
+				'error_search'           => __( 'Unable to search. Please try again.', 'speedy_econt_shipping' ),
+				'error_load_offices'     => __( 'Unable to load offices. Please try again.', 'speedy_econt_shipping' ),
+				'error_calculate_price'  => __( 'Unable to calculate price', 'speedy_econt_shipping' ),
+				'retry'                  => __( 'Retry', 'speedy_econt_shipping' ),
+				'estimated'              => __( '(estimated)', 'speedy_econt_shipping' ),
 				'delivery'               => __( 'delivery', 'speedy_econt_shipping' ),
 				'free'                   => __( 'for free', 'speedy_econt_shipping' ),
 				'congrats_free_delivery' => __( 'Congrats, you won free delivery using %s!', 'speedy_econt_shipping' ),
 				'left_till_free'         => __( 'Still left %s', 'speedy_econt_shipping' ),
 				'to_shop'                => __( 'To shop', 'speedy_econt_shipping' ),
 				'no_free_shipping'       => __( 'Sorry, there is no free shipping available for the option chosen: %s', 'speedy_econt_shipping' ),
+				'min_chars'              => __( 'Type at least 2 characters', 'speedy_econt_shipping' ),
 			),
 		);
 	}
@@ -294,32 +320,34 @@ class SESH_Frontend {
 	 */
 	private function get_field_selectors() {
 		return array(
-			// Speedy selectors.
-			'speedy_region_sel'    => '#speedy_region',
-			'speedy_city_sel'      => '#speedy_city',
-			'speedy_office_sel'    => '#speedy_office',
-			'speedy_region_field'  => '#speedy_region_field',
-			'speedy_city_field'    => '#speedy_city_field',
-			'speedy_office_field'  => '#speedy_office_field',
+			// Speedy selectors (city autocomplete replaces region dropdown).
+			'speedy_city_sel'         => '#speedy_city',
+			'speedy_city_id_sel'      => '#speedy_city_id',
+			'speedy_office_sel'       => '#speedy_office',
+			'speedy_city_field'       => '#speedy_city_field',
+			'speedy_office_field'     => '#speedy_office_field',
+			'speedy_office_preview'   => '#speedy_office_preview',
+			'speedy_price_display'    => '#speedy_price_display',
 
-			// Econt selectors.
-			'econt_region_sel'     => '#econt_region',
-			'econt_city_sel'       => '#econt_city',
-			'econt_office_sel'     => '#econt_office',
-			'econt_region_field'   => '#econt_region_field',
-			'econt_city_field'     => '#econt_city_field',
-			'econt_office_field'   => '#econt_office_field',
+			// Econt selectors (city autocomplete replaces region dropdown).
+			'econt_city_sel'          => '#econt_city',
+			'econt_city_id_sel'       => '#econt_city_id',
+			'econt_office_sel'        => '#econt_office',
+			'econt_city_field'        => '#econt_city_field',
+			'econt_office_field'      => '#econt_office_field',
+			'econt_office_preview'    => '#econt_office_preview',
+			'econt_price_display'     => '#econt_price_display',
 
 			// Address selectors.
-			'address_region_sel'   => '#billing_state',
-			'address_city_sel'     => '#billing_city',
-			'address_office_sel'   => '#billing_address_1',
-			'address_region_field' => '#billing_state_field',
-			'address_city_field'   => '#billing_city_field',
-			'address_office_field' => '#billing_address_1_field',
+			'address_region_sel'      => '#billing_state',
+			'address_city_sel'        => '#billing_city',
+			'address_street_sel'      => '#billing_address_1',
+			'address_region_field'    => '#billing_state_field',
+			'address_city_field'      => '#billing_city_field',
+			'address_street_field'    => '#billing_address_1_field',
 
 			// Shipping to field.
-			'shipping_to_field'    => '#shipping-to-row',
+			'shipping_to_field'       => '#shipping-to-row',
 		);
 	}
 
@@ -360,6 +388,8 @@ class SESH_Frontend {
 
 	/**
 	 * AJAX handler for getting cities by region.
+	 *
+	 * @deprecated Use ajax_search_cities_checkout() instead.
 	 */
 	public function ajax_get_cities() {
 		check_ajax_referer( 'sesh_frontend_nonce', 'nonce' );
@@ -394,6 +424,459 @@ class SESH_Frontend {
 	}
 
 	/**
+	 * AJAX handler for city autocomplete search.
+	 *
+	 * Returns cities in Select2 format for autocomplete.
+	 */
+	public function ajax_search_cities_checkout() {
+		check_ajax_referer( 'sesh_frontend_nonce', 'nonce' );
+
+		$carrier = isset( $_POST['carrier'] ) ? sanitize_text_field( wp_unslash( $_POST['carrier'] ) ) : '';
+		$search  = isset( $_POST['search'] ) ? sanitize_text_field( wp_unslash( $_POST['search'] ) ) : '';
+
+		if ( ! in_array( $carrier, array( 'speedy', 'econt' ), true ) ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid carrier', 'speedy_econt_shipping' ) ) );
+		}
+
+		// Require at least 2 characters for search.
+		if ( strlen( $search ) < 2 ) {
+			wp_send_json_success( array( 'results' => array() ) );
+		}
+
+		// Search cities in database.
+		$cities = $this->database->search_cities( $carrier, $search, 20 );
+
+		// Format results for Select2.
+		$results = array();
+		foreach ( $cities as $city ) {
+			$text = esc_html( $city->name );
+
+			// Add region for disambiguation if different from city name.
+			if ( ! empty( $city->region ) && $city->region !== $city->name ) {
+				$text .= ' (' . esc_html( $city->region ) . ')';
+			}
+
+			// Add municipality if available and different.
+			if ( ! empty( $city->municipality ) && $city->municipality !== $city->name && $city->municipality !== $city->region ) {
+				$text .= ', ' . esc_html( $city->municipality );
+			}
+
+			$results[] = array(
+				'id'           => $city->id,
+				'text'         => $text,
+				'name'         => $city->name,
+				'region'       => $city->region,
+				'municipality' => isset( $city->municipality ) ? $city->municipality : '',
+			);
+		}
+
+		wp_send_json_success( array( 'results' => $results ) );
+	}
+
+	/**
+	 * AJAX handler for lazy loading offices by city ID.
+	 *
+	 * Returns extended office data including working hours and phone.
+	 */
+	public function ajax_get_offices_lazy() {
+		check_ajax_referer( 'sesh_frontend_nonce', 'nonce' );
+
+		$carrier = isset( $_POST['carrier'] ) ? sanitize_text_field( wp_unslash( $_POST['carrier'] ) ) : '';
+		$city_id = isset( $_POST['city_id'] ) ? absint( $_POST['city_id'] ) : 0;
+
+		if ( empty( $carrier ) || empty( $city_id ) ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid request', 'speedy_econt_shipping' ) ) );
+		}
+
+		if ( ! in_array( $carrier, array( 'speedy', 'econt' ), true ) ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid carrier', 'speedy_econt_shipping' ) ) );
+		}
+
+		// Get offices by city ID.
+		$offices = $this->database->get_offices_by_city_id( $carrier, $city_id );
+
+		if ( empty( $offices ) ) {
+			wp_send_json_success( array( 'offices' => array() ) );
+		}
+
+		$formatted_offices = array();
+		foreach ( $offices as $office ) {
+			$formatted_offices[] = array(
+				'id'            => $office->id,
+				'name'          => $office->name,
+				'address'       => $office->address,
+				'working_hours' => isset( $office->working_hours ) ? $office->working_hours : '',
+				'phone'         => isset( $office->phone ) ? $office->phone : '',
+				'lat'           => isset( $office->lat ) ? $office->lat : null,
+				'lng'           => isset( $office->lng ) ? $office->lng : null,
+			);
+		}
+
+		wp_send_json_success( array( 'offices' => $formatted_offices ) );
+	}
+
+	/**
+	 * AJAX handler for real-time shipping price calculation.
+	 *
+	 * @since 3.0.0
+	 */
+	public function ajax_calculate_checkout_shipping() {
+		check_ajax_referer( 'sesh_frontend_nonce', 'nonce' );
+
+		$carrier       = isset( $_POST['carrier'] ) ? sanitize_text_field( wp_unslash( $_POST['carrier'] ) ) : '';
+		$delivery_type = isset( $_POST['delivery_type'] ) ? sanitize_text_field( wp_unslash( $_POST['delivery_type'] ) ) : 'office';
+		$city_id       = isset( $_POST['city_id'] ) ? absint( $_POST['city_id'] ) : 0;
+		$office_id     = isset( $_POST['office_id'] ) ? absint( $_POST['office_id'] ) : 0;
+
+		// Validate carrier.
+		if ( ! in_array( $carrier, array( 'speedy', 'econt', 'address' ), true ) ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid carrier', 'speedy_econt_shipping' ) ) );
+		}
+
+		// Validate delivery type.
+		if ( ! in_array( $delivery_type, array( 'office', 'address' ), true ) ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid delivery type', 'speedy_econt_shipping' ) ) );
+		}
+
+		// Get cart data.
+		if ( ! WC()->cart || WC()->cart->is_empty() ) {
+			wp_send_json_error( array( 'message' => __( 'Cart is empty', 'speedy_econt_shipping' ) ) );
+		}
+
+		$cart_total  = WC()->cart->get_subtotal();
+		$cart_weight = WC()->cart->get_cart_contents_weight();
+
+		// Ensure minimum weight.
+		$cart_weight = max( $cart_weight, 0.5 );
+
+		// Check for free shipping.
+		$free_threshold = $this->get_free_shipping_threshold( $carrier );
+		$is_free        = ( $free_threshold > 0 && $cart_total >= $free_threshold );
+
+		if ( $is_free ) {
+			// Store calculated price in WooCommerce session for shipping method to use.
+			$this->store_shipping_data_in_session( $carrier, $delivery_type, $city_id, $office_id, 0, true );
+
+			wp_send_json_success(
+				array(
+					'price'           => 0,
+					'formatted_price' => wc_price( 0 ),
+					'delivery_time'   => $this->get_delivery_time_estimate( $carrier ),
+					'is_free'         => true,
+					'breakdown'       => array(
+						'base_price'  => 0,
+						'discount'    => 0,
+						'final_price' => 0,
+					),
+				)
+			);
+		}
+
+		// Try to get API-based price with caching.
+		$cache_key    = $this->build_price_cache_key( $carrier, $delivery_type, $city_id, $office_id, $cart_weight );
+		$cached_price = $this->database->get_cache( $cache_key );
+
+		if ( false !== $cached_price ) {
+			// Store in session even for cached prices.
+			$this->store_shipping_data_in_session( $carrier, $delivery_type, $city_id, $office_id, $cached_price['price'], false );
+
+			wp_send_json_success(
+				array(
+					'price'           => $cached_price['price'],
+					'formatted_price' => wc_price( $cached_price['price'] ),
+					'delivery_time'   => $cached_price['delivery_time'],
+					'is_free'         => false,
+					'breakdown'       => $cached_price['breakdown'],
+					'cached'          => true,
+				)
+			);
+		}
+
+		// Calculate price via API.
+		$price_data = $this->calculate_shipping_price( $carrier, $delivery_type, $city_id, $office_id, $cart_weight );
+
+		if ( is_wp_error( $price_data ) ) {
+			// Fall back to flat rate from settings.
+			$fallback_price = $this->get_fallback_shipping_price( $carrier );
+
+			// Store fallback price in session.
+			$this->store_shipping_data_in_session( $carrier, $delivery_type, $city_id, $office_id, $fallback_price, false );
+
+			wp_send_json_success(
+				array(
+					'price'           => $fallback_price,
+					'formatted_price' => wc_price( $fallback_price ),
+					'delivery_time'   => $this->get_delivery_time_estimate( $carrier ),
+					'is_free'         => false,
+					'is_fallback'     => true,
+					'breakdown'       => array(
+						'base_price'  => $fallback_price,
+						'discount'    => 0,
+						'final_price' => $fallback_price,
+					),
+				)
+			);
+		}
+
+		// Cache the result for 5 minutes.
+		$this->database->set_cache( $cache_key, $price_data, $carrier, 'shipping_quote', 300 );
+
+		// Store calculated price in WooCommerce session.
+		$this->store_shipping_data_in_session( $carrier, $delivery_type, $city_id, $office_id, $price_data['price'], false );
+
+		wp_send_json_success(
+			array(
+				'price'           => $price_data['price'],
+				'formatted_price' => wc_price( $price_data['price'] ),
+				'delivery_time'   => $price_data['delivery_time'],
+				'is_free'         => false,
+				'breakdown'       => $price_data['breakdown'],
+			)
+		);
+	}
+
+	/**
+	 * Store shipping data in WooCommerce session for shipping method to use.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param string $carrier       Carrier name (speedy/econt/address).
+	 * @param string $delivery_type Delivery type (office/address).
+	 * @param int    $city_id       City ID.
+	 * @param int    $office_id     Office ID.
+	 * @param float  $price         Calculated price.
+	 * @param bool   $is_free       Whether shipping is free.
+	 */
+	private function store_shipping_data_in_session( $carrier, $delivery_type, $city_id, $office_id, $price, $is_free ) {
+		if ( ! WC()->session ) {
+			return;
+		}
+
+		WC()->session->set(
+			'sesh_shipping_data',
+			array(
+				'carrier'       => $carrier,
+				'delivery_type' => $delivery_type,
+				'city_id'       => $city_id,
+				'office_id'     => $office_id,
+				'price'         => $price,
+				'is_free'       => $is_free,
+				'timestamp'     => time(),
+			)
+		);
+	}
+
+	/**
+	 * AJAX handler for street autocomplete search.
+	 *
+	 * @since 3.0.0
+	 */
+	public function ajax_search_streets() {
+		check_ajax_referer( 'sesh_frontend_nonce', 'nonce' );
+
+		$carrier = isset( $_POST['carrier'] ) ? sanitize_text_field( wp_unslash( $_POST['carrier'] ) ) : '';
+		$city_id = isset( $_POST['city_id'] ) ? absint( $_POST['city_id'] ) : 0;
+		$search  = isset( $_POST['search'] ) ? sanitize_text_field( wp_unslash( $_POST['search'] ) ) : '';
+
+		if ( empty( $carrier ) || empty( $city_id ) ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid request', 'speedy_econt_shipping' ) ) );
+		}
+
+		if ( ! in_array( $carrier, array( 'speedy', 'econt' ), true ) ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid carrier', 'speedy_econt_shipping' ) ) );
+		}
+
+		// Require at least 2 characters.
+		if ( strlen( $search ) < 2 ) {
+			wp_send_json_success( array( 'results' => array() ) );
+		}
+
+		// Get API client.
+		$plugin     = SESH_Plugin::instance();
+		$api_client = 'speedy' === $carrier ? $plugin->get_speedy_api() : $plugin->get_econt_api();
+
+		if ( ! $api_client ) {
+			wp_send_json_error( array( 'message' => __( 'API not available', 'speedy_econt_shipping' ) ) );
+		}
+
+		// Call API to get streets.
+		$streets = array();
+		try {
+			if ( method_exists( $api_client, 'get_streets' ) ) {
+				$streets = $api_client->get_streets( $city_id, $search );
+			}
+		} catch ( Exception $e ) {
+			wp_send_json_error( array( 'message' => $e->getMessage() ) );
+		}
+
+		if ( is_wp_error( $streets ) ) {
+			wp_send_json_error( array( 'message' => $streets->get_error_message() ) );
+		}
+
+		// Format results for Select2.
+		$results = array();
+		if ( is_array( $streets ) ) {
+			foreach ( $streets as $street ) {
+				$street_id   = is_object( $street ) ? $street->id : ( isset( $street['id'] ) ? $street['id'] : '' );
+				$street_name = is_object( $street ) ? $street->name : ( isset( $street['name'] ) ? $street['name'] : '' );
+
+				if ( $street_id && $street_name ) {
+					$results[] = array(
+						'id'   => $street_id,
+						'text' => $street_name,
+					);
+				}
+			}
+		}
+
+		wp_send_json_success( array( 'results' => $results ) );
+	}
+
+	/**
+	 * Get free shipping threshold for a carrier.
+	 *
+	 * @param string $carrier Carrier name.
+	 * @return float Threshold amount, 0 if disabled, -1 if not available.
+	 */
+	private function get_free_shipping_threshold( $carrier ) {
+		switch ( $carrier ) {
+			case 'speedy':
+				$threshold = $this->settings->get_speedy_free_from();
+				break;
+			case 'econt':
+				$threshold = $this->settings->get_econt_free_from();
+				break;
+			case 'address':
+				$threshold = $this->settings->get_address_free_from();
+				break;
+			default:
+				$threshold = -1;
+		}
+
+		return (float) $threshold;
+	}
+
+	/**
+	 * Get delivery time estimate for a carrier.
+	 *
+	 * @param string $carrier Carrier name.
+	 * @return string Delivery time estimate.
+	 */
+	private function get_delivery_time_estimate( $carrier ) {
+		$delivery_times = array(
+			'speedy'  => __( '1-2 business days', 'speedy_econt_shipping' ),
+			'econt'   => __( '1-3 business days', 'speedy_econt_shipping' ),
+			'address' => __( '2-4 business days', 'speedy_econt_shipping' ),
+		);
+
+		return isset( $delivery_times[ $carrier ] ) ? $delivery_times[ $carrier ] : __( '1-3 business days', 'speedy_econt_shipping' );
+	}
+
+	/**
+	 * Get fallback shipping price from settings.
+	 *
+	 * @param string $carrier Carrier name.
+	 * @return float Fallback price.
+	 */
+	private function get_fallback_shipping_price( $carrier ) {
+		switch ( $carrier ) {
+			case 'speedy':
+				return (float) $this->settings->get_speedy_shipping();
+			case 'econt':
+				return (float) $this->settings->get_econt_shipping();
+			case 'address':
+				return (float) $this->settings->get_address_shipping();
+			default:
+				return 0.0;
+		}
+	}
+
+	/**
+	 * Build cache key for shipping price.
+	 *
+	 * @param string $carrier       Carrier name.
+	 * @param string $delivery_type Delivery type (office/address).
+	 * @param int    $city_id       City ID.
+	 * @param int    $office_id     Office ID.
+	 * @param float  $weight        Package weight.
+	 * @return string Cache key.
+	 */
+	private function build_price_cache_key( $carrier, $delivery_type, $city_id, $office_id, $weight ) {
+		return sprintf(
+			'shipping_quote_%s_%s_%d_%d_%.2f',
+			$carrier,
+			$delivery_type,
+			$city_id,
+			$office_id,
+			$weight
+		);
+	}
+
+	/**
+	 * Calculate shipping price via API.
+	 *
+	 * @param string $carrier       Carrier name.
+	 * @param string $delivery_type Delivery type.
+	 * @param int    $city_id       City ID.
+	 * @param int    $office_id     Office ID.
+	 * @param float  $weight        Package weight.
+	 * @return array|WP_Error Price data or error.
+	 */
+	private function calculate_shipping_price( $carrier, $delivery_type, $city_id, $office_id, $weight ) {
+		$plugin     = SESH_Plugin::instance();
+		$api_client = null;
+
+		if ( 'speedy' === $carrier ) {
+			$api_client = $plugin->get_speedy_api();
+		} elseif ( 'econt' === $carrier ) {
+			$api_client = $plugin->get_econt_api();
+		}
+
+		if ( ! $api_client ) {
+			return new WP_Error( 'no_api', __( 'API not available', 'speedy_econt_shipping' ) );
+		}
+
+		try {
+			if ( method_exists( $api_client, 'calculate_shipping' ) ) {
+				$params = array(
+					'to_city_id'    => $city_id,
+					'to_office_id'  => $office_id,
+					'weight'        => $weight,
+					'delivery_type' => $delivery_type,
+				);
+
+				$quote = $api_client->calculate_shipping( $params );
+
+				if ( is_wp_error( $quote ) ) {
+					return $quote;
+				}
+
+				// Extract price from quote.
+				$price = 0;
+				if ( is_object( $quote ) && isset( $quote->price ) ) {
+					$price = (float) $quote->price;
+				} elseif ( is_array( $quote ) && isset( $quote['price'] ) ) {
+					$price = (float) $quote['price'];
+				}
+
+				return array(
+					'price'         => $price,
+					'delivery_time' => $this->get_delivery_time_estimate( $carrier ),
+					'breakdown'     => array(
+						'base_price'  => $price,
+						'discount'    => 0,
+						'final_price' => $price,
+					),
+				);
+			}
+		} catch ( Exception $e ) {
+			return new WP_Error( 'api_error', $e->getMessage() );
+		}
+
+		return new WP_Error( 'no_method', __( 'Shipping calculation not available', 'speedy_econt_shipping' ) );
+	}
+
+	/**
 	 * Get regions for a carrier.
 	 *
 	 * @param string $carrier Carrier (speedy or econt).
@@ -415,6 +898,19 @@ class SESH_Frontend {
 
 		echo '<div id="shipping-to-row" class="sesh-shipping-fields" style="display:none;">';
 
+		// Hidden fields to store selected delivery data for form submission.
+		// These fields are populated by JavaScript and submitted with the checkout form.
+		?>
+		<input type="hidden" name="sesh_carrier" id="sesh_carrier" value="" />
+		<input type="hidden" name="sesh_delivery_type" id="sesh_delivery_type" value="" />
+		<input type="hidden" name="sesh_city_id" id="sesh_city_id" value="" />
+		<input type="hidden" name="sesh_city_name" id="sesh_city_name" value="" />
+		<input type="hidden" name="sesh_office_id" id="sesh_office_id" value="" />
+		<input type="hidden" name="sesh_office_name" id="sesh_office_name" value="" />
+		<input type="hidden" name="sesh_office_address" id="sesh_office_address" value="" />
+		<input type="hidden" name="sesh_shipping_price" id="sesh_shipping_price" value="" />
+		<?php
+
 		// Render Speedy fields.
 		if ( $this->settings->is_speedy_enabled() ) {
 			$this->render_carrier_fields( 'speedy', __( 'Speedy Delivery', 'speedy_econt_shipping' ) );
@@ -434,7 +930,7 @@ class SESH_Frontend {
 	}
 
 	/**
-	 * Render carrier-specific fields (region, city, office).
+	 * Render carrier-specific fields (city autocomplete, office).
 	 *
 	 * @param string $carrier Carrier slug (speedy or econt).
 	 * @param string $label   Carrier display label.
@@ -445,27 +941,20 @@ class SESH_Frontend {
 		<div id="<?php echo esc_attr( $carrier_slug ); ?>_fields" class="sesh-carrier-fields" style="display:none;">
 			<h3><?php echo esc_html( $label ); ?></h3>
 
-			<p class="form-row form-row-wide" id="<?php echo esc_attr( $carrier_slug ); ?>_region_field">
-				<label for="<?php echo esc_attr( $carrier_slug ); ?>_region">
-					<?php esc_html_e( 'Region', 'speedy_econt_shipping' ); ?>
-					<abbr class="required" title="required">*</abbr>
-				</label>
-				<select name="<?php echo esc_attr( $carrier_slug ); ?>_region" id="<?php echo esc_attr( $carrier_slug ); ?>_region" class="sesh-region-select" data-carrier="<?php echo esc_attr( $carrier_slug ); ?>">
-					<option value=""><?php esc_html_e( 'Select region', 'speedy_econt_shipping' ); ?></option>
-				</select>
-			</p>
+			<?php // Hidden field to store selected city ID. ?>
+			<input type="hidden" name="<?php echo esc_attr( $carrier_slug ); ?>_city_id" id="<?php echo esc_attr( $carrier_slug ); ?>_city_id" value="" />
 
-			<p class="form-row form-row-wide" id="<?php echo esc_attr( $carrier_slug ); ?>_city_field">
+			<p class="form-row form-row-wide sesh-location-selector" id="<?php echo esc_attr( $carrier_slug ); ?>_city_field">
 				<label for="<?php echo esc_attr( $carrier_slug ); ?>_city">
 					<?php esc_html_e( 'City', 'speedy_econt_shipping' ); ?>
 					<abbr class="required" title="required">*</abbr>
 				</label>
-				<select name="<?php echo esc_attr( $carrier_slug ); ?>_city" id="<?php echo esc_attr( $carrier_slug ); ?>_city" class="sesh-city-select" data-carrier="<?php echo esc_attr( $carrier_slug ); ?>">
-					<option value=""><?php esc_html_e( 'Select city', 'speedy_econt_shipping' ); ?></option>
+				<select name="<?php echo esc_attr( $carrier_slug ); ?>_city" id="<?php echo esc_attr( $carrier_slug ); ?>_city" class="sesh-city-autocomplete" data-carrier="<?php echo esc_attr( $carrier_slug ); ?>">
+					<option value=""><?php esc_html_e( 'Type city name...', 'speedy_econt_shipping' ); ?></option>
 				</select>
 			</p>
 
-			<p class="form-row form-row-wide" id="<?php echo esc_attr( $carrier_slug ); ?>_office_field">
+			<p class="form-row form-row-wide sesh-location-selector" id="<?php echo esc_attr( $carrier_slug ); ?>_office_field" style="display:none;">
 				<label for="<?php echo esc_attr( $carrier_slug ); ?>_office">
 					<?php esc_html_e( 'Office', 'speedy_econt_shipping' ); ?>
 					<abbr class="required" title="required">*</abbr>
@@ -473,7 +962,17 @@ class SESH_Frontend {
 				<select name="<?php echo esc_attr( $carrier_slug ); ?>_office" id="<?php echo esc_attr( $carrier_slug ); ?>_office" class="sesh-office-select" data-carrier="<?php echo esc_attr( $carrier_slug ); ?>">
 					<option value=""><?php esc_html_e( 'Select office', 'speedy_econt_shipping' ); ?></option>
 				</select>
+				<span class="sesh-office-loading" style="display:none;">
+					<span class="sesh-spinner sesh-spinner--sm"></span>
+					<?php esc_html_e( 'Loading offices...', 'speedy_econt_shipping' ); ?>
+				</span>
 			</p>
+
+			<?php // Office preview card (populated via JS). ?>
+			<div id="<?php echo esc_attr( $carrier_slug ); ?>_office_preview" class="sesh-office-preview" style="display:none;"></div>
+
+			<?php // Price display area (populated via JS). ?>
+			<div id="<?php echo esc_attr( $carrier_slug ); ?>_price_display" class="sesh-price-breakdown" style="display:none;"></div>
 		</div>
 		<?php
 	}
@@ -495,95 +994,128 @@ class SESH_Frontend {
 	}
 
 	/**
-	 * Output office data as JSON for JavaScript.
-	 */
-	public function output_office_data() {
-		if ( ! is_checkout() ) {
-			return;
-		}
-
-		// Get office data for enabled carriers.
-		$speedy_data = array();
-		$econt_data  = array();
-
-		if ( $this->settings->is_speedy_enabled() ) {
-			$speedy_data = $this->get_carrier_office_data( 'speedy' );
-		}
-
-		if ( $this->settings->is_econt_enabled() ) {
-			$econt_data = $this->get_carrier_office_data( 'econt' );
-		}
-
-		?>
-		<script type="text/javascript">
-			window.speedyData = <?php echo wp_json_encode( $speedy_data ); ?>;
-			window.econtData = <?php echo wp_json_encode( $econt_data ); ?>;
-		</script>
-		<?php
-	}
-
-	/**
-	 * Get office data for a carrier.
-	 *
-	 * @param string $carrier Carrier slug (speedy or econt).
-	 * @return array Structured office data.
-	 */
-	private function get_carrier_office_data( $carrier ) {
-		$regions = $this->database->get_regions( $carrier );
-		$sites   = $this->database->get_sites( $carrier );
-		$offices = $this->database->get_offices( $carrier );
-
-		$data = array(
-			'regions' => array(),
-			'cities'  => array(),
-			'offices' => array(),
-		);
-
-		// Build regions array.
-		foreach ( $regions as $region_name => $region_label ) {
-			$data['regions'][] = array(
-				'name'  => $region_name,
-				'label' => $region_label,
-			);
-		}
-
-		// Build cities array grouped by region.
-		foreach ( $sites as $site ) {
-			$region_key = $site->region;
-			if ( ! isset( $data['cities'][ $region_key ] ) ) {
-				$data['cities'][ $region_key ] = array();
-			}
-
-			$data['cities'][ $region_key ][] = array(
-				'id'           => $site->id,
-				'name'         => $site->name,
-				'municipality' => isset( $site->municipality ) ? $site->municipality : '',
-			);
-		}
-
-		// Build offices array grouped by city.
-		foreach ( $offices as $office ) {
-			$city_name = $office->city;
-			if ( ! isset( $data['offices'][ $city_name ] ) ) {
-				$data['offices'][ $city_name ] = array();
-			}
-
-			$data['offices'][ $city_name ][] = array(
-				'id'      => $office->id,
-				'name'    => $office->name,
-				'address' => $office->address,
-			);
-		}
-
-		return $data;
-	}
-
-	/**
 	 * Get settings instance.
 	 *
 	 * @return SESH_Settings
 	 */
 	public function get_settings() {
 		return $this->settings;
+	}
+
+	/**
+	 * Validate checkout fields before order is created.
+	 *
+	 * This runs when customer clicks "Place Order". If validation fails,
+	 * wc_add_notice() stops the checkout and displays the error message.
+	 *
+	 * @since 3.0.0
+	 */
+	public function validate_checkout_fields() {
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- WooCommerce handles nonce verification.
+		$carrier = isset( $_POST['sesh_carrier'] ) ? sanitize_text_field( wp_unslash( $_POST['sesh_carrier'] ) ) : '';
+
+		// If no carrier selected, WooCommerce's own validation will catch it.
+		if ( empty( $carrier ) ) {
+			return;
+		}
+
+		// For Speedy or Econt office delivery, validate city and office selection.
+		if ( in_array( $carrier, array( 'speedy', 'econt' ), true ) ) {
+			$city_id       = isset( $_POST['sesh_city_id'] ) ? absint( $_POST['sesh_city_id'] ) : 0;
+			$office_id     = isset( $_POST['sesh_office_id'] ) ? absint( $_POST['sesh_office_id'] ) : 0;
+			$delivery_type = isset( $_POST['sesh_delivery_type'] ) ? sanitize_text_field( wp_unslash( $_POST['sesh_delivery_type'] ) ) : '';
+
+			// City is always required for Speedy/Econt.
+			if ( empty( $city_id ) ) {
+				wc_add_notice(
+					__( 'Please select a city for delivery.', 'speedy_econt_shipping' ),
+					'error'
+				);
+			}
+
+			// Office required only for office delivery type.
+			if ( 'office' === $delivery_type && empty( $office_id ) ) {
+				wc_add_notice(
+					__( 'Please select a pickup office.', 'speedy_econt_shipping' ),
+					'error'
+				);
+			}
+		}
+
+		// Phone is required for all shipping methods (carriers need it for delivery).
+		$phone = isset( $_POST['billing_phone'] ) ? sanitize_text_field( wp_unslash( $_POST['billing_phone'] ) ) : '';
+		if ( empty( $phone ) ) {
+			wc_add_notice(
+				__( 'Phone number is required for delivery.', 'speedy_econt_shipping' ),
+				'error'
+			);
+		}
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
+	}
+
+	/**
+	 * Save shipping delivery details to order meta.
+	 *
+	 * This runs during order creation, after validation passes.
+	 * The data saved here is used later by the label generator.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param WC_Order $order The order being created.
+	 * @param array    $data  The checkout form data.
+	 */
+	public function save_checkout_shipping_meta( $order, $data ) {
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- WooCommerce handles nonce verification.
+		$carrier        = isset( $_POST['sesh_carrier'] ) ? sanitize_text_field( wp_unslash( $_POST['sesh_carrier'] ) ) : '';
+		$delivery_type  = isset( $_POST['sesh_delivery_type'] ) ? sanitize_text_field( wp_unslash( $_POST['sesh_delivery_type'] ) ) : '';
+		$city_id        = isset( $_POST['sesh_city_id'] ) ? absint( $_POST['sesh_city_id'] ) : 0;
+		$city_name      = isset( $_POST['sesh_city_name'] ) ? sanitize_text_field( wp_unslash( $_POST['sesh_city_name'] ) ) : '';
+		$office_id      = isset( $_POST['sesh_office_id'] ) ? absint( $_POST['sesh_office_id'] ) : 0;
+		$office_name    = isset( $_POST['sesh_office_name'] ) ? sanitize_text_field( wp_unslash( $_POST['sesh_office_name'] ) ) : '';
+		$office_address = isset( $_POST['sesh_office_address'] ) ? sanitize_text_field( wp_unslash( $_POST['sesh_office_address'] ) ) : '';
+		$shipping_price = isset( $_POST['sesh_shipping_price'] ) ? floatval( $_POST['sesh_shipping_price'] ) : 0;
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
+
+		// Only save if we have a carrier selected.
+		if ( empty( $carrier ) ) {
+			return;
+		}
+
+		// Save to order meta (these fields are read by label generator).
+		$order->update_meta_data( '_sesh_carrier', $carrier );
+		$order->update_meta_data( '_sesh_delivery_type', $delivery_type );
+
+		if ( $city_id > 0 ) {
+			$order->update_meta_data( '_sesh_city_id', $city_id );
+			$order->update_meta_data( '_sesh_city_name', $city_name );
+		}
+
+		// Only save office data for office delivery.
+		if ( 'office' === $delivery_type && $office_id > 0 ) {
+			$order->update_meta_data( '_sesh_office_id', $office_id );
+			$order->update_meta_data( '_sesh_office_name', $office_name );
+			$order->update_meta_data( '_sesh_office_address', $office_address );
+		}
+
+		// Save the calculated price for reference.
+		if ( $shipping_price > 0 ) {
+			$order->update_meta_data( '_sesh_calculated_shipping_price', $shipping_price );
+		}
+
+		// Add order note for admin reference.
+		$delivery_label = 'office' === $delivery_type
+			? __( 'Office pickup', 'speedy_econt_shipping' )
+			: __( 'Address delivery', 'speedy_econt_shipping' );
+
+		$destination = 'office' === $delivery_type ? $office_name : $city_name;
+
+		$note = sprintf(
+			/* translators: 1: Carrier name, 2: Delivery type label, 3: Destination */
+			__( 'Shipping: %1$s (%2$s) to %3$s', 'speedy_econt_shipping' ),
+			ucfirst( $carrier ),
+			$delivery_label,
+			$destination
+		);
+		$order->add_order_note( $note );
 	}
 }

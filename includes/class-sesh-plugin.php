@@ -204,7 +204,8 @@ final class SESH_Plugin {
 		register_deactivation_hook( $this->plugin_file, array( $this, 'deactivate' ) );
 
 		// Initialize plugin after plugins are loaded.
-		add_action( 'plugins_loaded', array( $this, 'init' ), 0 );
+		// Priority 15 ensures WooCommerce (priority 10) is loaded first.
+		add_action( 'plugins_loaded', array( $this, 'init' ), 15 );
 
 		// WooCommerce compatibility declarations.
 		add_action( 'before_woocommerce_init', array( $this, 'declare_wc_compatibility' ) );
@@ -433,8 +434,9 @@ final class SESH_Plugin {
 	/**
 	 * Initialize WooCommerce settings integration.
 	 *
-	 * Hooked to 'woocommerce_init' to ensure WooCommerce is fully loaded
-	 * and WC_Settings_Page parent class is available.
+	 * Hooked to 'woocommerce_init' to register the filter for settings pages.
+	 * The actual class loading happens in add_wc_settings_page() callback
+	 * when WooCommerce calls the filter (at which point WC_Settings_Page exists).
 	 */
 	public function init_wc_settings() {
 		// Only initialize in admin context.
@@ -442,29 +444,38 @@ final class SESH_Plugin {
 			return;
 		}
 
-		// Verify WC_Settings_Page class exists before loading our settings class.
-		if ( ! class_exists( 'WC_Settings_Page' ) ) {
-			return;
-		}
-
-		// Load WooCommerce settings integration class.
-		require_once SESH_PLUGIN_DIR . 'includes/admin/class-sesh-wc-settings.php';
-
-		// Add our settings tab to WooCommerce settings.
+		// Register the filter - actual class loading happens in callback.
+		// Note: We don't check for WC_Settings_Page here because it may not
+		// be loaded yet. WooCommerce loads it later during admin_menu.
 		add_filter( 'woocommerce_get_settings_pages', array( $this, 'add_wc_settings_page' ) );
 	}
 
 	/**
 	 * Add settings page to WooCommerce.
 	 *
+	 * Called by woocommerce_get_settings_pages filter when WooCommerce
+	 * needs the list of settings pages. At this point WC_Settings_Page
+	 * is guaranteed to exist.
+	 *
 	 * @param array $settings Settings pages.
 	 * @return array
 	 */
 	public function add_wc_settings_page( $settings ) {
-		// Double-check class exists before instantiating (defensive programming).
+		// Now WC_Settings_Page is available, so we can safely load and instantiate.
+		if ( ! class_exists( 'WC_Settings_Page' ) ) {
+			return $settings;
+		}
+
+		// Load our settings class if not already loaded.
+		if ( ! class_exists( 'SESH_WC_Settings' ) ) {
+			require_once SESH_PLUGIN_DIR . 'includes/admin/class-sesh-wc-settings.php';
+		}
+
+		// Add our settings page.
 		if ( class_exists( 'SESH_WC_Settings' ) ) {
 			$settings[] = new SESH_WC_Settings( $this->settings );
 		}
+
 		return $settings;
 	}
 

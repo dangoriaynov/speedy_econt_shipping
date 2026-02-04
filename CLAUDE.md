@@ -1,5 +1,19 @@
 # CLAUDE.md - Project Guidelines
 
+## Workflow
+
+**Work directly on `main` branch.** This is a single-developer project - no feature branches needed.
+
+```bash
+# Before starting work, sync with remote
+git pull origin main
+
+# After completing work, commit and push
+git add -A
+git commit -m "feat(scope): description"
+git push origin main
+```
+
 ## Custom Workflows
 
 ### Subagents
@@ -7,15 +21,14 @@
 #### implement-issue
 Located in `.claude/agents/implement-issue.md`
 
-Use this subagent when implementing GitHub issues or fixing problems. It follows a structured workflow tailored for migrating legacy WordPress code to modern standards:
-1. Syncs `main` branch with remote (`git checkout main && git pull origin main`)
-2. Creates a feature branch from the updated `main`
-3. Analyzes the issue requirements against the legacy codebase
-4. Implements features while refactoring legacy patterns into Object-Oriented code
-5. Runs verification checks (PHP syntax, PHPCS, JS lint) - fixes issues automatically or asks user
-6. Reports summary of changes
+Use this subagent when implementing GitHub issues or fixing problems:
+1. Pulls latest `main` from remote
+2. Analyzes the issue requirements
+3. Implements features following WordPress/WooCommerce standards
+4. Runs verification checks (PHP syntax, security review)
+5. Reports summary of changes
 
-**Note:** This subagent does NOT create commits, push to remote, or create PRs. The user handles version control manually after reviewing changes.
+**Note:** Does NOT create commits or push. User handles version control after reviewing.
 
 **Invocation:**
 ```
@@ -27,7 +40,7 @@ Use the implement-issue subagent to implement GitHub issue #42
 #### /implement
 Located in `.claude/commands/implement.md`
 
-Shortcut to invoke the implement-issue subagent with an issue number, URL, or problem description. Handles implementation and verification only - no commits or PRs.
+Shortcut to invoke the implement-issue subagent with an issue number, URL, or problem description.
 
 **Usage:**
 ```
@@ -36,71 +49,50 @@ Shortcut to invoke the implement-issue subagent with an issue number, URL, or pr
 /implement fix the admin notice pointing to wrong settings URL
 ```
 
-
 ### Skills
 
 #### wordpress-conventions
 Located in `.claude/skills/wordpress-conventions/SKILL.md`
 
-GitHub and Coding workflow conventions for WordPress/PHP projects. Automatically activates when working with branches, commits, PRs, or version control operations.
+Coding conventions for WordPress/PHP projects.
 
-**Key Conventions:**
+**Commit Format:** Conventional commits: `feat(scope): description`
 
-| Area | Convention |
-|------|------------|
-| **Branch naming** | `type/brief-description` (e.g., `feature/speedy-api`, `refactor/legacy-js`) |
-| **Issue naming** | `Task X.Y: Description` (e.g., `Task 2.1: Implement API Client`) |
-| **Commit format** | Conventional commits with issue reference: `feat(scope): description` + `Relates to #123` |
-| **PR title** | `[Issue #X.Y] Brief description` |
-
-**Branch Types:** `feature/`, `fix/`, `hotfix/`, `docs/`, `refactor/`, `test/`, `chore/`
-
-**Commit Scopes:** `core`, `admin`, `checkout`, `api`, `speedy`, `econt`, `db`, `assets`, `legacy`
-
-**Branch Workflow (Required):**
-- Always start from `main` branch synced to remote before creating feature branches
-- Run `git checkout main && git pull origin main` before `git checkout -b <branch-name>`
+**Commit Scopes:** `core`, `admin`, `checkout`, `api`, `speedy`, `econt`, `db`, `assets`
 
 **Critical Rules:**
-- ❌ **Legacy Ban:** Do not add new logic to `js.php` or `css.php`. Move to `assets/`.
-- ❌ **Legacy Ban:** Do not add new global variables in `utils.php`. Use Class properties.
 - ✅ **Security:** All DB queries must use `$wpdb->prepare`.
 - ✅ **Security:** All inputs must be sanitized; all outputs escaped.
-- ✅ **Migration:** Refactor one piece at a time (Atomic Commits).
+- ✅ **Security:** All AJAX handlers must verify nonces.
 
 ## Commands
-- **Lint PHP:** `composer run phpcs` (Requires `composer.json` setup)
+- **Lint PHP:** `composer run phpcs` (if configured)
 - **Fix PHP:** `composer run phpcbf`
-- **Lint JS:** `npm run lint` (Requires `package.json` setup)
-- **Build:** `npm run build` (For compiling SCSS/JS if added)
-- **Start Env:** `docker-compose up -d` (If using Local/Docker)
+- **Lint JS:** `npm run lint` (if configured)
 
 ## Tech Stack
 - **Platform:** WordPress 6.0+, WooCommerce 8.0+
-- **Language:** PHP 7.4+ (Strict Mode), JavaScript (Vanilla/jQuery)
-- **Styling:** CSS (Admin styles), ensure Theme compatibility
+- **Language:** PHP 7.4+, JavaScript (Vanilla/jQuery)
 - **APIs:** Speedy REST API, Econt XML/REST API
-- **Database:** Custom Tables (`speedy_offices`, `econt_offices`) + WP Options API
+- **Database:** Custom Tables + WP Options API
 
-## Architecture & Conventions
+## Architecture
 
-### Directory Structure (Target State)
-- `/includes`: PHP Classes and core logic (Namespace: `SpeedyEcontShipping`).
-    - `/includes/api`: API Client classes.
-    - `/includes/abstracts`: Abstract classes for Shipping Providers.
-- `/assets`: Static assets.
-    - `/assets/js`: Frontend and Admin scripts.
-    - `/assets/css`: Stylesheets.
-- `/templates`: Frontend template parts (avoiding inline HTML in PHP).
-- `/languages`: Translation files (`.pot`, `.po`).
-
-### Legacy vs. Modern Mapping
-| Legacy File | Status | Refactoring Goal |
-|-------------|--------|------------------|
-| `js.php` | 🛑 Deprecated | Extract logic to `assets/js/checkout.js`. Use `wp_localize_script` for data. |
-| `db.php` | ⚠️ Refactor | Wrap in `includes/class-db-repository.php`. Remove globals. |
-| `api.php` | ⚠️ Refactor | Split into `includes/api/class-speedy-api.php` and `class-econt-api.php`. |
-| `utils.php` | ⚠️ Refactor | Move helper functions to `includes/class-utils.php` or specific classes. |
+### Directory Structure
+```
+/includes           PHP Classes (OOP architecture)
+  /api              API Client classes (Speedy, Econt)
+  /admin            Admin functionality
+  /database         Database layer
+  /labels           Label generation
+  /shipping-methods WC_Shipping_Method implementations
+  /frontend         Customer-facing features
+/assets
+  /js               Frontend and Admin scripts
+  /css              Stylesheets
+/templates          Frontend template parts
+/languages          Translation files (.pot, .po)
+```
 
 ## Security Guidelines (Highest Priority)
 - **Input Validation:** Validate all `$_POST` and `$_GET` data immediately.
@@ -115,5 +107,5 @@ GitHub and Coding workflow conventions for WordPress/PHP projects. Automatically
 
 ## Error Handling
 - Use `try/catch` blocks for API requests.
-- Log errors using `error_log()` or a custom logger class, never echo errors to frontend in production.
-- Fail gracefully: If API is down, checkout should not break (fallback to flat rate or hide method).
+- Log errors using `error_log()`, never echo errors to frontend.
+- Fail gracefully: If API is down, checkout should not break (fallback to flat rate).
