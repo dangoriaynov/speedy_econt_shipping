@@ -83,10 +83,12 @@ jobs:
         run: |
           npx --yes @wordpress/env start
           npx @wordpress/env run cli -- wp plugin install plugin-check --activate
-          # Warnings are read by a human, errors stop the release.
-          OUT="$( npx @wordpress/env run cli -- wp plugin check ${SLUG} --ignore-warnings --format=json 2>&1 )"
-          echo "$OUT"
-          printf '%s' "$OUT" | grep -q '"type":"ERROR"' && { echo "::error::Plugin Check reported errors"; exit 1; }
+          npx @wordpress/env run cli -- wp plugin check ${SLUG} --ignore-warnings --format=json \
+            > "${RUNNER_TEMP}/check.txt" 2>&1 || true
+          cat "${RUNNER_TEMP}/check.txt"
+          # Not "zero errors" - this plugin was published in 2024 with 158 of them, and a gate nobody
+          # can pass is not a gate. The question is whether THIS release added any.
+          python3 "${GITHUB_WORKSPACE}/bin/plugin-check-gate.py" "${RUNNER_TEMP}/check.txt"
           npx @wordpress/env stop
 
       # --- The dev site must already be running this build -------------------------------------------

@@ -11,8 +11,8 @@
  * Requires PHP:      7.0
  * WC requires at least: 7.0
  * WC tested up to:   10.4
- * License:           GNU General Public License, version 2
- * License URI:       https://www.gnu.org/licenses/gpl-2.0.en.html
+ * License:           GPLv2
+ * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Domain Path:       /languages/
  * Text Domain:       speedy_econt_shipping
 */
@@ -509,8 +509,8 @@ if (isCalculateFinalPrice()) {
             return $posted_data;
         }
         $shipping_address = $order->get_shipping_address_1();
-        $to_speedy = str_contains($shipping_address, getSpeedyLabel());
-        $to_econt = str_contains($shipping_address, getEcontLabel());
+        $to_speedy = false !== strpos($shipping_address, getSpeedyLabel());
+        $to_econt = false !== strpos($shipping_address, getEcontLabel());
         $order_total = $order->get_total();
         write_log("speedy label: ".getSpeedyLabel().", econt label: ".getEcontLabel());
         write_log("shipping address: $shipping_address; to speedy=$to_speedy; to econt=$to_econt; order total=$order_total");

@@ -6,7 +6,7 @@ Requires PHP: 7.0
 Tested up to: 7.1
 Stable tag: 1.15.2
 License: GPLv2
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Donate link: http://revolut.me/danq6lus
 
 Speedy and Econt office and address delivery at the WooCommerce checkout. Maintained successor: BG Couriers for WooCommerce.
@@ -334,5 +334,7 @@ Trimmed the tag list to the five WordPress.org keeps, so none is dropped silentl
 Declared openly that the block checkout is NOT supported - the fields are drawn on a hook it does not have, and a shop should read that in WooCommerce's compatibility list rather than discover it at the checkout
 Checkout totals are read again for the euro changeover: with two currencies shown side by side the old selector took the wrong amount, so the 'left till free delivery' figure was wrong on dual-currency shops
 Address delivery shows its own fields again (written in 2024 as 1.16 and never published; it ships here)
+Order placement no longer calls str_contains() on shops below WordPress 5.9: the function arrives with PHP 8.0 and WordPress polyfills it only from 5.9, so on the versions this plugin says it supports the order was dying at the last step
+Readme and plugin header now declare the same license, which WordPress.org checks on import
 #### Notes
 Added a one-time, dismissible note about the maintained successor, BG Couriers for WooCommerce. Nothing else changed: no settings were moved, renamed or removed

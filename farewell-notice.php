@@ -109,7 +109,9 @@ function sesh_handover_notice(): void {
 		sprintf(
 			/* translators: %s: the successor plugin's name, as a link. */
 			esc_html__( 'It keeps working and your settings are untouched. Its successor, %s, is free as well and does considerably more: it supports Speedy, Econt, BOX NOW, Sameday, Pigeon Express, Express One and Evropat, the block checkout, waybills and labels in one click, and parcel tracking for your customers.', 'speedy_econt_shipping' ),
-			sesh_handover_link()
+			// The link is assembled from esc_url() and esc_html() in sesh_handover_link(); escaping it
+			// again here would print the anchor as text.
+			sesh_handover_link() // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		)
 	);
 	printf(
