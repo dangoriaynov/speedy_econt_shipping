@@ -108,8 +108,8 @@ msgstr ""
 msgid "Is email field required?"
 msgstr ""
 
-#: farewell-notice.php:70
-msgid "It keeps working and your settings are untouched. Its successor, %s, is free as well and carries on where this one stops: Speedy, Econt, BOX NOW, Sameday, Pigeon Express, Express One and Evropat, the block checkout, waybills and labels in one click, and parcel tracking for your customers."
+#: farewell-notice.php:111
+msgid "It keeps working and your settings are untouched. Its successor, %s, is free as well and does considerably more: it supports Speedy, Econt, BOX NOW, Sameday, Pigeon Express, Express One and Evropat, the block checkout, waybills and labels in one click, and parcel tracking for your customers."
 msgstr ""
 
 #: SeshSpeedyEcontShippingAdmin.php:162
@@ -144,7 +144,7 @@ msgstr ""
 msgid "Region"
 msgstr ""
 
-#: farewell-notice.php:78
+#: farewell-notice.php:118
 msgid "See the successor"
 msgstr ""
 
@@ -168,7 +168,7 @@ msgstr ""
 msgid "Speedy & Econt shipping"
 msgstr ""
 
-#: farewell-notice.php:63
+#: farewell-notice.php:105
 msgid "Speedy and Econt Shipping is no longer being developed"
 msgstr ""
 
@@ -184,7 +184,7 @@ msgstr ""
 msgid "Still left"
 msgstr ""
 
-#: farewell-notice.php:110
+#: farewell-notice.php:150
 msgid "Successor: BG Couriers"
 msgstr ""
 

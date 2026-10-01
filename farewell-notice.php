@@ -22,6 +22,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 const SESH_SUCCESSOR_URL  = 'https://wordpress.org/plugins/bg-couriers/';
 const SESH_SUCCESSOR_NAME = 'BG Couriers for WooCommerce';
+const SESH_SUCCESSOR_SLUG = 'bg-couriers';
+const SESH_SUCCESSOR_FILE = 'bg-couriers/bg-couriers.php';
 const SESH_DISMISS_META   = 'sesh_handover_dismissed';
 
 /**
@@ -45,15 +47,55 @@ function sesh_handover_screen(): bool {
 		|| ( false !== strpos( (string) $screen->post_type, 'shop_order' ) );
 }
 
-/** The notice itself. */
-function sesh_handover_notice(): void {
+/**
+ * Is the notice due on this request? Asked twice: once to print it, once to decide whether the
+ * install dialog's assets are worth loading.
+ */
+function sesh_handover_due(): bool {
 	if ( ! current_user_can( 'manage_woocommerce' ) && ! current_user_can( 'activate_plugins' ) ) {
-		return;
+		return false;
 	}
 	if ( get_user_meta( get_current_user_id(), SESH_DISMISS_META, true ) ) {
-		return;
+		return false;
 	}
-	if ( ! sesh_handover_screen() ) {
+	// A shop already running the successor has migrated and does not need telling.
+	if ( function_exists( 'is_plugin_active' ) && is_plugin_active( SESH_SUCCESSOR_FILE ) ) {
+		return false;
+	}
+	return sesh_handover_screen();
+}
+
+/**
+ * The successor's name, as a link.
+ *
+ * To someone who may install plugins this is WordPress's own plugin dialog, opened in place: the
+ * description, the screenshots and an Install button, without leaving the screen or being told to go
+ * and search for a name. To everyone else it is the page on WordPress.org, which is all their account
+ * could do with anyway.
+ */
+function sesh_handover_link(): string {
+	$label = esc_html( SESH_SUCCESSOR_NAME );
+	if ( current_user_can( 'install_plugins' ) ) {
+		$url = self_admin_url(
+			'plugin-install.php?tab=plugin-information&plugin=' . SESH_SUCCESSOR_SLUG
+			. '&TB_iframe=true&width=772&height=550'
+		);
+		return sprintf( '<a href="%s" class="thickbox open-plugin-details-modal">%s</a>', esc_url( $url ), $label );
+	}
+	return sprintf( '<a href="%s" target="_blank" rel="noopener">%s</a>', esc_url( SESH_SUCCESSOR_URL ), $label );
+}
+
+/** The dialog's own script and styles, on the screens that will show the link. */
+function sesh_handover_assets(): void {
+	if ( sesh_handover_due() ) {
+		add_thickbox();
+	}
+}
+add_action( 'admin_enqueue_scripts', 'sesh_handover_assets' );
+
+/** The notice itself. */
+function sesh_handover_notice(): void {
+	if ( ! sesh_handover_due() ) {
 		return;
 	}
 
@@ -64,12 +106,10 @@ function sesh_handover_notice(): void {
 	);
 	printf(
 		'<p>%s</p>',
-		esc_html(
-			sprintf(
-				/* translators: %s: the successor plugin's name. */
-				__( 'It keeps working and your settings are untouched. Its successor, %s, is free as well and carries on where this one stops: Speedy, Econt, BOX NOW, Sameday, Pigeon Express, Express One and Evropat, the block checkout, waybills and labels in one click, and parcel tracking for your customers.', 'speedy_econt_shipping' ),
-				SESH_SUCCESSOR_NAME
-			)
+		sprintf(
+			/* translators: %s: the successor plugin's name, as a link. */
+			esc_html__( 'It keeps working and your settings are untouched. Its successor, %s, is free as well and does considerably more: it supports Speedy, Econt, BOX NOW, Sameday, Pigeon Express, Express One and Evropat, the block checkout, waybills and labels in one click, and parcel tracking for your customers.', 'speedy_econt_shipping' ),
+			sesh_handover_link()
 		)
 	);
 	printf(
