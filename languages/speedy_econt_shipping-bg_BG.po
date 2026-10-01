@@ -231,7 +231,7 @@ msgstr "Да се обновят таблиците с дани"
 #. id
 #: SeshSpeedyEcontShippingAdmin.php:234
 msgid "Free shipping label suffix"
-msgstr ""
+msgstr "Наставка към етикета за безплатна доставка"
 
 #. Author URI of the plugin
 msgid "https://github.com/dangoriaynov"
@@ -362,3 +362,23 @@ msgstr "за да спечелите безплатна доставка до"
 #: js.php:179
 msgid "To shop"
 msgstr "Към магазина"
+
+#: farewell-notice.php
+msgid "Speedy and Econt Shipping is no longer being developed"
+msgstr "Speedy and Econt Shipping вече не се развива"
+
+#: farewell-notice.php
+msgid "It keeps working and your settings are untouched. Its successor, %s, is free as well and carries on where this one stops: Speedy, Econt, BOX NOW, Sameday, Pigeon Express, Express One and Evropat, the block checkout, waybills and labels in one click, and parcel tracking for your customers."
+msgstr "Плъгинът продължава да работи и настройките ви остават непокътнати. Наследникът %s също е безплатен и продължава оттам, докъдето този стига: Speedy, Еконт, BOX NOW, Sameday, Pigeon Express, Express One и Европът, блоковият чекаут, товарителници и етикети с едно кликване и проследяване на пратката за клиентите ви."
+
+#: farewell-notice.php
+msgid "See the successor"
+msgstr "Виж наследника"
+
+#: farewell-notice.php
+msgid "Do not show again"
+msgstr "Не показвай повече"
+
+#: farewell-notice.php
+msgid "Successor: BG Couriers"
+msgstr "Наследник: BG Couriers"

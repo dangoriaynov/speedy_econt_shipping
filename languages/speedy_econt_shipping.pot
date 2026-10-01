@@ -1,335 +1,281 @@
-#, fuzzy
+# Copyright (C) Dan Goriaynov
+# This file is distributed under the same license as the plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: Speedy and Econt Shipping\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-03 21:39+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: \n"
-"Language: \n"
-"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"Project-Id-Version: Speedy and Econt Shipping 1.15.2\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Loco https://localise.biz/\n"
-"X-Loco-Version: 2.5.5; wp-5.8.2\n"
-"X-Domain: speedy_econt_shipping"
+"X-Domain: speedy_econt_shipping\n"
 
-#: SeshSpeedyEcontShippingAdmin.php:355 SeshSpeedyEcontShippingAdmin.php:367
-#: SeshSpeedyEcontShippingAdmin.php:383
+#: SeshSpeedyEcontShippingAdmin.php:355, SeshSpeedyEcontShippingAdmin.php:367, SeshSpeedyEcontShippingAdmin.php:383
 msgid "0 - always free shipping, empty - no free shipping"
 msgstr ""
 
 #: SeshSpeedyEcontShippingAdmin.php:33
-msgid ""
-"<b>In case of errors, please check output of the following commands on your "
-"hosting:</b>"
+msgid "<b>In case of errors, please check output of the following commands on your hosting:</b>"
 msgstr ""
 
 #: SeshSpeedyEcontShippingAdmin.php:30
-msgid ""
-"<b>Please <a href=\"mailto:cs@speedy.bg\">request API access from Speedy "
-"courier</a> and specify the values given.</b>"
+msgid "<b>Please <a href=\"mailto:cs@speedy.bg\">request API access from Speedy courier</a> and specify the values given.</b>"
 msgstr ""
 
 #: SeshSpeedyEcontShippingAdmin.php:36
-msgid ""
-"<b>You may also enable the <a href=\"https://wordpress."
-"org/support/article/debugging-in-wordpress/\" target=\"_blank\">debug "
-"mode</a> in your site and check the debug.log file for errors.</b>"
+msgid "<b>You may also enable the <a href=\"https://wordpress.org/support/article/debugging-in-wordpress/\" target=\"_blank\">debug mode</a> in your site and check the debug.log file for errors.</b>"
 msgstr ""
 
-#. id
-#: SeshSpeedyEcontShippingAdmin.php:114
-msgid "`Econt` free delivery from"
-msgstr ""
-
-#. id
-#: SeshSpeedyEcontShippingAdmin.php:122
-msgid "`Econt` shipping fee"
-msgstr ""
-
-#. id
-#: SeshSpeedyEcontShippingAdmin.php:90
-msgid "`Speedy` free delivery from"
-msgstr ""
-
-#. id
-#: SeshSpeedyEcontShippingAdmin.php:82
-msgid "`Speedy` Password"
-msgstr ""
-
-#. id
-#: SeshSpeedyEcontShippingAdmin.php:98
-msgid "`Speedy` shipping fee"
-msgstr ""
-
-#. id
-#: SeshSpeedyEcontShippingAdmin.php:74
-msgid "`Speedy` Username"
-msgstr ""
-
-#. id
-#: SeshSpeedyEcontShippingAdmin.php:146
-msgid "`To address` free delivery from"
-msgstr ""
-
-#. id
-#: SeshSpeedyEcontShippingAdmin.php:138
-msgid "`To address` method name"
-msgstr ""
-
-#. id
-#: SeshSpeedyEcontShippingAdmin.php:154
-msgid "`To address` shipping fee"
-msgstr ""
-
-#. id
 #: SeshSpeedyEcontShippingAdmin.php:170
 msgid "Additionally hidden checkout fields"
 msgstr ""
 
-#: SeshSpeedyEcontShippingAdmin.php:379
-msgid "address"
-msgstr ""
-
-#. Description of the plugin
-msgid ""
-"Adds Speedy and Econt shipping methods along with their delivery options."
-msgstr ""
-
 #: SeshSpeedyEcontShippingAdmin.php:31
-msgid ""
-"Be aware that in order to do the force update of the Econt/Speedy offices "
-"and sites tables you could enable corresponding option in the plugin "
-"settings."
+msgid "Be aware that in order to do the force update of the Econt/Speedy offices and sites tables you could enable corresponding option in the plugin settings."
 msgstr ""
 
-#. id
 #: SeshSpeedyEcontShippingAdmin.php:210
 msgid "Calculate final price on checkout"
 msgstr ""
 
-#: SeshSpeedyEcontShippingAdmin.php:456
-msgid "cart's delivery details html"
-msgstr ""
-
-#: speedy_econt_shipping.php:393 speedy_econt_shipping.php:421
+#: speedy_econt_shipping.php:403, speedy_econt_shipping.php:431
 msgid "Choose region first"
 msgstr ""
 
-#: speedy_econt_shipping.php:390 speedy_econt_shipping.php:418
+#: speedy_econt_shipping.php:400, speedy_econt_shipping.php:428
 msgid "City"
 msgstr ""
 
-#: js.php:174
+#: js.php:216
 msgid "Congrats, you won free delivery using"
 msgstr ""
 
-#. Author of the plugin
-msgid "Dan Goriaynov"
-msgstr ""
-
-#: js.php:256
-msgid "delivery"
-msgstr ""
-
-#. id
 #: SeshSpeedyEcontShippingAdmin.php:258
 msgid "Delivery details cart text"
 msgstr ""
 
-#: speedy_econt_shipping.php:455
+#: speedy_econt_shipping.php:465
 msgid "Delivery details were not populated. Please fill them in."
 msgstr ""
 
-#: speedy_econt_shipping.php:450
+#: speedy_econt_shipping.php:460
 msgid "Delivery method was not chosen. Please choose one."
 msgstr ""
 
-#. id
 #: SeshSpeedyEcontShippingAdmin.php:218
 msgid "Delivery price selector"
 msgstr ""
 
-#: SeshSpeedyEcontShippingAdmin.php:451
-msgid "delivery price selector"
-msgstr ""
-
-#: speedy_econt_shipping.php:369
+#: speedy_econt_shipping.php:379
 msgid "Delivery to"
 msgstr ""
 
-#: SeshSpeedyEcontShippingAdmin.php:347 SeshSpeedyEcontShippingAdmin.php:351
-msgid "digit value like: 123456"
+#: farewell-notice.php:82
+msgid "Do not show again"
 msgstr ""
 
-#. id
 #: SeshSpeedyEcontShippingAdmin.php:250
 msgid "Do the region/city/address validation on input"
 msgstr ""
 
-#: utils.php:69
+#: utils.php:71
 msgid "Econt office"
 msgstr ""
 
-#: SeshSpeedyEcontShippingAdmin.php:437
-msgid "emergency contact to show in case of error"
-msgstr ""
-
-#. id
 #: SeshSpeedyEcontShippingAdmin.php:106
 msgid "Enable `Econt` shipping method"
 msgstr ""
 
-#. id
 #: SeshSpeedyEcontShippingAdmin.php:66
 msgid "Enable `Speedy` shipping method"
 msgstr ""
 
-#. id
 #: SeshSpeedyEcontShippingAdmin.php:130
 msgid "Enable `To Address` shipping method"
 msgstr ""
 
-#: speedy_econt_shipping.php:52
+#: speedy_econt_shipping.php:62
 msgid "Following delivery method is not working: "
 msgstr ""
 
-#: SeshSpeedyEcontShippingAdmin.php:441 SeshSpeedyEcontShippingAdmin.php:575
-#: speedy_econt_shipping.php:527
-msgid "for free"
-msgstr ""
-
-#. id
 #: SeshSpeedyEcontShippingAdmin.php:266
 msgid "Force re-populate tables"
 msgstr ""
 
-#. id
 #: SeshSpeedyEcontShippingAdmin.php:234
 msgid "Free shipping label suffix"
 msgstr ""
 
-#. Author URI of the plugin
-msgid "https://github.com/dangoriaynov"
-msgstr ""
-
-#. URI of the plugin
-msgid "https://github.com/dangoriaynov/speedy_econt_shipping"
-msgstr ""
-
-#. id
 #: SeshSpeedyEcontShippingAdmin.php:202
 msgid "Immediately show delivery options"
 msgstr ""
 
-#. id
 #: SeshSpeedyEcontShippingAdmin.php:226
 msgid "Is email field required?"
 msgstr ""
 
-#. id
+#: farewell-notice.php:72
+msgid "It keeps working and your settings are untouched. Its successor, %s, is free as well and carries on where this one stops: Speedy, Econt, BOX NOW, Sameday, Pigeon Express, Express One and Evropat, the block checkout, waybills and labels in one click, and parcel tracking for your customers."
+msgstr ""
+
 #: SeshSpeedyEcontShippingAdmin.php:162
 msgid "List of `To address` shipping fields"
 msgstr ""
 
-#: SeshSpeedyEcontShippingAdmin.php:400
-msgid "list of delivery options to show the message for"
-msgstr ""
-
-#. id
 #: SeshSpeedyEcontShippingAdmin.php:242
 msgid "Load custom jquery (needed in case of js errors on the page)?"
 msgstr ""
 
-#: speedy_econt_shipping.php:384 speedy_econt_shipping.php:412
+#: speedy_econt_shipping.php:394, speedy_econt_shipping.php:422
 msgid "Make your choice"
 msgstr ""
 
-#: speedy_econt_shipping.php:383 speedy_econt_shipping.php:392
-#: speedy_econt_shipping.php:401 speedy_econt_shipping.php:411
-#: speedy_econt_shipping.php:420 speedy_econt_shipping.php:429
-msgid "nothing loaded"
-msgstr ""
-
-#: speedy_econt_shipping.php:399 speedy_econt_shipping.php:427
+#: speedy_econt_shipping.php:409, speedy_econt_shipping.php:437
 msgid "Office"
 msgstr ""
 
 #: SeshSpeedyEcontShippingAdmin.php:32
-msgid ""
-"Office information is usually loaded during first 5 minutes after plugin was "
-"enabled."
+msgid "Office information is usually loaded during first 5 minutes after plugin was enabled."
 msgstr ""
 
-#. id
 #: SeshSpeedyEcontShippingAdmin.php:178
 msgid "Order of delivery options"
 msgstr ""
 
-#: speedy_econt_shipping.php:53
+#: speedy_econt_shipping.php:63
 msgid "Please contact us to place your order and get it fixed"
 msgstr ""
 
-#: speedy_econt_shipping.php:381 speedy_econt_shipping.php:409
+#: speedy_econt_shipping.php:391, speedy_econt_shipping.php:419
 msgid "Region"
 msgstr ""
 
-#. id
+#: farewell-notice.php:80
+msgid "See the successor"
+msgstr ""
+
 #: SeshSpeedyEcontShippingAdmin.php:59
 msgid "Settings"
 msgstr ""
 
-#: SeshSpeedyEcontShippingAdmin.php:446
-msgid "shipping options order"
-msgstr ""
-
-#. id
 #: SeshSpeedyEcontShippingAdmin.php:186
 msgid "Shop emergency contact"
 msgstr ""
 
-#. id
 #: SeshSpeedyEcontShippingAdmin.php:194
 msgid "Show store messages for"
 msgstr ""
 
-#: js.php:183
+#: js.php:227
 msgid "Sorry, these is no free shipping available for the option chosen: "
 msgstr ""
 
-#. page_title
-#: SeshSpeedyEcontShippingAdmin.php:17 SeshSpeedyEcontShippingAdmin.php:18
-#: SeshSpeedyEcontShippingAdmin.php:29
+#: SeshSpeedyEcontShippingAdmin.php:17, SeshSpeedyEcontShippingAdmin.php:18, SeshSpeedyEcontShippingAdmin.php:29
 msgid "Speedy & Econt shipping"
+msgstr ""
+
+#: farewell-notice.php:65
+msgid "Speedy and Econt Shipping is no longer being developed"
 msgstr ""
 
 #: SeshSpeedyEcontShippingAdmin.php:464
 msgid "Speedy and Econt data refresh was started."
 msgstr ""
 
-#. Name of the plugin
-msgid "Speedy and Econt Shipping"
-msgstr ""
-
-#: utils.php:65
+#: utils.php:67
 msgid "Speedy office"
 msgstr ""
 
-#: js.php:179
+#: js.php:223
 msgid "Still left"
 msgstr ""
 
-#: speedy_econt_shipping.php:528
+#: farewell-notice.php:113
+msgid "Successor: BG Couriers"
+msgstr ""
+
+#: js.php:223
+msgid "To shop"
+msgstr ""
+
+#: SeshSpeedyEcontShippingAdmin.php:114
+msgid "`Econt` free delivery from"
+msgstr ""
+
+#: SeshSpeedyEcontShippingAdmin.php:122
+msgid "`Econt` shipping fee"
+msgstr ""
+
+#: SeshSpeedyEcontShippingAdmin.php:82
+msgid "`Speedy` Password"
+msgstr ""
+
+#: SeshSpeedyEcontShippingAdmin.php:74
+msgid "`Speedy` Username"
+msgstr ""
+
+#: SeshSpeedyEcontShippingAdmin.php:90
+msgid "`Speedy` free delivery from"
+msgstr ""
+
+#: SeshSpeedyEcontShippingAdmin.php:98
+msgid "`Speedy` shipping fee"
+msgstr ""
+
+#: SeshSpeedyEcontShippingAdmin.php:146
+msgid "`To address` free delivery from"
+msgstr ""
+
+#: SeshSpeedyEcontShippingAdmin.php:138
+msgid "`To address` method name"
+msgstr ""
+
+#: SeshSpeedyEcontShippingAdmin.php:154
+msgid "`To address` shipping fee"
+msgstr ""
+
+#: SeshSpeedyEcontShippingAdmin.php:379
+msgid "address"
+msgstr ""
+
+#: SeshSpeedyEcontShippingAdmin.php:456
+msgid "cart's delivery details html"
+msgstr ""
+
+#: js.php:311
+msgid "delivery"
+msgstr ""
+
+#: SeshSpeedyEcontShippingAdmin.php:451
+msgid "delivery price selector"
+msgstr ""
+
+#: SeshSpeedyEcontShippingAdmin.php:347, SeshSpeedyEcontShippingAdmin.php:351
+msgid "digit value like: 123456"
+msgstr ""
+
+#: SeshSpeedyEcontShippingAdmin.php:437
+msgid "emergency contact to show in case of error"
+msgstr ""
+
+#: SeshSpeedyEcontShippingAdmin.php:441, SeshSpeedyEcontShippingAdmin.php:575, speedy_econt_shipping.php:537
+msgid "for free"
+msgstr ""
+
+#: SeshSpeedyEcontShippingAdmin.php:400
+msgid "list of delivery options to show the message for"
+msgstr ""
+
+#: speedy_econt_shipping.php:393, speedy_econt_shipping.php:402, speedy_econt_shipping.php:411, speedy_econt_shipping.php:421, speedy_econt_shipping.php:430, speedy_econt_shipping.php:439
+msgid "nothing loaded"
+msgstr ""
+
+#: SeshSpeedyEcontShippingAdmin.php:446
+msgid "shipping options order"
+msgstr ""
+
+#: speedy_econt_shipping.php:538
 msgid "to"
 msgstr ""
 
-#: js.php:179
+#: js.php:223
 msgid "to get a free shipping to"
-msgstr ""
-
-#: js.php:179
-msgid "To shop"
 msgstr ""

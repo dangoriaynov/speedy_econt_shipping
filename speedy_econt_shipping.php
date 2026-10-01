@@ -6,8 +6,11 @@
  * Author:            Dan Goriaynov
  * Author URI:        https://github.com/dangoriaynov
  * Plugin URI:        https://github.com/dangoriaynov/speedy_econt_shipping
- * Version:           1.15.1
- * WC tested up to:   6.4
+ * Version:           1.15.2
+ * Requires at least: 5.6
+ * Requires PHP:      7.0
+ * WC requires at least: 7.0
+ * WC tested up to:   10.4
  * License:           GNU General Public License, version 2
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.en.html
  * Domain Path:       /languages/
@@ -21,6 +24,9 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly....
 }
 
+define( 'SESH_PLUGIN_FILE', __FILE__ );
+
+require 'farewell-notice.php';
 require 'api.php';
 require 'db.php';
 require 'js.php';
@@ -35,6 +41,11 @@ $globalVarsGenerated = [];
 add_action( 'before_woocommerce_init', function() {
     if ( class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
         \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', __FILE__, true );
+        // Said out loud rather than left to be discovered at the checkout: this plugin draws its town and
+        // office fields on `woocommerce_before_checkout_form`, a hook the BLOCK checkout does not have.
+        // On a shop that switched to blocks the fields simply are not there, and WooCommerce's own
+        // compatibility list is where a shop owner looks for that. The successor supports blocks.
+        \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'cart_checkout_blocks', __FILE__, false );
     }
 } );
 
