@@ -13,6 +13,7 @@
   "db.php|WordPress.DB.RestrictedFunctions.mysql_mysqli_multi_query": 1,
   "db.php|WordPress.DB.RestrictedFunctions.mysql_mysqli_next_result": 1,
   "farewell-notice.php|WordPress.WP.I18n.TextDomainMismatch": 4,
+  "js.php|PluginCheck.CodeAnalysis.Offloading.OffloadedContent": 1,
   "js.php|WordPress.Security.EscapeOutput.OutputNotEscaped": 15,
   "js.php|WordPress.Security.EscapeOutput.UnsafePrintingFunction": 6,
   "js.php|WordPress.WP.I18n.TextDomainMismatch": 6,
