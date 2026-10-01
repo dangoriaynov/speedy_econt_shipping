@@ -40,7 +40,7 @@ return [
 		'Free shipping label suffix' => 'Наставка към етикета за безплатна доставка',
 		'Immediately show delivery options' => 'Опциите за доставка да се показват веднага',
 		'Is email field required?' => 'Имейла да е задължителен?',
-		'It keeps working and your settings are untouched. Its successor, %s, is free as well and carries on where this one stops: Speedy, Econt, BOX NOW, Sameday, Pigeon Express, Express One and Evropat, the block checkout, waybills and labels in one click, and parcel tracking for your customers.' => 'Плъгинът продължава да работи и настройките ви остават непокътнати. Наследникът %s също е безплатен и продължава оттам, докъдето този стига: Speedy, Еконт, BOX NOW, Sameday, Pigeon Express, Express One и Европът, блоковият чекаут, товарителници и етикети с едно кликване и проследяване на пратката за клиентите ви.',
+		'It keeps working and your settings are untouched. Its successor, %s, is free as well and does considerably more: it supports Speedy, Econt, BOX NOW, Sameday, Pigeon Express, Express One and Evropat, the block checkout, waybills and labels in one click, and parcel tracking for your customers.' => 'Плъгинът продължава да работи и настройките ви остават непокътнати. Наследникът %s също е безплатен и има доста повече функции: поддържа Speedy, Еконт, BOX NOW, Sameday, Pigeon Express, Express One и Европът, блоковият чекаут, товарителници и етикети с едно кликване и проследяване на пратката за клиентите ви.',
 		'List of `To address` shipping fields' => 'Поленца за доставка `до адрес`',
 		'Load custom jquery (needed in case of js errors on the page)?' => 'Да се използва отделната версия на jQuery (само ако имате грешки)?',
 		'Make your choice' => 'Изберете опцията',
