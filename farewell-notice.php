@@ -10,6 +10,9 @@
  * Deliberately restrained: one blue notice on the screens where shipping is actually configured, a line
  * under the plugin on the Plugins screen, and nothing anywhere else. No pop-ups, no red, no countdown.
  *
+ * Closing it is the cross WordPress draws on every dismissible notice, in the place every admin already
+ * looks for it - not a second button competing with the only one worth clicking.
+ *
  * @package Speedy_Econt_Shipping
  */
 
@@ -54,12 +57,7 @@ function sesh_handover_notice(): void {
 		return;
 	}
 
-	$dismiss = wp_nonce_url(
-		add_query_arg( 'sesh_handover_dismiss', '1', admin_url( 'index.php' ) ),
-		'sesh_handover_dismiss'
-	);
-
-	echo '<div class="notice notice-info" style="border-left-color:#2271b1">';
+	echo '<div class="notice notice-info is-dismissible" id="sesh-handover-notice" style="border-left-color:#2271b1">';
 	printf(
 		'<p><strong>%s</strong></p>',
 		esc_html__( 'Speedy and Econt Shipping is no longer being developed', 'speedy_econt_shipping' )
@@ -75,29 +73,28 @@ function sesh_handover_notice(): void {
 		)
 	);
 	printf(
-		'<p><a class="button button-primary" href="%s" target="_blank" rel="noopener">%s</a> <a class="button" href="%s">%s</a></p>',
+		'<p><a class="button button-primary" href="%s" target="_blank" rel="noopener">%s</a></p>',
 		esc_url( SESH_SUCCESSOR_URL ),
-		esc_html__( 'See the successor', 'speedy_econt_shipping' ),
-		esc_url( $dismiss ),
-		esc_html__( 'Do not show again', 'speedy_econt_shipping' )
+		esc_html__( 'See the successor', 'speedy_econt_shipping' )
 	);
 	echo '</div>';
+
+	// WordPress draws the cross and hides the notice; only remembering it is ours to do.
+	printf(
+		'<script>jQuery(function($){$("#sesh-handover-notice").on("click",".notice-dismiss",function(){'
+		. '$.post(ajaxurl,{action:"sesh_handover_dismiss",_ajax_nonce:"%s"});});});</script>',
+		esc_js( wp_create_nonce( 'sesh_handover_dismiss' ) )
+	);
 }
 add_action( 'admin_notices', 'sesh_handover_notice' );
 
 /** Dismissed for this user, for good - nothing here is worth asking twice. */
 function sesh_handover_dismiss(): void {
-	if ( ! isset( $_GET['sesh_handover_dismiss'] ) ) {
-		return;
-	}
-	if ( ! check_admin_referer( 'sesh_handover_dismiss' ) ) {
-		return;
-	}
+	check_ajax_referer( 'sesh_handover_dismiss' );
 	update_user_meta( get_current_user_id(), SESH_DISMISS_META, 1 );
-	wp_safe_redirect( remove_query_arg( array( 'sesh_handover_dismiss', '_wpnonce' ) ) );
-	exit;
+	wp_send_json_success();
 }
-add_action( 'admin_init', 'sesh_handover_dismiss' );
+add_action( 'wp_ajax_sesh_handover_dismiss', 'sesh_handover_dismiss' );
 
 /**
  * One line under the plugin on the Plugins screen - for the shop that dismissed the notice months ago
