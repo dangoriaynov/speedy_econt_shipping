@@ -24,3 +24,7 @@ node_modules/
 .idea
 *.pot~
 *.po~
+# local tooling, never part of the plugin
+.venv/
+__pycache__/
+*.pyc
