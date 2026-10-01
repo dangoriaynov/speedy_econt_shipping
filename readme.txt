@@ -1,17 +1,31 @@
 === Speedy And Econt Shipping ===
 Contributors: winter2007d
-Tags: econt, еконт, speedy, спиди, shipping, bulgaria, bulgaria couriers
-Requires at least: 7.0
+Tags: econt, speedy, shipping, bulgaria, courier
+Requires at least: 5.6
 Requires PHP: 7.0
-Tested up to: 6.4
-Stable tag: 1.15.1
+Tested up to: 7.1
+Stable tag: 1.15.2
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Donate link: http://revolut.me/danq6lus
 
-Adds functionality to specify delivery addresses for the Speedy and Econt couriers in Bulgaria.
+Speedy and Econt office and address delivery at the WooCommerce checkout. Maintained successor: BG Couriers for WooCommerce.
 
 == Description ==
+
+**This plugin is no longer being developed.** It keeps working and nothing is removed - your settings, offices and shipping options stay exactly as they are. But new couriers, the block checkout, waybills and tracking are being built in its successor instead:
+
+**[BG Couriers for WooCommerce](https://wordpress.org/plugins/bg-couriers/)** - free as well, by the same author, and it carries on where this plugin stops:
+
+* Speedy, Econt, BOX NOW, Sameday, Pigeon Express, Express One and Evropat in one plugin
+* office, address and locker/APS delivery, with live prices from each courier's own API
+* one map with every courier's offices and lockers on it, each with its price
+* waybills and labels in one click - one order, or fifty onto a single A4 sheet
+* parcel tracking on the order and in the e-mails the shop already sends
+* works with the WooCommerce **block checkout**, which this plugin cannot - it draws its fields on a hook the block checkout does not have
+
+Nothing has to be done today. If this plugin does what your shop needs, keep it. If you are setting a shop up, or you have moved to the block checkout, start with the successor.
+
 This plugin adds the checkout functionality to chose from offices of Speedy and Econt couriers in Bulgaria.
 The functionality might get extended to other countries by simply adding parameters to respective API calls.
 
@@ -57,9 +71,6 @@ So, please expect empty regions/cities/offices lists for first few minutes after
  - Question: There are errors while making the order after plugin activation.
  - Answer: Be sure that you have created one shipping method for the region where you provide shipping options.
 
-== Upgrade Notice ==
- - be sure to check that no changes are needed in the plugin' settings page once you update the plugin
-
 == Screenshots ==
 1. 'Left till free shipping' shown in cart page, separate warning is shown next to the order price
 2. Same information is shown at the checkout page
@@ -71,6 +82,11 @@ So, please expect empty regions/cities/offices lists for first few minutes after
 
 == Donation ==
 If you wish to donate to support this plugin please do this to one of the non-profits you adore. They need it more.
+
+== Upgrade Notice ==
+
+= 1.15.2 =
+Compatibility with current WordPress and WooCommerce, and a note about the maintained successor: BG Couriers for WooCommerce. Your settings are untouched - check the plugin's settings page after updating, as with any update.
 
 == Changelog ==
 ### 0.1 - 2021-12-27
@@ -311,6 +327,12 @@ Added the free label suffix setting
 ### 1.15.1 - 2024-08-04
 #### Fixes
 Fixed free shipping label suffix
-### 1.16 - 2024-08-25
+### 1.15.2 - 2026-10-01
 #### Fixes
-Fixed to address fields display
+Declared the versions this plugin is actually tested against (WordPress 7.1, WooCommerce 10.4); the readme header said WooCommerce's version in WordPress's field, so WordPress.org ignored it
+Trimmed the tag list to the five WordPress.org keeps, so none is dropped silently
+Declared openly that the block checkout is NOT supported - the fields are drawn on a hook it does not have, and a shop should read that in WooCommerce's compatibility list rather than discover it at the checkout
+Checkout totals are read again for the euro changeover: with two currencies shown side by side the old selector took the wrong amount, so the 'left till free delivery' figure was wrong on dual-currency shops
+Address delivery shows its own fields again (written in 2024 as 1.16 and never published; it ships here)
+#### Notes
+Added a one-time, dismissible note about the maintained successor, BG Couriers for WooCommerce. Nothing else changed: no settings were moved, renamed or removed
