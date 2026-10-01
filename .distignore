@@ -1,0 +1,15 @@
+# Everything that belongs to the workbench and not to the shop.
+# Plugin Check reads whatever is in the plugin folder, so anything left here is a finding
+# against a release that was never going to publish it anyway.
+.git
+.github
+.gitignore
+.claude
+.distignore
+.venv
+bin
+tests
+README.md
+*.po
+__pycache__
+*.pyc

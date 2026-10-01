@@ -1,0 +1,119 @@
+# Publish a tagged release of this plugin to WordPress.org.
+#
+# This plugin used to be released by hand, from the one machine that had the Subversion working copy
+# and the WordPress.org password. That is why 1.16 was written in 2024 and never reached a single shop:
+# the code was ready and the only machine that could ship it was not. The credentials belong in this
+# repository's secrets instead, and the tag is the release decision:
+#
+#   git tag -a v1.15.2 -m "1.15.2" && git push origin v1.15.2
+#
+# This is a maintenance line, not main. main carries the unreleased 2.0.0 rewrite; releases of the
+# 1.15.x series are cut from release/1.15.x and never merged into main.
+#
+# Required once, in repository settings -> Secrets and variables -> Actions:
+#   SVN_USERNAME, SVN_PASSWORD   the WordPress.org account that owns the plugin
+name: Release to WordPress.org
+
+on:
+  push:
+    tags: ['v1.*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  SLUG: speedy-econt-shipping
+  DEV_URL: https://dev.dobavki.club
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # --- The version is one number in three places; the tag is the third ---------------------------
+      # A tag that disagrees with the code would publish something nobody named.
+      - name: Version agrees with the tag
+        run: |
+          VERSION="$(grep -m1 '^ \* Version:' speedy_econt_shipping.php | awk '{print $3}')"
+          STABLE="$(grep -m1 '^Stable tag:' readme.txt | awk '{print $3}')"
+          TAG="${GITHUB_REF_NAME#v}"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "header=$VERSION stable=$STABLE tag=$TAG"
+          [ "$VERSION" = "$STABLE" ] || { echo "::error::the header and Stable tag disagree"; exit 1; }
+          case "$GITHUB_REF_TYPE" in
+            tag) [ "$VERSION" = "$TAG" ] || { echo "::error::tag ${GITHUB_REF_NAME} is not version ${VERSION}"; exit 1; } ;;
+          esac
+          grep -q "^### ${VERSION} - " readme.txt || { echo "::error::readme.txt has no changelog entry for ${VERSION}"; exit 1; }
+
+      # --- Bulgarian, complete and compiled ----------------------------------------------------------
+      # Every shop running this plugin is Bulgarian. A string added without its Bulgarian lands there in
+      # English, and a catalogue compiled from an older .po is a translation WordPress never reads -
+      # bin/make-pot --check answers both, by content rather than by file dates.
+      - name: Translations
+        run: |
+          python3 bin/make-pot --check
+          git diff --exit-code languages || { echo "::error::the compiled catalogues were out of date"; exit 1; }
+
+      - uses: shivammathur/setup-php@v2
+        with: { php-version: '8.1', coverage: none }
+
+      - name: PHP syntax
+        run: for f in $(git ls-files '*.php'); do php -l "$f" >/dev/null || exit 1; done
+
+      # --- The package, checked exactly as it will be published --------------------------------------
+      # Plugin Check reads the folder it is given: checking the repository would fail the release over
+      # .github and bin, which .distignore strips and which were never going to be published.
+      - name: Build the package
+        run: |
+          DEST="${RUNNER_TEMP}/pkg/${SLUG}"
+          mkdir -p "$DEST"
+          rsync -a --exclude-from=.distignore ./ "$DEST/"
+          (cd "${RUNNER_TEMP}/pkg" && zip -qr "${RUNNER_TEMP}/${SLUG}-${VERSION}.zip" "${SLUG}")
+          echo "ZIP=${RUNNER_TEMP}/${SLUG}-${VERSION}.zip" >> "$GITHUB_ENV"
+          echo "package:"; find "$DEST" -type f | sed "s|${RUNNER_TEMP}/pkg/||" | sort
+          cat > "${RUNNER_TEMP}/pkg/.wp-env.json" <<JSON
+          { "core": null, "phpVersion": "8.1",
+            "plugins": [ "https://downloads.wordpress.org/plugin/woocommerce.zip", "./${SLUG}" ] }
+          JSON
+
+      - name: Plugin Check, on the code that is about to ship
+        working-directory: ${{ runner.temp }}/pkg
+        run: |
+          npx --yes @wordpress/env start
+          npx @wordpress/env run cli -- wp plugin install plugin-check --activate
+          # Warnings are read by a human, errors stop the release.
+          OUT="$( npx @wordpress/env run cli -- wp plugin check ${SLUG} --ignore-warnings --format=json 2>&1 )"
+          echo "$OUT"
+          printf '%s' "$OUT" | grep -q '"type":"ERROR"' && { echo "::error::Plugin Check reported errors"; exit 1; }
+          npx @wordpress/env stop
+
+      # --- The dev site must already be running this build -------------------------------------------
+      # SVN last, dev-verified builds only. Read from the readme the dev site actually serves.
+      - name: Dev is on this version
+        run: |
+          DEV="$(curl -sS -m 20 -L -A 'sesh release-ci' "${DEV_URL%/}/wp-content/plugins/${SLUG}/readme.txt" \
+                 | grep -i '^Stable tag:' | head -1 | awk '{print $3}' | tr -d '\r')"
+          echo "dev (${DEV_URL}) is on ${DEV:-unknown}, this is ${VERSION}"
+          [ "$DEV" = "$VERSION" ] || { echo "::error::deploy ${VERSION} to dev first"; exit 1; }
+
+      - name: Publish
+        uses: 10up/action-wordpress-plugin-deploy@stable
+        env:
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+          SLUG: speedy-econt-shipping
+
+      # --- Did it actually arrive ---------------------------------------------------------------------
+      # The directory takes a few minutes to serve a new tag. Not a failure if it has not yet, but worth
+      # saying: "committed" and "served" are not the same thing.
+      - name: The directory serves it
+        run: |
+          for i in 1 2 3 4 5 6; do
+            GOT="$(curl -sS -m 20 "https://api.wordpress.org/plugins/info/1.0/${SLUG}.json" \
+                   | python3 -c 'import json,sys; print(json.load(sys.stdin).get("version",""))' 2>/dev/null || true)"
+            [ "$GOT" = "$VERSION" ] && { echo "the directory serves ${VERSION}"; exit 0; }
+            echo "directory still on ${GOT:-?} (try $i)"; sleep 30
+          done
+          echo "::warning::committed, but the directory still serves an older version - check in a few minutes"

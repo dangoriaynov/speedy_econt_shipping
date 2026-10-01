@@ -1,0 +1,122 @@
+#!/usr/bin/env python3
+"""Rebuild languages/speedy_econt_shipping.pot from the code, and check the Bulgarian catalogue.
+
+Two jobs in one place, because they answer the same question with different exit codes:
+
+  make-pot            rewrite the .pot from every translatable string in the plugin
+  make-pot --check    fail if a string in the code has no Bulgarian, or if the shipped .mo
+                      and .l10n.php do not say what the .po says
+
+The second is the release gate. A string added without its Bulgarian reaches a Bulgarian shop in
+English, and a catalogue compiled from an older .po is a translation WordPress never reads - both
+have happened here before, which is why this is a check and not a habit.
+
+Gettext tooling is deliberately not required: this box does not have it, and a release must not
+depend on whether some machine happens to.
+"""
+import glob
+import importlib.util
+import io
+import os
+import re
+import subprocess
+import sys
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(HERE)
+DOMAIN = 'speedy_econt_shipping'
+POT = os.path.join(ROOT, 'languages', DOMAIN + '.pot')
+PO = os.path.join(ROOT, 'languages', DOMAIN + '-bg_BG.po')
+
+spec = importlib.util.spec_from_file_location('po2mo', os.path.join(HERE, 'po2mo.py'))
+po2mo = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(po2mo)
+
+# __( 'text', 'domain' ) and friends. The domain argument is what tells a translatable string from
+# a core one: __('Save Changes') is WordPress's own and is not ours to collect.
+CALL = re.compile(
+    r"""\b(?:esc_html__|esc_attr__|esc_html_e|esc_attr_e|__|_e|_x|_n)\s*\(\s*"""
+    r"""(['"])((?:\\.|(?!\1).)*)\1\s*,\s*(['"])%s\3""" % re.escape(DOMAIN),
+    re.S,
+)
+
+
+def php_unescape(raw, quote):
+    if quote == "'":
+        return raw.replace("\\'", "'").replace('\\\\', '\\')
+    return (raw.replace('\\"', '"').replace('\\n', '\n').replace('\\t', '\t').replace('\\\\', '\\'))
+
+
+def collect():
+    """{string: [file:line, ...]} for every translatable string in the plugin."""
+    out = {}
+    for path in sorted(glob.glob(os.path.join(ROOT, '*.php'))):
+        src = io.open(path, encoding='utf-8', errors='replace').read()
+        name = os.path.basename(path)
+        for m in CALL.finditer(src):
+            text = php_unescape(m.group(2), m.group(1))
+            line = src.count('\n', 0, m.start()) + 1
+            out.setdefault(text, []).append('%s:%d' % (name, line))
+    return out
+
+
+def write_pot(strings):
+    def esc(x):
+        return x.replace('\\', '\\\\').replace('"', '\\"').replace('\n', '\\n')
+
+    version = ''
+    main = io.open(os.path.join(ROOT, DOMAIN + '.php'), encoding='utf-8').read()
+    m = re.search(r'^\s*\*\s*Version:\s*(\S+)', main, re.M)
+    if m:
+        version = m.group(1)
+    with io.open(POT, 'w', encoding='utf-8') as fh:
+        fh.write('# Copyright (C) Dan Goriaynov\n'
+                 '# This file is distributed under the same license as the plugin.\n'
+                 'msgid ""\nmsgstr ""\n'
+                 '"Project-Id-Version: Speedy and Econt Shipping %s\\n"\n'
+                 '"MIME-Version: 1.0\\n"\n'
+                 '"Content-Type: text/plain; charset=UTF-8\\n"\n'
+                 '"Content-Transfer-Encoding: 8bit\\n"\n'
+                 '"X-Domain: %s\\n"\n' % (version, DOMAIN))
+        for text in sorted(strings):
+            fh.write('\n#: %s\n' % ', '.join(strings[text]))
+            fh.write('msgid "%s"\nmsgstr ""\n' % esc(text))
+    return len(strings)
+
+
+def check(strings):
+    problems = []
+    entries = po2mo.parse(PO)
+    bg = {e['msgid']: e.get('msgstr', '') for e in entries if e.get('msgid')}
+
+    for text in sorted(strings):
+        if text not in bg:
+            problems.append('нема в каталозі: %r (%s)' % (text, strings[text][0]))
+        elif not bg[text].strip():
+            problems.append('без перекладу: %r (%s)' % (text, strings[text][0]))
+
+    # Compiled catalogues must say what the .po says - compare content, not file dates: a fresh
+    # clone has no mtimes worth comparing.
+    before = {}
+    for ext in ('.mo', '.l10n.php'):
+        path = PO[:-3] + ext
+        before[path] = open(path, 'rb').read() if os.path.exists(path) else None
+    subprocess.check_call([sys.executable, os.path.join(HERE, 'po2mo.py'), PO],
+                          stdout=subprocess.DEVNULL)
+    for path, old in before.items():
+        new = open(path, 'rb').read()
+        if old != new:
+            problems.append('%s не відповідає .po - перезібрано; закоміть його' % os.path.basename(path))
+
+    print('рядків у коді: %d | у болгарському каталозі: %d' % (len(strings), len(bg)))
+    for p in problems:
+        print('  ' + p)
+    return 1 if problems else 0
+
+
+if __name__ == '__main__':
+    found = collect()
+    if '--check' in sys.argv:
+        sys.exit(check(found))
+    n = write_pot(found)
+    print('%s: %d рядків' % (os.path.relpath(POT, ROOT), n))
