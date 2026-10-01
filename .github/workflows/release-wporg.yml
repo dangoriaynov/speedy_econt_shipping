@@ -11,7 +11,14 @@
 # 1.15.x series are cut from release/1.15.x and never merged into main.
 #
 # Required once, in repository settings -> Secrets and variables -> Actions:
-#   SVN_USERNAME, SVN_PASSWORD   the WordPress.org account that owns the plugin
+#   SVN_PASSWORD   a SECRET, on the Secrets tab. Not a variable: variables are stored and shown in
+#                  plain text, and are not masked in the log.
+#   SVN_USERNAME   the WordPress.org login that owns the plugin. A secret or a variable, either tab -
+#                  it is already printed in readme.txt under Contributors, so it is not a password.
+#
+# The two tabs look identical on a phone, and the first release failed on exactly that: the username
+# went in as a variable, secrets.SVN_USERNAME came back empty, and Subversion refused the commit in
+# twelve seconds with nothing in the annotations to say why. Hence the preflight below.
 name: Release to WordPress.org
 
 on:
@@ -118,10 +125,27 @@ jobs:
           echo "dev (${DEV_URL}) is on ${DEV:-unknown}, this is ${VERSION}"
           [ "$DEV" = "$VERSION" ] || { echo "::error::deploy ${VERSION} to dev first"; exit 1; }
 
+      # --- The credentials are there at all ----------------------------------------------------------
+      # Said as an ::error::, which is readable from outside the run: whoever cuts the tag does not
+      # necessarily have access to the logs.
+      - name: Credentials
+        env:
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME || vars.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+        run: |
+          MISSING=
+          [ -n "$SVN_USERNAME" ] || MISSING="SVN_USERNAME (secret or variable)"
+          [ -n "$SVN_PASSWORD" ] || MISSING="${MISSING:+$MISSING and }SVN_PASSWORD (must be a SECRET, not a variable)"
+          if [ -n "$MISSING" ]; then
+            echo "::error::WordPress.org credentials are missing: ${MISSING}. Settings -> Secrets and variables -> Actions."
+            exit 1
+          fi
+          echo "username ${#SVN_USERNAME} characters, password ${#SVN_PASSWORD} characters - both present"
+
       - name: Publish
         uses: 10up/action-wordpress-plugin-deploy@stable
         env:
-          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME || vars.SVN_USERNAME }}
           SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
           SLUG: speedy-econt-shipping
 
