@@ -133,10 +133,12 @@ add_action( 'wp_head', function () {
                     attempts++;
                     let finalPrice = 0;
 
-                    let $priceElement = jQuery('.order-total .amount').not('.secondary-currency .amount').first();
+                    // #custom_price is ours and already carries the delivery fee: read WooCommerce's own total
+                    const ownAmount = '.secondary-currency .amount, #custom_price, #custom_price .amount';
+                    let $priceElement = jQuery('.order-total .amount').not(ownAmount).first();
 
                     if ($priceElement.length === 0) {
-                         $priceElement = jQuery('.cart-total .amount').not('.secondary-currency .amount').first();
+                         $priceElement = jQuery('.cart-total .amount').not(ownAmount).first();
                     }
                     
                     if ($priceElement.length > 0 && $priceElement.closest("form[name='checkout']").length === 0) {
@@ -166,7 +168,7 @@ add_action( 'wp_head', function () {
         }
 
         function setCustomShippingPrice(customPrice) {
-            let origPriceElem = jQuery(getPriceClass() + " .woocommerce-Price-amount.amount").not('.secondary-currency *').last();
+            let origPriceElem = jQuery(getPriceClass() + " .woocommerce-Price-amount.amount").not('.secondary-currency *, #custom_price').last();
             origPriceElem.hide();
             let customPriceElem = jQuery("#custom_price");
             if (customPriceElem.length === 0) {

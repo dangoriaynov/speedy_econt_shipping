@@ -6,7 +6,7 @@
  * Author:            Dan Goriaynov
  * Author URI:        https://github.com/dangoriaynov
  * Plugin URI:        https://github.com/dangoriaynov/speedy_econt_shipping
- * Version:           1.15.2
+ * Version:           1.15.3
  * Requires at least: 5.6
  * Requires PHP:      7.0
  * WC requires at least: 7.0
@@ -463,15 +463,16 @@ function sesh_custom_checkout_field_process() {
     $shippingMethod = sanitize_text_field($_POST[$shipping_to_id]);
     if (isAddressValidationNeeded()) {
         $deliveryDetailsMsg = __( 'Delivery details were not populated. Please fill them in.', 'speedy_econt_shipping' );
-        if (! isset(seshDelivOptions()['econt']) && ! isset(seshDelivOptions()['speedy'])) {
+        $delivOpts = seshDelivOptions();
+        if (! isset($delivOpts['econt']) && ! isset($delivOpts['speedy'])) {
             wc_add_notice($deliveryDetailsMsg, 'error' );
             return;
         }
-        if ($shippingMethod === seshDelivOptions()['econt']['name']) {
+        if (isset($delivOpts['econt']) && $shippingMethod === $delivOpts['econt']['name']) {
             if (! isset($_POST[$econt_region_id]) || ! isset($_POST[$econt_city_id]) || ! isset($_POST[$econt_office_id])) {
                 wc_add_notice($deliveryDetailsMsg, 'error' );
             }
-        } else if ($shippingMethod === seshDelivOptions()['speedy']['name']) {
+        } else if (isset($delivOpts['speedy']) && $shippingMethod === $delivOpts['speedy']['name']) {
             if (! isset($_POST[$speedy_region_id]) || ! isset($_POST[$speedy_city_id]) || ! isset($_POST[$speedy_office_id])) {
                 wc_add_notice($deliveryDetailsMsg, 'error' );
             }
