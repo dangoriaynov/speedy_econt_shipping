@@ -2,10 +2,10 @@
 /**
  * The quiet handover notice.
  *
- * This plugin still works and is not going anywhere, but it is not being developed any more: the block
- * checkout it cannot draw its fields in, the couriers it does not speak to, and the labels it cannot
- * print all live in its successor. A shop that never opens wp.org has no way of knowing that, so it is
- * said here - once, dismissible, and only to someone who could act on it.
+ * This plugin is no longer supported: its bugs are not fixed any more, and the block checkout, the other
+ * couriers and the labels all live in its successor. A shop that never opens wp.org has no way of knowing
+ * that, so it is said here - dismissible, once per wording, and only to someone who could act on it.
+ * 1.15.2 said "it keeps working, nothing to do", and shops kept reporting bugs; 1.15.3 says "move".
  *
  * Deliberately restrained: one blue notice on the screens where shipping is actually configured, a line
  * under the plugin on the Plugins screen, and nothing anywhere else. No pop-ups, no red, no countdown.
@@ -25,6 +25,8 @@ const SESH_SUCCESSOR_NAME = 'BG Couriers for WooCommerce';
 const SESH_SUCCESSOR_SLUG = 'bg-couriers';
 const SESH_SUCCESSOR_FILE = 'bg-couriers/bg-couriers.php';
 const SESH_DISMISS_META   = 'sesh_handover_dismissed';
+// Bumped when the notice says something new, so a shop that closed the old one hears it once more.
+const SESH_NOTICE_VERSION = '1.15.3';
 
 /**
  * Screens where a shipping notice belongs: the dashboard, the plugin list, this plugin's own page and
@@ -55,7 +57,7 @@ function sesh_handover_due(): bool {
 	if ( ! current_user_can( 'manage_woocommerce' ) && ! current_user_can( 'activate_plugins' ) ) {
 		return false;
 	}
-	if ( get_user_meta( get_current_user_id(), SESH_DISMISS_META, true ) ) {
+	if ( SESH_NOTICE_VERSION === get_user_meta( get_current_user_id(), SESH_DISMISS_META, true ) ) {
 		return false;
 	}
 	// A shop already running the successor has migrated and does not need telling.
@@ -102,13 +104,13 @@ function sesh_handover_notice(): void {
 	echo '<div class="notice notice-info is-dismissible" id="sesh-handover-notice" style="border-left-color:#2271b1">';
 	printf(
 		'<p><strong>%s</strong></p>',
-		esc_html__( 'Speedy and Econt Shipping is no longer being developed', 'speedy_econt_shipping' )
+		esc_html__( 'Speedy and Econt Shipping is no longer supported', 'speedy_econt_shipping' )
 	);
 	printf(
 		'<p>%s</p>',
 		sprintf(
 			/* translators: %s: the successor plugin's name, as a link. */
-			esc_html__( 'It keeps working and your settings are untouched. Its successor, %s, is free as well and does considerably more: it supports Speedy, Econt, BOX NOW, Sameday, Pigeon Express, Express One and Evropat, the block checkout, waybills and labels in one click, and parcel tracking for your customers.', 'speedy_econt_shipping' ),
+			esc_html__( 'This is its last update: bugs found from now on will not be fixed. Please move to its successor, %s - free as well, by the same author. It supports Speedy, Econt, BOX NOW, Sameday, Pigeon Express, Express One and Evropat, the block checkout, waybills and labels in one click, and parcel tracking for your customers.', 'speedy_econt_shipping' ),
 			// The link is assembled from esc_url() and esc_html() in sesh_handover_link(); escaping it
 			// again here would print the anchor as text.
 			sesh_handover_link() // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -130,10 +132,10 @@ function sesh_handover_notice(): void {
 }
 add_action( 'admin_notices', 'sesh_handover_notice' );
 
-/** Dismissed for this user, for good - nothing here is worth asking twice. */
+/** Dismissed for this user until the notice says something new. */
 function sesh_handover_dismiss(): void {
 	check_ajax_referer( 'sesh_handover_dismiss' );
-	update_user_meta( get_current_user_id(), SESH_DISMISS_META, 1 );
+	update_user_meta( get_current_user_id(), SESH_DISMISS_META, SESH_NOTICE_VERSION );
 	wp_send_json_success();
 }
 add_action( 'wp_ajax_sesh_handover_dismiss', 'sesh_handover_dismiss' );

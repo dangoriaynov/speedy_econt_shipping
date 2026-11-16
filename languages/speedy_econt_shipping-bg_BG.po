@@ -364,12 +364,12 @@ msgid "To shop"
 msgstr "Към магазина"
 
 #: farewell-notice.php
-msgid "Speedy and Econt Shipping is no longer being developed"
-msgstr "Speedy and Econt Shipping вече не се развива"
+msgid "Speedy and Econt Shipping is no longer supported"
+msgstr "Speedy and Econt Shipping вече не се поддържа"
 
 #: farewell-notice.php
-msgid "It keeps working and your settings are untouched. Its successor, %s, is free as well and does considerably more: it supports Speedy, Econt, BOX NOW, Sameday, Pigeon Express, Express One and Evropat, the block checkout, waybills and labels in one click, and parcel tracking for your customers."
-msgstr "Плъгинът продължава да работи и настройките ви остават непокътнати. Наследникът %s също е безплатен и има доста повече функции: поддържа Speedy, Еконт, BOX NOW, Sameday, Pigeon Express, Express One и Европът, блоковият чекаут, товарителници и етикети с едно кликване и проследяване на пратката за клиентите ви."
+msgid "This is its last update: bugs found from now on will not be fixed. Please move to its successor, %s - free as well, by the same author. It supports Speedy, Econt, BOX NOW, Sameday, Pigeon Express, Express One and Evropat, the block checkout, waybills and labels in one click, and parcel tracking for your customers."
+msgstr "Това е последната му актуализация: грешките, открити оттук нататък, няма да бъдат поправяни. Моля, преминете към наследника му %s - също безплатен, от същия автор. Поддържа Speedy, Еконт, BOX NOW, Sameday, Pigeon Express, Express One и Европът, блоковия чекаут, товарителници и етикети с едно кликване и проследяване на пратката за клиентите ви."
 
 #: farewell-notice.php
 msgid "See the successor"

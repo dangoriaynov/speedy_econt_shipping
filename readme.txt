@@ -4,16 +4,16 @@ Tags: econt, speedy, shipping, bulgaria, courier
 Requires at least: 5.6
 Requires PHP: 7.0
 Tested up to: 7.1
-Stable tag: 1.15.2
+Stable tag: 1.15.3
 License: GPLv2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Donate link: http://revolut.me/danq6lus
 
-Speedy and Econt office and address delivery at the WooCommerce checkout. Maintained successor: BG Couriers for WooCommerce.
+Speedy and Econt office and address delivery at the WooCommerce checkout. No longer supported: move to BG Couriers for WooCommerce.
 
 == Description ==
 
-**This plugin is no longer being developed.** It keeps working and nothing is removed - your settings, offices and shipping options stay exactly as they are. But new couriers, the block checkout, waybills and tracking are being built in its successor instead:
+**This plugin is no longer supported.** 1.15.3 is its last update: bugs found from now on will not be fixed. Your settings, offices and shipping options stay exactly as they are, but please move to its successor:
 
 **[BG Couriers for WooCommerce](https://wordpress.org/plugins/bg-couriers/)** - free as well, by the same author, and it carries on where this plugin stops:
 
@@ -24,7 +24,7 @@ Speedy and Econt office and address delivery at the WooCommerce checkout. Mainta
 * parcel tracking on the order and in the e-mails the shop already sends
 * works with the WooCommerce **block checkout**, which this plugin cannot - it draws its fields on a hook the block checkout does not have
 
-Nothing has to be done today. If this plugin does what your shop needs, keep it. If you are setting a shop up, or you have moved to the block checkout, start with the successor.
+Install the successor, set your courier accounts there, check the checkout, and then deactivate this plugin.
 
 This plugin adds the checkout functionality to chose from offices of Speedy and Econt couriers in Bulgaria.
 The functionality might get extended to other countries by simply adding parameters to respective API calls.
@@ -84,6 +84,9 @@ So, please expect empty regions/cities/offices lists for first few minutes after
 If you wish to donate to support this plugin please do this to one of the non-profits you adore. They need it more.
 
 == Upgrade Notice ==
+
+= 1.15.3 =
+The last update: the checkout total no longer adds the delivery fee twice when the customer changes the delivery option. This plugin is no longer supported - please move to BG Couriers for WooCommerce.
 
 = 1.15.2 =
 Compatibility with current WordPress and WooCommerce, and a note about the maintained successor: BG Couriers for WooCommerce. Your settings are untouched - check the plugin's settings page after updating, as with any update.
@@ -338,3 +341,9 @@ Order placement no longer calls str_contains() on shops below WordPress 5.9: the
 Readme and plugin header now declare the same license, which WordPress.org checks on import
 #### Notes
 Added a one-time, dismissible note about the maintained successor, BG Couriers for WooCommerce. Nothing else changed: no settings were moved, renamed or removed
+### 1.15.3 - 2026-11-16
+#### Fixes
+The checkout total no longer adds the delivery fee twice: after switching from one delivery option to another, the fee of the new option was added to a total that already held the old one (67.50 + 15.40 to the address, then + 7.70 to a Speedy office showed 90.60 instead of 75.20)
+No PHP warning "Trying to access array offset on null" at order placement when Econt or Speedy is switched off
+#### Notes
+This plugin is no longer supported and this is its last update. The note about the successor, BG Couriers for WooCommerce, now says so plainly and shows once more to those who closed the earlier one

@@ -13,3 +13,4 @@ README.md
 __pycache__
 *.pyc
 plugin-check-baseline.json
+Makefile

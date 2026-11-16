@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: Speedy and Econt Shipping 1.15.2\n"
+"Project-Id-Version: Speedy and Econt Shipping 1.15.3\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -44,7 +44,7 @@ msgstr ""
 msgid "City"
 msgstr ""
 
-#: js.php:216
+#: js.php:218
 msgid "Congrats, you won free delivery using"
 msgstr ""
 
@@ -108,10 +108,6 @@ msgstr ""
 msgid "Is email field required?"
 msgstr ""
 
-#: farewell-notice.php:111
-msgid "It keeps working and your settings are untouched. Its successor, %s, is free as well and does considerably more: it supports Speedy, Econt, BOX NOW, Sameday, Pigeon Express, Express One and Evropat, the block checkout, waybills and labels in one click, and parcel tracking for your customers."
-msgstr ""
-
 #: SeshSpeedyEcontShippingAdmin.php:162
 msgid "List of `To address` shipping fields"
 msgstr ""
@@ -144,7 +140,7 @@ msgstr ""
 msgid "Region"
 msgstr ""
 
-#: farewell-notice.php:118
+#: farewell-notice.php:122
 msgid "See the successor"
 msgstr ""
 
@@ -160,7 +156,7 @@ msgstr ""
 msgid "Show store messages for"
 msgstr ""
 
-#: js.php:227
+#: js.php:229
 msgid "Sorry, these is no free shipping available for the option chosen: "
 msgstr ""
 
@@ -168,8 +164,8 @@ msgstr ""
 msgid "Speedy & Econt shipping"
 msgstr ""
 
-#: farewell-notice.php:105
-msgid "Speedy and Econt Shipping is no longer being developed"
+#: farewell-notice.php:107
+msgid "Speedy and Econt Shipping is no longer supported"
 msgstr ""
 
 #: SeshSpeedyEcontShippingAdmin.php:464
@@ -180,15 +176,19 @@ msgstr ""
 msgid "Speedy office"
 msgstr ""
 
-#: js.php:223
+#: js.php:225
 msgid "Still left"
 msgstr ""
 
-#: farewell-notice.php:150
+#: farewell-notice.php:154
 msgid "Successor: BG Couriers"
 msgstr ""
 
-#: js.php:223
+#: farewell-notice.php:113
+msgid "This is its last update: bugs found from now on will not be fixed. Please move to its successor, %s - free as well, by the same author. It supports Speedy, Econt, BOX NOW, Sameday, Pigeon Express, Express One and Evropat, the block checkout, waybills and labels in one click, and parcel tracking for your customers."
+msgstr ""
+
+#: js.php:225
 msgid "To shop"
 msgstr ""
 
@@ -236,7 +236,7 @@ msgstr ""
 msgid "cart's delivery details html"
 msgstr ""
 
-#: js.php:311
+#: js.php:313
 msgid "delivery"
 msgstr ""
 
@@ -252,7 +252,7 @@ msgstr ""
 msgid "emergency contact to show in case of error"
 msgstr ""
 
-#: SeshSpeedyEcontShippingAdmin.php:441, SeshSpeedyEcontShippingAdmin.php:575, speedy_econt_shipping.php:537
+#: SeshSpeedyEcontShippingAdmin.php:441, SeshSpeedyEcontShippingAdmin.php:575, speedy_econt_shipping.php:538
 msgid "for free"
 msgstr ""
 
@@ -268,10 +268,10 @@ msgstr ""
 msgid "shipping options order"
 msgstr ""
 
-#: speedy_econt_shipping.php:538
+#: speedy_econt_shipping.php:539
 msgid "to"
 msgstr ""
 
-#: js.php:223
+#: js.php:225
 msgid "to get a free shipping to"
 msgstr ""
