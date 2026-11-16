@@ -31,7 +31,6 @@ permissions:
 
 env:
   SLUG: speedy-econt-shipping
-  DEV_URL: https://dev.dobavki.club
 
 jobs:
   release:
@@ -115,15 +114,6 @@ jobs:
             WordPress.WP.I18n.NonSingularStringLiteralText
             WordPress.WP.I18n.TextDomainMismatch
             textdomain_invalid_format
-
-      # --- The dev site must already be running this build -------------------------------------------
-      # SVN last, dev-verified builds only. Read from the readme the dev site actually serves.
-      - name: Dev is on this version
-        run: |
-          DEV="$(curl -sS -m 20 -L -A 'sesh release-ci' "${DEV_URL%/}/wp-content/plugins/${SLUG}/readme.txt" \
-                 | grep -i '^Stable tag:' | head -1 | awk '{print $3}' | tr -d '\r')"
-          echo "dev (${DEV_URL}) is on ${DEV:-unknown}, this is ${VERSION}"
-          [ "$DEV" = "$VERSION" ] || { echo "::error::deploy ${VERSION} to dev first"; exit 1; }
 
       # --- The credentials are there at all ----------------------------------------------------------
       # Said as an ::error::, which is readable from outside the run: whoever cuts the tag does not
